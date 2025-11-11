@@ -1,5 +1,5 @@
 // Estando en Orca_Presentation_Tier/
-// g++ -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp -o orca
+// g++ -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/codec/json_codec.cpp -o orca
 #include <iostream>
 #include "CLI11.hpp"
 
