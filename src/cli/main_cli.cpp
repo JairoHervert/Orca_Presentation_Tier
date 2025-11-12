@@ -1,5 +1,8 @@
 // Estando en Orca_Presentation_Tier/
-// g++ -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/codec/json_codec.cpp -o orca
+// g++ -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/codec/json_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp -o orca -lssl -lcrypto
+
+
+// si en windows usan otro comando ponerlo aqui (no modificar el que ya funciona en linux)
 #include <iostream>
 #include "CLI11.hpp"
 
