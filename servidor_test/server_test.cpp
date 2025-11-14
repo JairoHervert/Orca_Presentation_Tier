@@ -1,10 +1,13 @@
-
+//Linux
 // g++ -I include/third_party -I include server_test.cpp -o server -lssl -lcrypto -lpthread
+
+// Compilación Karol:
+// g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include server_test.cpp -o server -lssl -lcrypto -lpthread -lws2_32 -lcrypt32
 
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #include <iostream>
 #include <string>
-#include "httplib.h"
+#include <httplib.h>
 #include "json.hpp"
 
 using json = nlohmann::json;
