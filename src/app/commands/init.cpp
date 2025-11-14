@@ -16,10 +16,15 @@ namespace client::cmd {
       std::cout << client::json_nlohmann::make_init_payload(repo, cols).dump(4) << std::endl;
       
       // enviar payload al servidor
-      nlohmann::json response = client::http::post_json_https("/init", client::json_nlohmann::make_init_payload(repo, cols));
+      //nlohmann::json response = client::http::post_json_https("/repo/create", client::json_nlohmann::make_init_payload(repo, cols));
+
+      // prueba para recibir una respuesta como string del server real
+      std::string response = client::http::post_string_https("/repo/create");
+      std::cout << "Respuesta del servidor: " << response << std::endl;
+
 
       // Procesar la respuesta del servidor
-      client::response_handler::handle_init_response(response);
+      //client::response_handler::handle_init_response(response);
 
       return true;
    }

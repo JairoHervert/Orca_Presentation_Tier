@@ -46,4 +46,23 @@ namespace client::http {
       }
    }
    // Enviar peticiones get HTTPS
+
+   // primera prueba para recibir una respuesta como string del server real
+   std::string post_string_https(const std::string &path) {
+      try {
+         auto cli = conect(); // Ahora es un unique_ptr
+         
+         // Usar el puntero con ->
+         auto res = cli->Post(path.c_str(), "", "application/json");
+         
+         if (!res || res->status != 200) {
+            throw std::runtime_error("Error en la respuesta del servidor");
+         }
+         
+         return res->body;
+      } catch (const std::exception &e) {
+         std::cerr << "Error en post_string_https: " << e.what() << std::endl;
+         throw;
+      }
+   }
 }

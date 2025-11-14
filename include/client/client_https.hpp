@@ -8,4 +8,6 @@ namespace client::http {
    // Cabecera para enviar un post request HTTPS con payload JSON y retornar la respuesta JSON
    nlohmann::json post_json_https(const std::string &path, const nlohmann::json &payload);
 
+   // primera prueba para recibir una respuesta como string del server real
+   std::string post_string_https(const std::string &path);
 }
