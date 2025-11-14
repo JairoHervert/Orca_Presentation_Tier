@@ -1,6 +1,10 @@
 // Estando en Orca_Presentation_Tier/
 // g++ -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/codec/json_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp -o orca -lssl -lcrypto
 
+//Compilacion Karol:
+// cd C:/Users/kgonz/Desktop/OrcaProject/Orca_Presentation_Tier
+// g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/codec/json_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp -o orca -lssl -lcrypto -lws2_32 -lcrypt32
+
 
 // si en windows usan otro comando ponerlo aqui (no modificar el que ya funciona en linux)
 #include <iostream>
