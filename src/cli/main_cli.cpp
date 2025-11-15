@@ -25,17 +25,17 @@ int main(int argc, char** argv) {
 
    // --- Subcomando: clone ---
    auto* clone = app.add_subcommand("clone", "Clona un repositorio remoto");
-   std::string repo_url;
-   clone->add_option("url", repo_url, "URL del repositorio")->required();
+   std::string repo_pname;
+   clone->add_option("-n,--name", repo_pname, "Nombre del repositorio")->required();
    std::string destination;
-   clone->add_option("destination", destination, "Directorio de destino")->default_val("./");
+   clone->add_option("-d, --dtt", destination, "Directorio de destino")->default_val("./")->required();
 
    // Parsear los argumentos
    CLI11_PARSE(app, argc, argv);
 
    // Ejecutar el subcomando correspondiente
    if (init->parsed()) client::cmd::run_init(repo_name, collaborators);
-   if (clone->parsed()) client::cmd::run_clone(repo_url, destination);
+   if (clone->parsed()) client::cmd::run_clone(repo_pname, destination);
 
 
    // Si no se ejecuta algun subcomando, muestra ayuda

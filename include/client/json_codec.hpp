@@ -11,6 +11,6 @@ namespace client::json_nlohmann {
    json make_init_payload(const std::string &repo_name, const std::vector<std::string> &collaborators);
 
    // Crea el payload para el comando 'clone'
-   json make_clone_payload(const std::string &repo_url, const std::string &destination);
+   json make_clone_payload(const std::string &repo_name, const std::string &destination); //Cambie repo_url a repo_name
 
 }

@@ -9,10 +9,10 @@ namespace client::json_nlohmann
                      {"data", {{"name", repo_name}, {"collaborators", collaborators}}}};
    }
 
-   json make_clone_payload(const std::string &repo_url, const std::string &destination) {
+   json make_clone_payload(const std::string &repo_name, const std::string &destination) {
       return json{
          {"cmd", "clone"},
-         {"data", {{"url", repo_url}, {"destination", destination}}}};
+         {"data", {{"repo", repo_name}, {"destination", destination}}}};
    }
 
 } // namespace client::json_nlohmann
