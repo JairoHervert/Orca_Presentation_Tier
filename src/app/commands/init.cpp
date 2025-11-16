@@ -12,7 +12,7 @@ namespace client::cmd {
          std::cout << " - " << col << std::endl;
       }
 
-      // Lógica de inicialización del repositorio iría aquí
+      // Logica de inicializacion del repositorio iría aquí
       std::cout << client::json_nlohmann::make_init_payload(repo, cols).dump(4) << std::endl;
       
       // enviar payload al servidor

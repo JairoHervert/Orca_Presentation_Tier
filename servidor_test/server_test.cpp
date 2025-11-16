@@ -1,7 +1,7 @@
 //Linux
 // g++ -I include/third_party -I include server_test.cpp -o server -lssl -lcrypto -lpthread
 
-// Compilación Karol:
+// Compilacion Karol:
 // cd C:/Users/kgonz/Desktop/OrcaProject/Orca_Presentation_Tier/servidor_test
 // g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include server_test.cpp -o server -lssl -lcrypto -lpthread -lws2_32 -lcrypt32
 
@@ -10,6 +10,8 @@
 #include <string>
 #include <httplib.h>
 #include "json.hpp"
+
+#include <fstream>
 
 using json = nlohmann::json;
 
@@ -28,7 +30,7 @@ int main() {
 
     // Endpoint POST /init
     svr.Post("/init", [](const httplib::Request &req, httplib::Response &res) {
-        std::cout << "\n=== Nueva petición POST /init ===" << std::endl;
+        std::cout << "\n=== Nueva peticion POST /init ===" << std::endl;
         std::cout << "Content-Type: " << req.get_header_value("Content-Type") << std::endl;
         std::cout << "Body recibido: " << req.body << std::endl;
 
@@ -56,7 +58,7 @@ int main() {
             
             json error_response;
             error_response["status"] = "error";
-            error_response["message"] = "JSON inválido";
+            error_response["message"] = "JSON invalido";
             error_response["error"] = e.what();
             
             res.set_content(error_response.dump(), "application/json");
@@ -73,9 +75,132 @@ int main() {
         }
     });
 
+    // Endpoint POST /clone
+    svr.Post("/clone", [](const httplib::Request &req, httplib::Response &res) {
+        std::cout << "\n=== Nueva peticion POST /clone ===" << std::endl;
+        std::cout << "Body recibido: " << req.body << std::endl;
+
+        json response; 
+        try {
+            json payload = json::parse(req.body);
+            std::cout << "JSON parseado exitosamente" << std::endl;
+
+            std::string repo_name = payload["data"]["repo"];
+            std::string destination_path = payload["data"]["destination"];
+
+            std::cout << "Peticion para clonar '" << repo_name << "' en '" << destination_path << "'" << std::endl;
+
+            // normalizacion de repo_name
+            std::string normalized_name = repo_name;
+            std::transform(normalized_name.begin(), normalized_name.end(), normalized_name.begin(),
+                [](unsigned char c){ return std::tolower(c); });
+            std::cout << "Nombre original: '" << repo_name << "', normalizado a: '" << normalized_name << "'" << std::endl;
+   
+            
+            std::string base_path = "./Repos/";
+            std::filesystem::path repo_path = base_path + repo_name;
+
+            if (std::filesystem::exists(repo_path) && std::filesystem::is_directory(repo_path)) {
+
+                std::cout << "Repositorio '" << normalized_name << "' encontrado." << std::endl;
+
+                // Comprimir el repositorio en un archivo .tar
+                std::string tar_filename = normalized_name + ".tar";
+                std::string base_dir = "./Repos";
+
+                std::string command_str = "tar -czf " + tar_filename + " -C " + base_dir + " " + normalized_name;
+
+                std::cout << "Ejecutando comando: " << command_str << std::endl;
+                int result = std::system(command_str.c_str());
+
+                if (result == 0) {
+                    std::cout << "Archivo " << tar_filename << " creado exitosamente." << std::endl;
+
+                    response["status"] = "success";
+                    response["message"] = "Repositorio comprimido. Listo para descargar.";
+                    response["repo_found"] = true;
+                    response["archive_file"] = tar_filename;
+                    response["timestamp"] = std::time(nullptr);
+
+                    res.set_content(response.dump(), "application/json");
+                    res.status = 200; 
+
+                } else {
+                    std::cout << "Error al crear el archivo .tar" << std::endl;
+                    response["status"] = "error";
+                    response["message"] = "Error del servidor: No se pudo comprimir el repositorio.";
+                    response["repo_found"] = true;
+
+                    res.set_content(response.dump(), "application/json");
+                    res.status = 500; 
+                }
+
+            } else {
+                std::cout << "Error: Repositorio '" << normalized_name << "' NO encontrado en " << repo_path << std::endl;
+
+                response["status"] = "error";
+                response["message"] = "Repositorio no encontrado en el servidor.";
+                response["repo_found"] = false;
+                response["requested_repo"] = repo_name;
+
+                res.set_content(response.dump(), "application/json");
+                res.status = 404;
+            }
+
+            std::cout << "Respuesta enviada: " << response.dump(2) << std::endl;
+
+        } catch (const json::parse_error &e) {
+            std::cerr << "Error al parsear JSON: " << e.what() << std::endl;
+            response["status"] = "error";
+            response["message"] = "JSON inválido";
+            res.set_content(response.dump(), "application/json");
+            res.status = 400;
+        } catch (const std::exception &e) {
+            std::cerr << "Error del servidor: " << e.what() << std::endl;
+            response["status"] = "error";
+            response["message"] = "Error interno del servidor";
+            res.set_content(response.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    svr.Get("/download/(.+)", [](const httplib::Request &req, httplib::Response &res) {
+
+        std::string filename = req.matches[1].str();
+        std::cout << "\n=== Nueva peticion GET /download/" << filename << " ===" << std::endl;
+
+        // Construir la ruta al archivo
+        std::filesystem::path file_path = "./" + filename;
+
+        if (std::filesystem::exists(file_path) && !std::filesystem::is_directory(file_path)) {
+
+            std::ifstream file(file_path, std::ios::binary);
+            if (file) {
+                std::cout << "Archivo '" << filename << "' encontrado. Enviando..." << std::endl;
+
+                std::stringstream buffer;
+                buffer << file.rdbuf();
+                file.close();
+
+                res.set_content(buffer.str(), "application/octet-stream");
+                res.status = 200;
+
+            } else {
+                std::cerr << "Error: No se pudo leer el archivo '" << filename << "'" << std::endl;
+                res.set_content("Error interno al leer el archivo", "text/plain");
+                res.status = 500;
+            }
+
+        } else {
+            std::cerr << "Error: Peticion de descarga para un archivo no existente: '" << filename << "'" << std::endl;
+            res.set_content("Archivo no encontrado", "text/plain");
+            res.status = 404;
+        }
+    });
+
     // Endpoint GET /test (adicional para pruebas)
     svr.Get("/test", [](const httplib::Request &req, httplib::Response &res) {
-        std::cout << "\n=== Nueva petición GET /test ===" << std::endl;
+        std::cout << "\n=== Nueva peticion GET /test ===" << std::endl;
         
         json response;
         response["status"] = "ok";
@@ -85,7 +210,7 @@ int main() {
         res.status = 200;
     });
 
-    // Endpoint raíz
+    // Endpoint raiz
     svr.Get("/", [](const httplib::Request &req, httplib::Response &res) {
         res.set_content("Servidor HTTPS funcionando\n", "text/plain");
     });

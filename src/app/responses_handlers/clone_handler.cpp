@@ -3,7 +3,7 @@
 namespace client::response_handler {
     void handle_clone_response(const nlohmann::json &response) {
       // por ahora solo imprimimos la respuesta
-      std::cout << "Manejando respuesta de init:" << std::endl;
+      std::cout << "Manejando respuesta de clone:" << std::endl;
       std::cout << response.dump(4) << std::endl;
 
       // mostrar cada campo relevante

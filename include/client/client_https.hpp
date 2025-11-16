@@ -10,4 +10,7 @@ namespace client::http {
 
    // primera prueba para recibir una respuesta como string del server real
    std::string post_string_https(const std::string &path);
+
+   // Descarga un archivo lo guarda
+   bool download_file_https(const std::string &path, const std::string &save_path);
 }
