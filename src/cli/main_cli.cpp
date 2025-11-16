@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
    std::string repo_pname;
    clone->add_option("-n,--name", repo_pname, "Nombre del repositorio")->required();
    std::string destination;
-   clone->add_option("-d, --dtt", destination, "Directorio de destino")->default_val("./")->required();
+   clone->add_option("-d, --dir", destination, "Directorio de destino")->default_val("./")->required();
 
    // Parsear los argumentos
    CLI11_PARSE(app, argc, argv);

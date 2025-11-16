@@ -94,7 +94,6 @@ int main() {
             std::string normalized_name = repo_name;
             std::transform(normalized_name.begin(), normalized_name.end(), normalized_name.begin(),
                 [](unsigned char c){ return std::tolower(c); });
-            std::cout << "Nombre original: '" << repo_name << "', normalizado a: '" << normalized_name << "'" << std::endl;
    
             
             std::string base_path = "./Repos/";

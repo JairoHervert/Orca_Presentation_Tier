@@ -35,7 +35,7 @@ namespace client::cmd {
                 bool download_ok = client::http::download_file_https(download_path, save_path.string());
 
                 if (download_ok) {
-                    std::cout << "\n¡Éxito! Repositorio clonado en: " << save_path.string() << std::endl;
+                    std::cout << "\nExito Repositorio clonado en: " << save_path.string() << std::endl;
                 } else {
                     std::cerr << "\nError: La descarga del repositorio fallo." << std::endl;
                 }
