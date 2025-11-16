@@ -1,6 +1,7 @@
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #pragma once
 #include <httplib.h>
+#include <memory>
 #include "../third_party/json.hpp"
 
 namespace client::http {
@@ -11,6 +12,7 @@ namespace client::http {
    // primera prueba para recibir una respuesta como string del server real
    std::string post_string_https(const std::string &path);
 
-   // Descarga un archivo lo guarda
-   bool download_file_https(const std::string &path, const std::string &save_path);
+   // Se conecta al servidor y devuelve un puntero al cliente SSL.
+   std::unique_ptr<httplib::SSLClient> conect();
+
 }

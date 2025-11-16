@@ -1,11 +1,13 @@
 #include <iostream>
+#include <filesystem>
 #include "client/commands.hpp"
 #include "client/json_codec.hpp"
-#include "client/commands.hpp"
-#include "client/client_https.hpp"
 #include "client/response_handler.hpp"
+#include "client/downloader.hpp"     // Para download_file()
+#include "client/client_https.hpp"   // Para conect()
+
 namespace client::cmd {
-   bool run_clone(const std::string& repo_name, const std::string& destination) {
+    bool run_clone(const std::string& repo_name, const std::string& destination) {
         std::cout << "Clonando repositorio: " << repo_name << std::endl;
         std::cout << "Directorio de destino: " << destination << std::endl;
 
@@ -31,13 +33,19 @@ namespace client::cmd {
                 // Construir la ruta de guardado local
                 std::filesystem::path save_path = std::filesystem::path(destination) / archive_file;
 
-                // Llamar a la funcion de descarga
-                bool download_ok = client::http::download_file_https(download_path, save_path.string());
+                // Pedir la conexión a la capa de transporte
+                auto cli = client::http::conect();
+                
+                // Llamar a la herramienta 'core', pasándole la conexión
+                int status_code = client::core::download_file(*cli, download_path, save_path.string());
 
-                if (download_ok) {
-                    std::cout << "\nExito Repositorio clonado en: " << save_path.string() << std::endl;
+                if (status_code == 200) {
+                    std::cout << "\n¡Éxito! Repositorio clonado en: " << save_path.string() << std::endl;
+                    // Aquí pondremos la lógica de descompresión (Paso 5)
                 } else {
-                    std::cerr << "\nError: La descarga del repositorio fallo." << std::endl;
+                    std::cerr << "\nError: La descarga del repositorio falló (Status: " << status_code << ")." << std::endl;
+                    // Borramos el archivo incompleto si la descarga falló
+                    std::filesystem::remove(save_path.string());
                 }
 
             } else {
