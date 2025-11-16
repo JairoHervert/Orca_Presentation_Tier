@@ -15,13 +15,21 @@
 
 using json = nlohmann::json;
 
+// Normaliza un nombre de repositorio a minusculas.
+std::string normalize_name(const std::string& repo_name) {
+    std::string normalized = repo_name;
+    std::transform(normalized.begin(), normalized.end(), normalized.begin(),
+        [](unsigned char c){ return std::tolower(c); });
+    return normalized;
+}
+
 int main() {
     // Configurar servidor HTTPS en puerto 8443
     httplib::SSLServer svr("./cert.pem", "./key.pem");
 
     if (!svr.is_valid()) {
         std::cerr << "Error: No se pudo inicializar el servidor HTTPS" << std::endl;
-        std::cerr << "Asegúrate de tener cert.pem y key.pem en el directorio actual" << std::endl;
+        std::cerr << "Asegurate de tener cert.pem y key.pem en el directorio actual" << std::endl;
         return 1;
     }
 
@@ -91,9 +99,7 @@ int main() {
             std::cout << "Peticion para clonar '" << repo_name << "' en '" << destination_path << "'" << std::endl;
 
             // normalizacion de repo_name
-            std::string normalized_name = repo_name;
-            std::transform(normalized_name.begin(), normalized_name.end(), normalized_name.begin(),
-                [](unsigned char c){ return std::tolower(c); });
+            std::string normalized_name = normalize_name(repo_name);
    
             
             std::string base_path = "./Repos/";
@@ -151,7 +157,7 @@ int main() {
         } catch (const json::parse_error &e) {
             std::cerr << "Error al parsear JSON: " << e.what() << std::endl;
             response["status"] = "error";
-            response["message"] = "JSON inválido";
+            response["message"] = "JSON invalido";
             res.set_content(response.dump(), "application/json");
             res.status = 400;
         } catch (const std::exception &e) {
@@ -163,34 +169,55 @@ int main() {
         }
     });
 
+    // Endpoint GET /download/[filename]
     svr.Get("/download/(.+)", [](const httplib::Request &req, httplib::Response &res) {
 
         std::string filename = req.matches[1].str();
         std::cout << "\n=== Nueva peticion GET /download/" << filename << " ===" << std::endl;
 
+        if (filename.find("..") != std::string::npos) {
+            std::cerr << "¡ALERTA DE SEGURIDAD! Se denego la peticion de Path Traversal: " << filename << std::endl;
+            res.set_content("Peticion invalida: Path Traversal denegado.", "text/plain");
+            res.status = 400;
+            return;
+        }
+
         // Construir la ruta al archivo
         std::filesystem::path file_path = "./" + filename;
 
+        // Verificar si el archivo existe
         if (std::filesystem::exists(file_path) && !std::filesystem::is_directory(file_path)) {
 
+            // Leer el archivo del disco en modo binario
             std::ifstream file(file_path, std::ios::binary);
             if (file) {
                 std::cout << "Archivo '" << filename << "' encontrado. Enviando..." << std::endl;
 
+                // Copiar el contenido del archivo a un stream
                 std::stringstream buffer;
                 buffer << file.rdbuf();
                 file.close();
 
+                // Enviar el contenido del archivo como respuesta
                 res.set_content(buffer.str(), "application/octet-stream");
                 res.status = 200;
 
+                try {
+                    std::filesystem::remove(file_path);
+                    std::cout << "Limpiando archivo temporal: " << filename << std::endl;
+                } catch (const std::filesystem::filesystem_error& e) {
+                    std::cerr << "Advertencia: No se pudo borrar el archivo temporal " << filename << ": " << e.what() << std::endl;
+                }
+
             } else {
+                // Error si no se puede leer el archivo (aunque exista)
                 std::cerr << "Error: No se pudo leer el archivo '" << filename << "'" << std::endl;
                 res.set_content("Error interno al leer el archivo", "text/plain");
                 res.status = 500;
             }
 
         } else {
+            // Error si el archivo .tar.gz no se encuentra
             std::cerr << "Error: Peticion de descarga para un archivo no existente: '" << filename << "'" << std::endl;
             res.set_content("Archivo no encontrado", "text/plain");
             res.status = 404;

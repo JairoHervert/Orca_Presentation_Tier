@@ -6,7 +6,7 @@
 
 namespace client::http {
 
-   // Retorna un puntero único al cliente HTTPS conectado
+   // Retorna un puntero unico al cliente HTTPS conectado
    std::unique_ptr<httplib::SSLClient> conect() {
       try {
          // Cargar variables de entorno
@@ -14,7 +14,7 @@ namespace client::http {
          std::string host = dotenv::getenv("HOST", "localhost");
          int port = std::stoi(dotenv::getenv("PORT", "443"));
          
-         // Crear cliente HTTPS con puntero único
+         // Crear cliente HTTPS con puntero unico
          auto client_conection = std::make_unique<httplib::SSLClient>(host.c_str(), port);
          client_conection->set_read_timeout(5, 0);
          client_conection->enable_server_certificate_verification(false);

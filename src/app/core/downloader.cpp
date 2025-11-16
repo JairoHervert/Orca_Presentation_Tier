@@ -21,7 +21,7 @@ namespace client::core {
 
         std::cout << "Descargando de " << server_path << " a " << save_path << std::endl;
 
-        // Prepara las "funciones de callback" que usará el transporte
+        // Prepara las "funciones de callback" que usara el transporte
         auto data_sink = [&](const char *data, size_t length) {
             file_out.write(data, length);
             return file_out.good();

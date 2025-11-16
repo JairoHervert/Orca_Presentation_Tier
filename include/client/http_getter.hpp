@@ -14,7 +14,7 @@ namespace client::http_getter {
     // Recibe: (bytes actuales, bytes totales) -> devuelve true para continuar
     using Progress = std::function<bool(uint64_t current, uint64_t total)>;
 
-    // Realiza una petición GET para descargar un archivo.
+    // Realiza una peticion GET para descargar un archivo.
     int get_file(httplib::SSLClient& cli, const std::string& server_path, DataSink data_sink, Progress progress);
 
 } 
