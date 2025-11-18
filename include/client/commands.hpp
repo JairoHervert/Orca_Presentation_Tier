@@ -7,6 +7,8 @@ namespace client::cmd {
    bool run_init(const std::string&, const std::vector<std::string>&);
 
    bool run_clone(const std::string&, const std::string&);
+  
+   bool run_push(const std::string&, const std::string&);
 
    
 }

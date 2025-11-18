@@ -3,8 +3,7 @@
 
 //Compilacion Karol:
 // cd C:/Users/kgonz/Desktop/OrcaProject/Orca_Presentation_Tier
-// g++ -D_WIN32_WINNT=0x0A_00 -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/codec/json_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/core/downloader.cpp src/transport/http_getter.cpp src/app/core/unpacker.cpp -o orca -lssl -lcrypto -lws2_32 -lcrypt32
-
+// g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/codec/json_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/core/downloader.cpp src/transport/http_getter.cpp src/app/core/unpacker.cpp -o orca -lssl -lcrypto -lws2_32 -lcrypt32
 // si en windows usan otro comando ponerlo aqui (no modificar el que ya funciona en linux)
 #include <iostream>
 #include "CLI11.hpp"
@@ -29,13 +28,23 @@ int main(int argc, char** argv) {
    std::string destination;
    clone->add_option("-d, --dir", destination, "Directorio de destino")->default_val("./")->required();
 
+   // --- Subcomando: push
+   auto* push = app.add_subcommand("push", "Sube los cambios de un proyecto al Repositorio Remoto");
+   std::string push_project_name;
+   push->add_option("-n,--name", push_project_name, "Nombre del proyecto en el servidor")->required();
+   std::string push_dir;
+   push->add_option("-d,--dir", push_dir, "Directorio local del proyecto")->default_val("./");
+  
    // Parsear los argumentos
    CLI11_PARSE(app, argc, argv);
 
    // Ejecutar el subcomando correspondiente
    if (init->parsed()) client::cmd::run_init(repo_name, collaborators);
    if (clone->parsed()) client::cmd::run_clone(repo_pname, destination);
-
+   if (push->parsed()) {
+    std::string absolute_path = std::filesystem::absolute(push_dir).string();
+    client::cmd::run_push(push_project_name, absolute_path);
+}
 
    // Si no se ejecuta algun subcomando, muestra ayuda
    if (app.get_subcommands().empty()) {

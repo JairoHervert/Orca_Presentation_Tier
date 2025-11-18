@@ -110,7 +110,8 @@ int main() {
                 std::cout << "Repositorio '" << normalized_name << "' encontrado." << std::endl;
 
                 // Comprimir el repositorio en un archivo .tar
-                std::string tar_filename = normalized_name + ".tar";
+                std::string timestamp = std::to_string(std::time(nullptr));
+                std::string tar_filename = normalized_name + "_" + timestamp + ".tar.gz";
                 std::string base_dir = "./Repos";
 
                 std::string command_str = "tar -czf " + tar_filename + " -C " + base_dir + " " + normalized_name;

@@ -35,6 +35,9 @@ namespace client::cmd {
                 // Construir la ruta de guardado local
                 std::filesystem::path save_path = std::filesystem::path(destination) / archive_file;
 
+                // Se asegura de que el directorio de destino exista antes de descargar.
+                std::filesystem::create_directories(destination);
+
                 // Pedir la conexion a la capa de transporte
                 auto cli = client::http::conect();
                 
@@ -52,7 +55,7 @@ namespace client::cmd {
                         std::cout << "Limpiando archivo temporal..." << std::endl;
                         std::filesystem::remove(save_path.string());
 
-                        std::cout << "\n¡exito! Repositorio clonado y listo en: " << destination << std::endl;
+                        std::cout << "\nExito Repositorio clonado y listo en: " << destination << std::endl;
                     } else {
                         std::cerr << "\nError: La descarga fue exitosa pero fallo la descompresion." << std::endl;
                     }
