@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
    // --- Subcomando: clone ---
    auto* clone = app.add_subcommand("clone", "Clona un repositorio remoto");
    std::string repo_pname;
-   clone->add_option("-n,--name", repo_pname, "Nombre del repositorio")->required();
+   clone->add_option("-n,--name", repo_name, "Nombre del repositorio")->required();
    std::string destination;
    clone->add_option("-d, --dir", destination, "Directorio de destino")->default_val("./")->required();
 
