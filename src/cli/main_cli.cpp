@@ -16,9 +16,14 @@ int main(int argc, char** argv) {
    CLI::App app{"Orca Presentation Tier CLI"};
 
    // --- VARIABLES COMPARTIDAS ---
-   std::string repo_name;      // Para guardar el nombre (-n)
-   std::string working_dir;    // Para guardar el directorio (-d)
+   std::string repo_name;   
+   std::string working_dir;
     
+   // --- Subcomando: config
+   auto* config = app.add_subcommand("config", "Sube los cambios de un proyecto al Repositorio Remoto");
+   std::vector<std::string> user_name;
+   config->add_option("-u,--user", user_name, "Nombre de usuario")->required();
+   config->add_option("-d,--dir", working_dir, "Directorio local del proyecto")->required();
 
    // --- Subcomando: init ---
    auto* init = app.add_subcommand("init", "Inicializa un nuevo repositorio remoto");
