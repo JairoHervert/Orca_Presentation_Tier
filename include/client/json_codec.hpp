@@ -12,5 +12,10 @@ namespace client::json_nlohmann {
 
    // Crea el payload para el comando 'clone'
    json make_clone_payload(const std::string &repo_name, const std::string &destination); 
+   
+   // Crea el payload para el comando 'push' (Solicita los hashes)
+   json make_push_check_payload(const std::string &project_name);
 
+   // Crea el payload para el comando 'push' (Envia .tar y metadata)
+   json make_push_upload_payload(const std::string &project_name, const std::map<std::string, std::string>& files_map);
 }

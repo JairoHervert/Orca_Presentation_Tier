@@ -3,7 +3,8 @@
 
 //Compilacion Karol:
 // cd C:/Users/kgonz/Desktop/OrcaProject/Orca_Presentation_Tier
-// g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/codec/json_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/core/downloader.cpp src/transport/http_getter.cpp src/app/core/unpacker.cpp -o orca -lssl -lcrypto -lws2_32 -lcrypt32
+// g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/codec/json_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/codec/downloader.cpp src/transport/http_getter.cpp src/codec/unpacker.cpp src/codec/hasher.cpp src/codec/comparator.cpp src/codec/packer.cpp -o orca -lssl -lcrypto -lws2_32 -lcrypt32 -lcryptopp
+
 // si en windows usan otro comando ponerlo aqui (no modificar el que ya funciona en linux)
 #include <iostream>
 #include "CLI11.hpp"
@@ -14,37 +15,41 @@
 int main(int argc, char** argv) {
    CLI::App app{"Orca Presentation Tier CLI"};
 
+   // --- VARIABLES COMPARTIDAS ---
+   std::string repo_name;      // Para guardar el nombre (-n)
+   std::string working_dir;    // Para guardar el directorio (-d)
+    
+
    // --- Subcomando: init ---
    auto* init = app.add_subcommand("init", "Inicializa un nuevo repositorio remoto");
-   std::string repo_name;
    init->add_option("-n,--name", repo_name, "Nombre")->required();
    std::vector<std::string> collaborators;
    init->add_option("-c,--collaborators", collaborators, "Lista de colaboradores");
 
    // --- Subcomando: clone ---
    auto* clone = app.add_subcommand("clone", "Clona un repositorio remoto");
-   std::string repo_pname;
+
    clone->add_option("-n,--name", repo_name, "Nombre del repositorio")->required();
-   std::string destination;
-   clone->add_option("-d, --dir", destination, "Directorio de destino")->default_val("./")->required();
+   clone->add_option("-d, --dir", working_dir, "Directorio de destino")->default_val("./")->required();
 
    // --- Subcomando: push
    auto* push = app.add_subcommand("push", "Sube los cambios de un proyecto al Repositorio Remoto");
-   std::string push_project_name;
-   push->add_option("-n,--name", push_project_name, "Nombre del proyecto en el servidor")->required();
-   std::string push_dir;
-   push->add_option("-d,--dir", push_dir, "Directorio local del proyecto")->default_val("./");
+   push->add_option("-n,--name", repo_name, "Nombre del proyecto en el servidor")->required();
+   push->add_option("-d,--dir", working_dir, "Directorio local del proyecto")->default_val("./");
   
    // Parsear los argumentos
    CLI11_PARSE(app, argc, argv);
 
    // Ejecutar el subcomando correspondiente
    if (init->parsed()) client::cmd::run_init(repo_name, collaborators);
-   if (clone->parsed()) client::cmd::run_clone(repo_pname, destination);
+   if (clone->parsed()) {
+      std::string absolute_path = std::filesystem::absolute(working_dir).string();
+      client::cmd::run_clone(repo_name, absolute_path);
+   }
    if (push->parsed()) {
-    std::string absolute_path = std::filesystem::absolute(push_dir).string();
-    client::cmd::run_push(push_project_name, absolute_path);
-}
+      std::string absolute_path = std::filesystem::absolute(working_dir).string();
+      client::cmd::run_push(repo_name, absolute_path);
+   }
 
    // Si no se ejecuta algun subcomando, muestra ayuda
    if (app.get_subcommands().empty()) {

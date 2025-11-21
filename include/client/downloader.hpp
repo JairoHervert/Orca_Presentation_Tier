@@ -4,9 +4,9 @@
 #include <httplib.h>
 #include <memory>
 
-namespace client::core {
+namespace client::codec {
 
-    //Pasa la lógica de descarga a la capa de transporte.
+    //Pasa la logica de descarga el .tar
     int download_file(httplib::SSLClient& cli, const std::string &server_path, const std::string &save_path);
 
 } 

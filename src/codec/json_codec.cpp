@@ -15,4 +15,18 @@ namespace client::json_nlohmann
          {"data", {{"repo", repo_name}, {"destination", destination}}}};
    }
 
+    json make_push_check_payload(const std::string &project_name) {
+      return json{
+         {"cmd", "push_check"},
+         {"data", {{"project_name", project_name}}}};
+   }
+   json make_push_upload_payload(const std::string &project_name, const std::map<std::string, std::string>& files_map) {
+       json files_json;
+       for (const auto& [path, hash] : files_map) files_json[path] = hash;
+       return json{
+         {"cmd", "push_upload"}, 
+         {"data", {{"project_name", project_name}, 
+         {"files_metadata", files_json}}}};
+   }
+
 } // namespace client::json_nlohmann

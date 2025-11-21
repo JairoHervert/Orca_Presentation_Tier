@@ -15,4 +15,6 @@ namespace client::http {
    // Se conecta al servidor y devuelve un puntero al cliente SSL.
    std::unique_ptr<httplib::SSLClient> conect();
 
+   // Subir un archivo .tar y un JSON al mismo tiempo (Multipart)
+   nlohmann::json upload_push_data(const std::string &path, const nlohmann::json &metadata_payload, const std::string &tar_filepath);
 }

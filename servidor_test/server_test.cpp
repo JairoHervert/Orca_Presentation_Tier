@@ -225,6 +225,43 @@ int main() {
         }
     });
 
+    // Push check
+    svr.Post("/push/check", [](const httplib::Request &req, httplib::Response &res) {
+        json response;
+        try {
+            json payload = json::parse(req.body);
+            std::string project = payload["data"]["project_name"];
+            std::cout << "Solicitud hashes para: " << project << std::endl;
+
+            json server_files;
+            
+            // Hash real que me diste:
+            server_files["Orcaleros.cpp"] = "0f38d98e049d1719f38818e752f44dea0edde1d2d6506c3f98577e33847c6fd9";
+
+            response["status"] = "success";
+            response["server_hashes"] = server_files;
+            
+            std::cout << "Enviando hashes simulados (incluyendo Orcaleros.cpp igual)..." << std::endl;
+            
+            res.set_content(response.dump(), "application/json");
+            res.status = 200;
+        } catch (...) { res.status = 500; }
+    });
+
+    // PUSH UPLOAD
+    svr.Post("/push/upload", [](const httplib::Request &req, httplib::Response &res) {
+        std::cout << "Recibiendo upload..." << std::endl;
+        if (req.files.find("metadata") != req.files.end() && req.files.find("archive") != req.files.end()) {
+            auto metadata = req.files.find("metadata")->second.content;
+            auto archive_size = req.files.find("archive")->second.content.size();
+            std::cout << "Metadata: " << metadata << std::endl;
+            std::cout << "Archivo recibido: " << archive_size << " bytes." << std::endl;
+            res.set_content("{\"status\":\"success\", \"message\":\"Recibido OK\"}", "application/json");
+        } else {
+            res.status = 400;
+        }
+    });
+
     // Endpoint GET /test (adicional para pruebas)
     svr.Get("/test", [](const httplib::Request &req, httplib::Response &res) {
         std::cout << "\n=== Nueva peticion GET /test ===" << std::endl;

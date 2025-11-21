@@ -41,14 +41,13 @@ namespace client::cmd {
                 // Pedir la conexion a la capa de transporte
                 auto cli = client::http::conect();
                 
-                // Llamar a la herramienta 'core', pasandole la conexion
-                int status_code = client::core::download_file(*cli, download_path, save_path.string());
+                int status_code = client::codec::download_file(*cli, download_path, save_path.string());
 
                 if (status_code == 200) {
                     std::cout << "\nDescarga completada: " << save_path.string() << std::endl;
 
                     // Llamar a la herramienta 'unpacker'
-                    bool unpack_ok = client::core::unpack_file(save_path.string(), destination);
+                    bool unpack_ok = client::codec::unpack_file(save_path.string(), destination);
 
                     if (unpack_ok) {
                         // Borrar el archivo .tar.gz 
@@ -61,7 +60,7 @@ namespace client::cmd {
                     }
                 } else {
                     std::cerr << "\nError: La descarga del repositorio fallo (Status: " << status_code << ")." << std::endl;
-                    // Borramos el archivo incompleto si la descarga fallo
+                    // Borrar el archivo incompleto si la descarga fallo
                     std::filesystem::remove(save_path.string());
                 }
 

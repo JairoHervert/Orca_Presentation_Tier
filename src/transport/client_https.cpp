@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 #include "client/client_https.hpp"
 #include "../../include/third_party/dotenv.h"
 
@@ -65,5 +66,29 @@ namespace client::http {
          throw;
       }
    }
+
+   nlohmann::json upload_push_data(const std::string &path, const nlohmann::json &metadata_payload, const std::string &tar_filepath) {
+        try {
+            auto cli = conect();
+            std::ifstream file(tar_filepath, std::ios::binary | std::ios::ate);
+            if (!file) throw std::runtime_error("No se pudo leer el tar");
+            std::streamsize size = file.tellg();
+            file.seekg(0, std::ios::beg);
+            std::vector<char> buffer(size);
+            if (!file.read(buffer.data(), size)) throw std::runtime_error("Error leyendo tar");
+            std::string tar_content(buffer.begin(), buffer.end());
+
+            std::vector<httplib::MultipartFormData> items;
+            items.push_back({"metadata", metadata_payload.dump(), "", "application/json"});
+            items.push_back({"archive", tar_content, "upload.tar.gz", "application/x-gzip"});
+
+            auto res = cli->Post(path.c_str(), items);
+            if (!res || res->status != 200) throw std::runtime_error("Error en upload");
+            return nlohmann::json::parse(res->body);
+        } catch (const std::exception &e) {
+            std::cerr << "Error upload: " << e.what() << std::endl;
+            throw;
+        }
+    }
 }
    
