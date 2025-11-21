@@ -14,9 +14,7 @@ namespace client::cmd {
 
    bool run_log(const std::string& project_name);
 
-   // Revoca los permisos de un usuario.
-   // Si file_target esta vacio, revoca todo el proyecto.
-   bool run_revoke(const std::string& project_name, const std::string& user_target, const std::string& file_target = "");
+   bool run_revoke(const std::string& project_name, const std::string& email, const std::string& file_target = "");
 
 
    

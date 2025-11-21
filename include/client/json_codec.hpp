@@ -24,4 +24,7 @@ namespace client::json_nlohmann {
 
    // Crea el payload para el comando 'log' 
    json make_log_payload(const std::string &project_name);
+
+   // Crea el payload para el comando 'revoke' 
+   json make_revoke_payload(const std::string &project_name, const std::string &email, const std::string &file);
 }

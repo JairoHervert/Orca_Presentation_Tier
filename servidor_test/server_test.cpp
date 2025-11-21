@@ -339,6 +339,40 @@ int main() {
         }
     });
 
+    // --- REVOKE ---
+        svr.Post("/revoke", [](const httplib::Request &req, httplib::Response &res) {
+        std::cout << "\n=== Nueva peticion POST /revoke ===" << std::endl;
+        json response;
+        try {
+            json payload = json::parse(req.body);
+            
+            std::string project = payload["data"]["project_name"];
+            std::string email = payload["data"]["email"]; // Ahora buscamos "email"
+            std::string scope = payload["data"]["scope"];
+            
+            std::cout << "Revocando acceso..." << std::endl;
+            std::cout << "  Proyecto: " << project << std::endl;
+            std::cout << "  Email:    " << email << std::endl;
+
+            if (scope == "single_file") {
+                std::string file = payload["data"]["file"];
+                std::cout << "  Archivo:  " << file << std::endl;
+                // Lógica SQL: DELETE FROM FilePermissions WHERE Email=...
+            } else {
+                std::cout << "  Alcance:  Completo (Todo el proyecto)" << std::endl;
+            }
+            
+            response["status"] = "success";
+            response["message"] = "Permisos revocados correctamente (Simulado).";
+            
+            res.set_content(response.dump(), "application/json");
+            res.status = 200;
+
+        } catch (const std::exception &e) {
+            res.status = 500;
+        }
+    });
+
 
     // Endpoint GET /test (adicional para pruebas)
     svr.Get("/test", [](const httplib::Request &req, httplib::Response &res) {

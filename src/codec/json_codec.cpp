@@ -48,4 +48,23 @@ namespace client::json_nlohmann
        };
    }
 
+    json make_revoke_payload(const std::string &project_name, const std::string &email, const std::string &file) {
+       json j = {
+           {"cmd", "revoke"},
+           {"data", {
+               {"project_name", project_name},
+               {"email", email} 
+           }}
+       };
+
+       if (!file.empty()) {
+           j["data"]["file"] = file;
+           j["data"]["scope"] = "single_file"; 
+       } else {
+           j["data"]["scope"] = "full_project"; 
+       }
+
+       return j;
+   }
+
 } // namespace client::json_nlohmann
