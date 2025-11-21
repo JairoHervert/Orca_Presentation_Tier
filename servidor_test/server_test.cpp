@@ -262,6 +262,84 @@ int main() {
         }
     });
 
+    // --- CONFIG ---
+    svr.Post("/config", [](const httplib::Request &req, httplib::Response &res) {
+        std::cout << "\n=== Nueva peticion POST /config ===" << std::endl;
+        json response;
+        try {
+            json payload = json::parse(req.body);
+            
+            std::string name = payload["data"]["name"];
+            std::string email = payload["data"]["email"];
+
+            // SIMULACIÓN DE GUARDADO EN BD
+            std::cout << "Guardando usuario en BD:" << std::endl;
+            std::cout << "  Nombre: " << name << std::endl;
+            std::cout << "  Email:  " << email << std::endl;
+
+            // Aquí harías tu INSERT INTO Users...
+            
+            response["status"] = "success";
+            response["message"] = "Usuario registrado correctamente.";
+            res.set_content(response.dump(), "application/json");
+            res.status = 200;
+
+        } catch (const std::exception &e) {
+            std::cerr << "Error en config: " << e.what() << std::endl;
+            res.status = 500;
+        }
+    });
+
+    svr.Post("/log", [](const httplib::Request &req, httplib::Response &res) {
+        std::cout << "\n=== Nueva peticion POST /log ===" << std::endl;
+        json response;
+        try {
+            json payload = json::parse(req.body);
+            std::string project = payload["data"]["project_name"];
+            
+            std::cout << "Consultando DB para proyecto: " << project << std::endl;
+
+            // SIMULACIÓN: Recuperar datos de la tabla 'Commits' join 'Users' join 'SourceFiles'
+            json history = json::array();
+
+            // Registro Simulado 1
+            history.push_back({
+                {"email", "test@gmail.com"},
+                {"file", "src/app/commands/clone.cpp"},
+                {"date", "2025-08-20 02:50:00"},
+                {"status", "Pending"}
+            });
+
+
+            // Registro Simulado 2
+            history.push_back({
+                {"email", "Joseg@gmail.com"},
+                {"file", "src/app/commands/init.cpp"},
+                {"date", "2025--20 04:01:00"},
+                {"status", "Error"}
+            });
+
+
+            // Registro Simulado 3 (Del push que acabamos de hacer teóricamente)
+            history.push_back({
+                {"email", "karolruizg@gmail.com"},
+                {"file", "src/app/commands/push.cpp"},
+                {"date", "2025-02-20 11:30:00"},
+                {"status", "Accepted"}
+            });
+
+            response["status"] = "success";
+            response["history"] = history;
+            
+            res.set_content(response.dump(), "application/json");
+            res.status = 200;
+
+        } catch (...) {
+            res.status = 500;
+        }
+    });
+
+
     // Endpoint GET /test (adicional para pruebas)
     svr.Get("/test", [](const httplib::Request &req, httplib::Response &res) {
         std::cout << "\n=== Nueva peticion GET /test ===" << std::endl;

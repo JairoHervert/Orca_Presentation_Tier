@@ -29,4 +29,23 @@ namespace client::json_nlohmann
          {"files_metadata", files_json}}}};
    }
 
+   json make_config_payload(const std::string &name, const std::string &email) {
+       return json{
+           {"cmd", "config"},
+           {"data", {
+               {"name", name},
+               {"email", email}
+           }}
+       };
+   }
+
+   json make_log_payload(const std::string &project_name) {
+       return json{
+           {"cmd", "log"},
+           {"data", {
+               {"project_name", project_name}
+           }}
+       };
+   }
+
 } // namespace client::json_nlohmann
