@@ -235,7 +235,7 @@ int main() {
 
             json server_files;
             
-            // Hash real que me diste:
+            // Hash prueba
             server_files["Orcaleros.cpp"] = "0f38d98e049d1719f38818e752f44dea0edde1d2d6506c3f98577e33847c6fd9";
 
             response["status"] = "success";
@@ -276,8 +276,6 @@ int main() {
             std::cout << "Guardando usuario en BD:" << std::endl;
             std::cout << "  Nombre: " << name << std::endl;
             std::cout << "  Email:  " << email << std::endl;
-
-            // Aquí harías tu INSERT INTO Users...
             
             response["status"] = "success";
             response["message"] = "Usuario registrado correctamente.";
@@ -299,10 +297,10 @@ int main() {
             
             std::cout << "Consultando DB para proyecto: " << project << std::endl;
 
-            // SIMULACIÓN: Recuperar datos de la tabla 'Commits' join 'Users' join 'SourceFiles'
+            // Recuperar datos de la tabla 'Commits' 
             json history = json::array();
 
-            // Registro Simulado 1
+            // Registro Simulado 
             history.push_back({
                 {"email", "test@gmail.com"},
                 {"file", "src/app/commands/clone.cpp"},
@@ -311,7 +309,7 @@ int main() {
             });
 
 
-            // Registro Simulado 2
+            // Registro Simulado
             history.push_back({
                 {"email", "Joseg@gmail.com"},
                 {"file", "src/app/commands/init.cpp"},
@@ -320,7 +318,7 @@ int main() {
             });
 
 
-            // Registro Simulado 3 (Del push que acabamos de hacer teóricamente)
+            // Registro Simulado
             history.push_back({
                 {"email", "karolruizg@gmail.com"},
                 {"file", "src/app/commands/push.cpp"},
@@ -357,7 +355,6 @@ int main() {
             if (scope == "single_file") {
                 std::string file = payload["data"]["file"];
                 std::cout << "  Archivo:  " << file << std::endl;
-                // Lógica SQL: DELETE FROM FilePermissions WHERE Email=...
             } else {
                 std::cout << "  Alcance:  Completo (Todo el proyecto)" << std::endl;
             }
@@ -369,6 +366,115 @@ int main() {
             res.status = 200;
 
         } catch (const std::exception &e) {
+            res.status = 500;
+        }
+    });
+
+    svr.Post("/grant", [](const httplib::Request &req, httplib::Response &res) {
+        std::cout << "\n=== Nueva peticion POST /grant ===" << std::endl;
+        json response;
+        try {
+            json payload = json::parse(req.body);
+            
+            std::string project = payload["data"]["project_name"];
+            std::string email = payload["data"]["email"];
+            std::string scope = payload["data"]["scope"];
+            
+            std::cout << "Asignando permisos..." << std::endl;
+            std::cout << "  Proyecto: " << project << std::endl;
+            std::cout << "  Usuario:  " << email << std::endl;
+
+            if (scope == "single_file") {
+                std::string file = payload["data"]["file"];
+                std::cout << "  Archivo:  " << file << std::endl;
+            } else {
+                std::cout << "  Alcance:  Completo (Todo el proyecto)" << std::endl;
+            }
+            
+            response["status"] = "success";
+            response["message"] = "Permisos concedidos correctamente (Simulado).";
+            
+            res.set_content(response.dump(), "application/json");
+            res.status = 200;
+
+        } catch (const std::exception &e) {
+            res.status = 500;
+        }
+    });
+
+    svr.Post("/drop", [](const httplib::Request &req, httplib::Response &res) {
+        std::cout << "\n=== Nueva peticion POST /drop ===" << std::endl;
+        json response;
+        try {
+            json payload = json::parse(req.body);
+            
+            std::string email = payload["data"]["email"];
+            
+            std::cout << "Solicitud de baja para: " << email << std::endl;
+            
+            response["status"] = "success";
+            response["message"] = "Usuario dado de baja (status=Inactive) correctamente.";
+            
+            res.set_content(response.dump(), "application/json");
+            res.status = 200;
+
+        } catch (const std::exception &e) {
+            res.status = 500;
+        }
+    });
+
+    svr.Post("/active", [](const httplib::Request &req, httplib::Response &res) {
+        std::cout << "\n=== Nueva peticion POST /active ===" << std::endl;
+        json response;
+        try {
+            json payload = json::parse(req.body);
+            
+            std::string email = payload["data"]["email"];
+            
+            std::cout << "Solicitud de activacion para: " << email << std::endl;
+            
+            response["status"] = "success";
+            response["message"] = "Usuario activado (status=Active) correctamente.";
+            
+            res.set_content(response.dump(), "application/json");
+            res.status = 200;
+
+        } catch (const std::exception &e) {
+            res.status = 500;
+        }
+    });
+
+    // --- REMOVE ---
+    svr.Post("/remove", [](const httplib::Request &req, httplib::Response &res) {
+        std::cout << "\n=== Nueva peticion POST /remove ===" << std::endl;
+        json response;
+        try {
+            json payload = json::parse(req.body);
+            
+            std::string repo_name = payload["data"]["project_name"];
+            std::string normalized_name = normalize_name(repo_name);
+            std::filesystem::path repo_path = "./Repos/" + normalized_name;
+            
+            std::cout << "Solicitud de borrado para: " << repo_name << std::endl;
+
+            if (std::filesystem::exists(repo_path)) {
+                std::uintmax_t n = std::filesystem::remove_all(repo_path);
+                std::cout << "Borrado completado. Archivos eliminados: " << n << std::endl;
+
+                response["status"] = "success";
+                response["message"] = "Repositorio eliminado exitosamente del servidor.";
+                res.status = 200;
+            } else {
+                std::cout << "Error: Repositorio no encontrado." << std::endl;
+                response["status"] = "error";
+                response["message"] = "El repositorio no existe.";
+                res.status = 404;
+            }
+            
+            res.set_content(response.dump(), "application/json");
+
+        } catch (const std::exception &e) {
+            std::cerr << "Error en remove: " << e.what() << std::endl;
             res.status = 500;
         }
     });

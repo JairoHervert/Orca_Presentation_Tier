@@ -8,9 +8,9 @@ namespace client::response_handler {
         if (response.contains("status")) {
             std::string status = response["status"];
             if (status == "success") {
-                std::cout << "[EXITO] Permisos revocados correctamente." << std::endl;
+                std::cout << "Permisos revocados correctamente." << std::endl;
             } else {
-                std::cout << "[FALLO] No se pudieron revocar los permisos." << std::endl;
+                std::cout << "No se pudieron revocar los permisos." << std::endl;
             }
         }
 

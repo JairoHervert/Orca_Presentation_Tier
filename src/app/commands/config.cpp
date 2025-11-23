@@ -12,14 +12,11 @@ namespace client::cmd {
         std::cout << "Email:  " << email << std::endl;
 
         try {
-            // 1. Crear el JSON
             nlohmann::json payload = client::json_nlohmann::make_config_payload(name, email);
 
-            // 2. Enviar al servidor (POST /config)
             std::cout << "Enviando datos al servidor..." << std::endl;
             nlohmann::json response = client::http::post_json_https("/config", payload);
 
-            // 3. Manejar la respuesta
             client::response_handler::handle_config_response(response);
             
             return true;

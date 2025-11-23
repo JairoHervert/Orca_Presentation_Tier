@@ -7,7 +7,7 @@ namespace client::response_handler {
         std::cout << "\n=== Historial del Proyecto (Commits) ===" << std::endl;
         
         if (!response.contains("status") || response["status"] != "success") {
-            std::cerr << "[ERROR] No se pudo recuperar el historial." << std::endl;
+            std::cerr << "No se pudo recuperar el historial." << std::endl;
             if (response.contains("message")) std::cerr << "Detalle: " << response["message"] << std::endl;
             return;
         }
@@ -19,7 +19,7 @@ namespace client::response_handler {
 
         auto history = response["history"];
 
-        // Encabezado de la tabla 
+        // Encabezado de la tabla prueba
         std::cout << std::left 
                   << std::setw(25) << "Email" 
                   << std::setw(35) << "File"       

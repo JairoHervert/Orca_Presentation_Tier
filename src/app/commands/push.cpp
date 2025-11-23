@@ -46,8 +46,7 @@ namespace client::cmd {
                 return true;
             }
 
-/// ----------------------------------ESTUDIAR------------------------------------------------------------
-            // Empaquetar y Subir (UPLOAD)
+           // Empaquetar y Subir (UPLOAD)
             std::string temp_tar = "upload_temp.tar.gz";
             std::cout << " Empaquetando " << files_to_upload.size() << " archivos..." << std::endl;
             
@@ -64,6 +63,8 @@ namespace client::cmd {
             for(const auto& f : files_to_upload) metadata[f] = local_files[f];
             auto upload_payload = client::json_nlohmann::make_push_upload_payload(project_name, metadata);
 
+
+            // Respuesta 
             std::cout << " Subiendo..." << std::endl;
             auto res_upload = client::http::upload_push_data("/push/upload", upload_payload, tar_abs_path);
             

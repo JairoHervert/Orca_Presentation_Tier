@@ -18,14 +18,11 @@ namespace client::cmd {
         }
 
         try {
-            // 1. Crear Payload
             nlohmann::json payload = client::json_nlohmann::make_revoke_payload(project_name, email, file_target);
 
-            // 2. Enviar (POST /revoke)
             std::cout << "Enviando solicitud al servidor..." << std::endl;
             nlohmann::json response = client::http::post_json_https("/revoke", payload);
 
-            // 3. Manejar Respuesta
             client::response_handler::handle_revoke_response(response);
             
             return true;

@@ -10,10 +10,8 @@
 
 namespace client::codec {
 
-    // Devuelve un INT
     int download_file(httplib::SSLClient& cli, const std::string &server_path, const std::string &save_path) {
         
-        // Prepara el archivo de salida
         std::ofstream file_out(save_path, std::ios::binary);
         if (!file_out.is_open()) {
             throw std::runtime_error("Error: No se pudo abrir el archivo local para guardar: " + save_path);

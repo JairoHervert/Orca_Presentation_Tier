@@ -8,9 +8,9 @@ namespace client::response_handler {
         if (response.contains("status")) {
             std::string status = response["status"];
             if (status == "success") {
-                std::cout << "[OK] Configuracion guardada exitosamente." << std::endl;
+                std::cout << "Configuracion guardada exitosamente." << std::endl;
             } else {
-                std::cout << "[ERROR] No se pudo guardar la configuracion." << std::endl;
+                std::cout << "No se pudo guardar la configuracion." << std::endl;
             }
         }
 

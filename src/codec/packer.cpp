@@ -9,7 +9,6 @@ namespace client::codec {
     bool pack_files(const std::vector<std::string>& files_list, const std::string& output_tar) {
         if (files_list.empty()) return false;
 
-        // Crear un archivo temporal con la lista de archivos
         std::string list_filename = "files_to_pack_temp.txt";
         std::ofstream list_file(list_filename);
 
@@ -17,8 +16,6 @@ namespace client::codec {
             std::cerr << "[Packer] Error: No se pudo crear el archivo de lista temporal." << std::endl;
             return false;
         }
-
-        // 'tar' leerá este archivo línea por línea
         for (const auto& file : files_list) {
             list_file << file << "\n";
         }

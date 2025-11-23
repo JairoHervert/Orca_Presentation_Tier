@@ -10,11 +10,8 @@ namespace client::cmd {
         std::cout << "Consultando historial para: " << project_name << "..." << std::endl;
 
         try {
-            // 1. Crear JSON
             nlohmann::json payload = client::json_nlohmann::make_log_payload(project_name);
 
-            // 2. Enviar (POST /log)
-            //    (Usamos POST aunque sea consulta para enviar el cuerpo JSON facilmente)
             nlohmann::json response = client::http::post_json_https("/log", payload);
 
             // 3. Manejar respuesta visualmente
