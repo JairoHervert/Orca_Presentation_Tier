@@ -3,9 +3,12 @@
 #include <filesystem>
 #include <algorithm>
 #include <map>
-#include <sha.h>
-#include <hex.h>
-#include <files.h>
+// #include <sha.h>
+// #include <hex.h>
+// #include <files.h>
+#include "cryptopp/sha.h"
+#include "cryptopp/hex.h"
+#include "cryptopp/files.h"
 
 namespace { 
     std::string calculate_file_hash(const std::string& full_path) {

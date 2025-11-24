@@ -1,12 +1,22 @@
+// #include "client/crypto_codec.hpp"
+
+// #include <iostream>
+// #include <stdexcept>
+// #include <eccrypto.h>
+// #include <osrng.h>
+// #include <oids.h>
+// #include <base64.h>
+// #include <files.h>
+
 #include "client/crypto_codec.hpp"
 
 #include <iostream>
 #include <stdexcept>
-#include <eccrypto.h>
-#include <osrng.h>
-#include <oids.h>
-#include <base64.h>
-#include <files.h>
+#include <cryptopp/eccrypto.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/oids.h>
+#include <cryptopp/base64.h>
+#include <cryptopp/files.h>
 
 namespace client::crypto_codec {
 

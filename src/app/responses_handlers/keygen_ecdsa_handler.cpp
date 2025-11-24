@@ -7,14 +7,14 @@ namespace client::response_handler {
       std::cout << response.dump(4) << std::endl;
 
       // mostrar cada campo relevante
+      if (response.contains("key_saved"))
+         std::cout << "key_saved: " << response["key_saved"] << std::endl;
+
       if (response.contains("status"))
-         std::cout << "Status: " << response["status"] << std::endl;
+         std::cout << "status: " << response["status"] << std::endl;
 
-      if (response.contains("message"))
-         std::cout << "Message: " << response["message"] << std::endl;
-
-      if (response.contains("timestamp"))
-         std::cout << "Timestamp: " << response["timestamp"] << std::endl;
+      if (response.contains("user_email"))
+         std::cout << "user_email: " << response["user_email"] << std::endl;
 
    }
 }
