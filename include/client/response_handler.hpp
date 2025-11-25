@@ -27,6 +27,8 @@ namespace client::response_handler {
 
    void handle_remove_response(const nlohmann::json &response);
 
+   void handle_verify_response(const nlohmann::json &response);
+
    // Otras funciones de manejo de respuestas pueden ir aquí
 
 }

@@ -3,7 +3,7 @@
 
 //Compilacion Karol:
 // cd C:/Users/kgonz/Desktop/OrcaProject/Orca_Presentation_Tier
-// g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/nuser.cpp src/app/commands/log.cpp src/app/commands/revoke.cpp src/app/commands/grant.cpp src/app/commands/drop.cpp src/app/commands/active.cpp src/app/commands/remove.cpp src/app/commands/keygen_ecdsa.cpp src/codec/json_codec.cpp src/codec/crypto_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/nuser_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/revoke_handler.cpp src/app/responses_handlers/grant_handler.cpp src/app/responses_handlers/drop_handler.cpp src/app/responses_handlers/active_handler.cpp src/app/responses_handlers/remove_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/codec/downloader_codec.cpp src/transport/http_getter.cpp src/codec/unpacker_codec.cpp src/codec/scanner_codec.cpp src/codec/comparator_codec.cpp src/codec/packer_codec.cpp src/codec/hasher_codec.cpp -o orca -lssl -lcrypto -lws2_32 -lcrypt32 -lcryptopp
+// g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/nuser.cpp src/app/commands/log.cpp src/app/commands/revoke.cpp src/app/commands/grant.cpp src/app/commands/drop.cpp src/app/commands/active.cpp src/app/commands/remove.cpp src/app/commands/keygen_ecdsa.cpp src/codec/json_codec.cpp src/codec/crypto_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/nuser_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/revoke_handler.cpp src/app/responses_handlers/grant_handler.cpp src/app/responses_handlers/drop_handler.cpp src/app/responses_handlers/active_handler.cpp src/app/responses_handlers/remove_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/codec/downloader_codec.cpp src/transport/http_getter.cpp src/codec/unpacker_codec.cpp src/codec/scanner_codec.cpp src/codec/comparator_codec.cpp src/codec/packer_codec.cpp src/codec/hasher_codec.cpp src/app/commands/verify.cpp src/app/responses_handlers/verify_handler.cpp -o orca -lssl -lcrypto -lws2_32 -lcrypt32 -lcryptopp
 
 // si en windows usan otro comando ponerlo aqui (no modificar el que ya funciona en linux)
 #include <iostream>
@@ -87,6 +87,11 @@ int main(int argc, char** argv) {
    auto* remove = app.add_subcommand("remove", "Elimina un repositorio del servidor");
    remove->add_option("-n,--name", repo_name, "Nombre del repositorio a borrar")->required();
 
+   auto* verify = app.add_subcommand("verify", "Verifica (aprueba) a un usuario nuevo");
+   std::string approver_email;
+    verify->add_option("-a,--approver", approver_email, "Email del aprobador (Senior)")->required();
+    verify->add_option("-t,--target", user_email, "Email del usuario a verificar")->required();
+    verify->add_option("-p,--password", password, "Contrasena del aprobador"); // Opcional en CLI
 
    // Parsear los argumentos
    CLI11_PARSE(app, argc, argv);
@@ -110,6 +115,7 @@ int main(int argc, char** argv) {
    if (drop->parsed()) client::cmd::run_drop(user_email);
    if (active->parsed()) client::cmd::run_active(user_email);
    if (remove->parsed()) client::cmd::run_remove(repo_name);
+   if (verify->parsed()) client::cmd::run_verify(approver_email, password, user_email);
     
 
    // Si no se ejecuta algun subcomando, muestra ayuda

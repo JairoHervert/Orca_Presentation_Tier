@@ -5,13 +5,9 @@ namespace client::json_nlohmann
 
     json make_nuser_payload(const std::string &name, const std::string &email, const std::string& password) {
         return json{
-            {"cmd", "nuser"},
-            {"data", {
                 {"name", name},
                 {"email", email},
                 {"password", password}
-
-            }}
         };
     }
 
@@ -132,6 +128,14 @@ namespace client::json_nlohmann
                     {"project_name", project_name}
                 }}
             };
+   }
+
+   json make_verify_user_payload(const std::string &approver_email, const std::string &hashed_password, const std::string &target_email) {
+       return json{
+           {"approver_email", approver_email},
+           {"approver_password", hashed_password},
+           {"target_user_email", target_email}
+       };
    }
 
 } // namespace client::json_nlohmann

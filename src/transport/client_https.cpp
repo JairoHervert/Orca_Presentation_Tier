@@ -36,11 +36,23 @@ namespace client::http {
          // Usar el puntero con ->
          auto res = cli->Post(path.c_str(), payload_str, "application/json");
          
-         if (!res || res->status != 200) {
-            throw std::runtime_error("Error en la respuesta del servidor");
+         if (!res) {
+            throw std::runtime_error("No se pudo contactar al servidor (Connection failed)");
+         }
+
+         if (res->status >= 200 && res->status < 600) {
+             try {
+                 return nlohmann::json::parse(res->body);
+             } catch (...) {
+                 return nlohmann::json{
+                     {"status", "error"},
+                     {"message", res->body}
+                 };
+             }
          }
          
-         return nlohmann::json::parse(res->body);
+         return nlohmann::json::parse(res->body);throw std::runtime_error("Error HTTP desconocido: " + std::to_string(res->status));
+
       } catch (const std::exception &e) {
          std::cerr << "Error en post_json_https: " << e.what() << std::endl;
          throw;

@@ -26,5 +26,7 @@ namespace client::cmd {
 
    bool run_remove(const std::string&);
 
+    bool run_verify(const std::string&, const std::string&, const std::string&);
+
    
 }

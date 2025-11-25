@@ -43,4 +43,7 @@ namespace client::json_nlohmann {
 
    // Crea el payload para el comando 'remove'
    json make_remove_payload(const std::string &project_name);
+
+   // Verifica un usuario en el sistema 
+   json make_verify_user_payload(const std::string &approver_email, const std::string &hashed_password, const std::string &target_email);
 }
