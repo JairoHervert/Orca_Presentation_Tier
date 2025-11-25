@@ -236,7 +236,7 @@ int main() {
             json server_files;
             
             // Hash prueba
-            server_files["Orcaleros.cpp"] = "0f38d98e049d1719f38818e752f44dea0edde1d2d6506c3f98577e33847c6fd9";
+            server_files["Orcaleros.cpp"] = "8eff10dad83140ee3de0ec2e7e17ec815af61d1d33dc2a277816f3aafea77b6d";
 
             response["status"] = "success";
             response["server_hashes"] = server_files;
@@ -250,18 +250,36 @@ int main() {
 
     // PUSH UPLOAD
     svr.Post("/push/upload", [](const httplib::Request &req, httplib::Response &res) {
-        std::cout << "Recibiendo upload..." << std::endl;
-        if (req.files.find("metadata") != req.files.end() && req.files.find("archive") != req.files.end()) {
-            auto metadata = req.files.find("metadata")->second.content;
-            auto archive_size = req.files.find("archive")->second.content.size();
-            std::cout << "Metadata: " << metadata << std::endl;
-            std::cout << "Archivo recibido: " << archive_size << " bytes." << std::endl;
-            res.set_content("{\"status\":\"success\", \"message\":\"Recibido OK\"}", "application/json");
+        std::cout << "\n=== Nueva peticion POST /push/upload ===" << std::endl;
+        
+        if (req.files.find("metadata") != req.files.end()) {
+            auto metadata_content = req.files.find("metadata")->second.content;
+            
+            try {
+                // Parseamos e imprimimos bonito para ver las firmas
+                json metadata = json::parse(metadata_content);
+                std::cout << "Metadata recibida (JSON):" << std::endl;
+                std::cout << metadata.dump(4) << std::endl; // <--- AQUÍ SE VERÁN LAS FIRMAS
+                
+                // Verificación visual rápida
+                if (metadata["data"].contains("files_metadata")) {
+                    std::cout << "-> Se detectaron " << metadata["data"]["files_metadata"].size() << " archivos firmados." << std::endl;
+                }
+
+            } catch (...) {
+                std::cout << "Metadata recibida (Raw): " << metadata_content << std::endl;
+            }
+
+            if (req.files.find("archive") != req.files.end()) {
+                auto archive_size = req.files.find("archive")->second.content.size();
+                std::cout << "Archivo TAR recibido: " << archive_size << " bytes." << std::endl;
+            }
+
+            res.set_content("{\"status\":\"success\", \"message\":\"Recibido y Firmas Verificadas (Simulado)\"}", "application/json");
         } else {
             res.status = 400;
         }
     });
-
     // --- CONFIG ---
     svr.Post("/config", [](const httplib::Request &req, httplib::Response &res) {
         std::cout << "\n=== Nueva peticion POST /config ===" << std::endl;

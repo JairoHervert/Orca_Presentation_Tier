@@ -1,15 +1,26 @@
 #pragma once
 
 #include <string>
+#include <eccrypto.h>   // << NECESARIO para CryptoPP::ECDSA
+#include <osrng.h>
+#include <oids.h>
+#include <base64.h>
+#include <files.h>
 
 struct ECDSAKeyPair {
-   std::string privateKey; // Clave privada en formato base64
-   std::string publicKey;  // Clave pública en formato base64
+    std::string privateKey;
+    std::string publicKey;
 };
 
 namespace client::crypto_codec {
 
-   // Genera un par de claves ECDSA (privada y pública en Base64)
-   ECDSAKeyPair generate_ecdsa_keypair();
+    using PrivateKey = CryptoPP::ECDSA<CryptoPP::ECP, CryptoPP::SHA256>::PrivateKey;
+    using PublicKey  = CryptoPP::ECDSA<CryptoPP::ECP, CryptoPP::SHA256>::PublicKey;
 
-} // namespace client::crypto_codec
+    ECDSAKeyPair generate_ecdsa_keypair();
+
+    bool load_private_key(const std::string& filepath, PrivateKey& key);
+
+    std::string sign_file(const PrivateKey& key, const std::string& filepath);
+
+}

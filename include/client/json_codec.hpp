@@ -24,7 +24,7 @@ namespace client::json_nlohmann {
    json make_push_check_payload(const std::string &project_name);
 
    // Crea el payload para el comando 'push' (Envia .tar y metadata)
-   json make_push_upload_payload(const std::string &project_name, const std::map<std::string, std::string>& files_map);
+   json make_push_upload_payload(const std::string &project_name, const std::map<std::string, std::string>& files_map, const std::string& password);
 
    // Crea el payload para el comando 'log' 
    json make_log_payload(const std::string &project_name);

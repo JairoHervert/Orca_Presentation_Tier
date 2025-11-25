@@ -2,72 +2,107 @@
 
 #include <iostream>
 #include <stdexcept>
-#include <eccrypto.h>
-#include <osrng.h>
-#include <oids.h>
-#include <base64.h>
-#include <files.h>
 
 namespace client::crypto_codec {
 
-   ECDSAKeyPair generate_ecdsa_keypair() {
+ECDSAKeyPair generate_ecdsa_keypair() {
       ECDSAKeyPair keyPair;
 
+      CryptoPP::AutoSeededRandomPool prng;
+
+      PrivateKey privateKey;
+      PublicKey publicKey;
+
+      privateKey.Initialize(prng, CryptoPP::ASN1::secp256r1());
+      privateKey.MakePublicKey(publicKey);
+
+      if (!privateKey.Validate(prng, 3) || !publicKey.Validate(prng, 3)) {
+         throw std::runtime_error("Invalid ECC keypair");
+      }
+
+      // ===== PRIVATE KEY BASE64 =====
+      std::string privateDer;
+      CryptoPP::StringSink sinkPriv(privateDer);
+      privateKey.Save(sinkPriv);
+
+      CryptoPP::StringSource ssPriv(
+         privateDer, true,
+         new CryptoPP::Base64Encoder(
+               new CryptoPP::StringSink(keyPair.privateKey), false
+         )
+      );
+
+      // ===== PUBLIC KEY BASE64 =====
+      std::string publicDer;
+      CryptoPP::StringSink sinkPub(publicDer);
+      publicKey.Save(sinkPub);
+
+      CryptoPP::StringSource ssPub(
+         publicDer, true,
+         new CryptoPP::Base64Encoder(
+               new CryptoPP::StringSink(keyPair.publicKey), false
+         )
+      );
+
+      return keyPair;
+   }
+
+   bool load_private_key(const std::string& filepath, PrivateKey& key) {
+       try {
+           CryptoPP::AutoSeededRandomPool prng;
+           
+           // Usamos ByteQueue para intermediar entre Base64 y la Llave
+           CryptoPP::ByteQueue queue;
+           
+           // Leemos el archivo -> Decodificamos Base64 -> Guardamos en Cola
+           CryptoPP::FileSource fs(filepath.c_str(), true,
+               new CryptoPP::Base64Decoder(
+                   new CryptoPP::Redirector(queue)
+               )
+           );
+
+           // Cargamos la llave desde la cola limpia
+           key.Load(queue);
+
+           if (!key.Validate(prng, 3)) {
+               std::cerr << "[Crypto] La llave cargada es invalida." << std::endl;
+               return false;
+           }
+           return true;
+
+       } catch (const std::exception& e) {
+           std::cerr << "[Crypto] Error cargando llave: " << e.what() << std::endl;
+           return false;
+       }
+   }
+
+   std::string sign_file(const PrivateKey& key, const std::string& filepath) {
       try {
          CryptoPP::AutoSeededRandomPool prng;
+         CryptoPP::ECDSA<CryptoPP::ECP, CryptoPP::SHA256>::Signer signer(key);
 
-         // Crear el par de claves usando la curva secp256r1 (P-256)
-         CryptoPP::ECDSA<CryptoPP::ECP, CryptoPP::SHA256>::PrivateKey privateKey;
-         CryptoPP::ECDSA<CryptoPP::ECP, CryptoPP::SHA256>::PublicKey  publicKey;
+         std::string signature;
 
-         // Generar la clave privada
-         privateKey.Initialize(prng, CryptoPP::ASN1::secp256r1());
-
-         // Derivar la clave pública
-         privateKey.MakePublicKey(publicKey);
-
-         // Validar las claves
-         bool privadaValida = privateKey.Validate(prng, 3);
-         bool publicaValida = publicKey.Validate(prng, 3);
-
-         if (!privadaValida || !publicaValida) {
-            throw std::runtime_error("Las claves generadas no son válidas");
-         }
-
-         // ===== Clave privada -> DER -> Base64 =====
-         std::string clavePrivadaDER;
-         CryptoPP::StringSink sinkPriv(clavePrivadaDER);
-         privateKey.Save(sinkPriv);
-
-         CryptoPP::StringSource ssPriv(
-            clavePrivadaDER,
-            true,
-            new CryptoPP::Base64Encoder(
-               new CryptoPP::StringSink(keyPair.privateKey),
-               false // sin saltos de línea
-            )
+         CryptoPP::FileSource fs(
+               filepath.c_str(), true,
+               new CryptoPP::SignerFilter(prng, signer,
+                  new CryptoPP::StringSink(signature)
+               )
          );
 
-         // ===== Clave pública -> DER -> Base64 =====
-         std::string clavePublicaDER;
-         CryptoPP::StringSink sinkPub(clavePublicaDER);
-         publicKey.Save(sinkPub);
-
-         CryptoPP::StringSource ssPub(
-            clavePublicaDER,
-            true,
-            new CryptoPP::Base64Encoder(
-               new CryptoPP::StringSink(keyPair.publicKey),
-               false // sin saltos de línea
-            )
+         std::string encoded;
+         CryptoPP::StringSource ssSig(
+               signature, true,
+               new CryptoPP::Base64Encoder(
+                  new CryptoPP::StringSink(encoded), false
+               )
          );
 
-         return keyPair;
-      }
-      catch (const CryptoPP::Exception &e) {
-         std::cerr << "Error generando par de claves ECDSA: "
-                   << e.what() << std::endl;
-         throw;
+         return encoded;
+
+      } catch (const std::exception& e) {
+         std::cerr << "[Crypto] Error signing file: " << e.what() << std::endl;
+         return "FILE_SIGN_ERROR";
       }
    }
 

@@ -22,6 +22,7 @@ int main(int argc, char** argv) {
    std::string user_email;
    std::string target_file; 
    std::string password;
+   std::string keyPath;
 
     
    // --- Subcomando config ---
@@ -52,7 +53,10 @@ int main(int argc, char** argv) {
    auto* push = app.add_subcommand("push", "Sube los cambios de un proyecto al Repositorio Remoto");
    push->add_option("-n,--name", repo_name, "Nombre del proyecto en el servidor")->required();
    push->add_option("-d,--dir", working_dir, "Directorio local del proyecto")->default_val("./");
-  
+   push->add_option("-k,--key-path", keyPath, "Ruta de la carpeta con las llaves (.key)")->default_val("./");
+   push->add_option("-p,--password", password, "Contraseña asociada a la cuenta de usuario")->required();
+
+
    // --- Subcomando: log
    auto* log = app.add_subcommand("log", "Muestra el historial de cambios");
    log->add_option("-n,--name", repo_name, "Nombre del proyecto")->required();
@@ -96,7 +100,7 @@ int main(int argc, char** argv) {
    }
    if (push->parsed()) {
       std::string absolute_path = std::filesystem::absolute(working_dir).string();
-      client::cmd::run_push(repo_name, absolute_path);
+      client::cmd::run_push(repo_name, absolute_path, keyPath, password);
    }
    if (log->parsed()) client::cmd::run_log(repo_name);
    if (revoke->parsed()) client::cmd::run_revoke(repo_name, user_email, target_file);
