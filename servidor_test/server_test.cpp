@@ -281,19 +281,21 @@ int main() {
         }
     });
     // --- CONFIG ---
-    svr.Post("/config", [](const httplib::Request &req, httplib::Response &res) {
-        std::cout << "\n=== Nueva peticion POST /config ===" << std::endl;
+    svr.Post("/nuser", [](const httplib::Request &req, httplib::Response &res) {
+        std::cout << "\n=== Nueva peticion POST /nuser ===" << std::endl;
         json response;
         try {
             json payload = json::parse(req.body);
             
             std::string name = payload["data"]["name"];
             std::string email = payload["data"]["email"];
+            std::string password = payload["data"]["password"];
 
             // SIMULACIÓN DE GUARDADO EN BD
             std::cout << "Guardando usuario en BD:" << std::endl;
             std::cout << "  Nombre: " << name << std::endl;
             std::cout << "  Email:  " << email << std::endl;
+            std::cout << "  password:  " << password << std::endl;
             
             response["status"] = "success";
             response["message"] = "Usuario registrado correctamente.";
@@ -301,7 +303,7 @@ int main() {
             res.status = 200;
 
         } catch (const std::exception &e) {
-            std::cerr << "Error en config: " << e.what() << std::endl;
+            std::cerr << "Error en nuser: " << e.what() << std::endl;
             res.status = 500;
         }
     });

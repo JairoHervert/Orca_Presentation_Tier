@@ -4,7 +4,7 @@
 
 namespace client::cmd {
 
-   bool run_config(const std::string&, const std::string&);
+   bool run_nuser(const std::string&, const std::string&, const std::string&);
 
    bool run_init(const std::string&, const std::vector<std::string>&);
 

@@ -1,12 +1,12 @@
 #include <iostream>
 #include <filesystem>
+
 #include "client/commands.hpp"
 #include "client/json_codec.hpp"
 #include "client/response_handler.hpp"
 #include "client/client_https.hpp"
-
-#include "client/downloader.hpp"
-#include "client/unpacker.hpp" 
+#include "client/downloader_codec.hpp"
+#include "client/unpacker_codec.hpp" 
 
 namespace client::cmd {
     bool run_clone(const std::string& repo_name, const std::string& destination) {
@@ -41,13 +41,13 @@ namespace client::cmd {
                 // Pedir la conexion a la capa de transporte
                 auto cli = client::http::conect();
                 
-                int status_code = client::codec::download_file(*cli, download_path, save_path.string());
+                int status_code = client::dowlander::download_file(*cli, download_path, save_path.string());
 
                 if (status_code == 200) {
                     std::cout << "\nDescarga completada: " << save_path.string() << std::endl;
 
                     // Llamar a la herramienta 'unpacker'
-                    bool unpack_ok = client::codec::unpack_file(save_path.string(), destination);
+                    bool unpack_ok = client::unpacker::unpack_file(save_path.string(), destination);
 
                     if (unpack_ok) {
                         // Borrar el archivo .tar.gz 

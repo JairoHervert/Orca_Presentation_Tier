@@ -5,7 +5,7 @@
 
 namespace client::response_handler {
 
-   void handle_config_response(const nlohmann::json &response);
+   void handle_nuser_response(const nlohmann::json &response);
 
    void handle_init_response(const nlohmann::json &response);
 

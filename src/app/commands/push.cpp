@@ -7,10 +7,10 @@
 #include "client/json_codec.hpp"
 #include "client/client_https.hpp"
 #include "client/response_handler.hpp"
-#include "client/hasher.hpp" 
-#include "client/comparator.hpp"
+#include "client/scanner_codec.hpp" 
+#include "client/comparator_codec.hpp"
 #include "client/crypto_codec.hpp"
-#include "client/packer.hpp"
+#include "client/packer_codec.hpp"
 
 namespace client::cmd {
     bool run_push(const std::string& project_name, const std::string& directory, const std::string& key_path, const std::string& password) {
@@ -43,8 +43,8 @@ namespace client::cmd {
 
             // FASE 2: Calcular y Comparar
             std::cout << "[2] Calculando cambios locales..." << std::endl;
-            auto local_files = client::codec::generate_file_map(repo_path.string());
-            auto files_to_upload = client::codec::compute_diff(local_files, remote_files);
+            auto local_files = client::scanner::generate_file_map(repo_path.string());
+            auto files_to_upload = client::comparator::compute_diff(local_files, remote_files);
 
             if (files_to_upload.empty()) {
                 std::cout << "\nTodo actualizado." << std::endl;
@@ -66,7 +66,7 @@ namespace client::cmd {
             std::filesystem::current_path(repo_path);
             
             // Empaquetar
-            if (!client::codec::pack_files(files_to_upload, temp_tar)) {
+            if (!client::packer::pack_files(files_to_upload, temp_tar)) {
                 std::filesystem::current_path(original_path);
                 return false;
             }

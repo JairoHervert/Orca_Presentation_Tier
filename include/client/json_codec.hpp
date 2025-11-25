@@ -8,8 +8,8 @@ namespace client::json_nlohmann {
    using json = nlohmann::json;
 
    
-   // Crea el payload para el comando 'config' 
-   json make_config_payload(const std::string &name, const std::string &email);
+   // Crea el payload para el comando 'nuser' 
+   json make_nuser_payload(const std::string &name, const std::string &email, const std::string& password);
    
    // Crea el payload para el comando 'init'
    json make_init_payload(const std::string &repo_name, const std::vector<std::string> &collaborators);

@@ -1,9 +1,9 @@
 // Estando en Orca_Presentation_Tier/
-// g++ -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/config.cpp src/app/commands/log.cpp src/app/commands/revoke.cpp src/app/commands/grant.cpp src/app/commands/drop.cpp src/app/commands/active.cpp src/app/commands/remove.cpp src/app/commands/keygen_ecdsa.cpp src/codec/json_codec.cpp src/codec/crypto_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/config_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/revoke_handler.cpp src/app/responses_handlers/grant_handler.cpp src/app/responses_handlers/drop_handler.cpp src/app/responses_handlers/active_handler.cpp src/app/responses_handlers/remove_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/codec/downloader.cpp src/transport/http_getter.cpp src/codec/unpacker.cpp src/codec/hasher.cpp src/codec/comparator.cpp src/codec/packer.cpp -o orca -lssl -lcrypto -lcryptopp
+// g++ -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/nuser.cpp src/app/commands/log.cpp src/app/commands/revoke.cpp src/app/commands/grant.cpp src/app/commands/drop.cpp src/app/commands/active.cpp src/app/commands/remove.cpp src/app/commands/keygen_ecdsa.cpp src/codec/json_codec.cpp src/codec/crypto_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/nuser_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/revoke_handler.cpp src/app/responses_handlers/grant_handler.cpp src/app/responses_handlers/drop_handler.cpp src/app/responses_handlers/active_handler.cpp src/app/responses_handlers/remove_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/codec/downloader.cpp src/transport/http_getter.cpp src/codec/unpacker.cpp src/codec/hasher.cpp src/codec/comparator.cpp src/codec/packer.cpp -o orca -lssl -lcrypto -lcryptopp
 
 //Compilacion Karol:
 // cd C:/Users/kgonz/Desktop/OrcaProject/Orca_Presentation_Tier
-// g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/config.cpp src/app/commands/log.cpp src/app/commands/revoke.cpp src/app/commands/grant.cpp src/app/commands/drop.cpp src/app/commands/active.cpp src/app/commands/remove.cpp src/app/commands/keygen_ecdsa.cpp src/codec/json_codec.cpp src/codec/crypto_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/config_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/revoke_handler.cpp src/app/responses_handlers/grant_handler.cpp src/app/responses_handlers/drop_handler.cpp src/app/responses_handlers/active_handler.cpp src/app/responses_handlers/remove_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/codec/downloader.cpp src/transport/http_getter.cpp src/codec/unpacker.cpp src/codec/hasher.cpp src/codec/comparator.cpp src/codec/packer.cpp -o orca -lssl -lcrypto -lws2_32 -lcrypt32 -lcryptopp
+// g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/nuser.cpp src/app/commands/log.cpp src/app/commands/revoke.cpp src/app/commands/grant.cpp src/app/commands/drop.cpp src/app/commands/active.cpp src/app/commands/remove.cpp src/app/commands/keygen_ecdsa.cpp src/codec/json_codec.cpp src/codec/crypto_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/nuser_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/revoke_handler.cpp src/app/responses_handlers/grant_handler.cpp src/app/responses_handlers/drop_handler.cpp src/app/responses_handlers/active_handler.cpp src/app/responses_handlers/remove_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/codec/downloader_codec.cpp src/transport/http_getter.cpp src/codec/unpacker_codec.cpp src/codec/scanner_codec.cpp src/codec/comparator_codec.cpp src/codec/packer_codec.cpp src/codec/hasher_codec.cpp -o orca -lssl -lcrypto -lws2_32 -lcrypt32 -lcryptopp
 
 // si en windows usan otro comando ponerlo aqui (no modificar el que ya funciona en linux)
 #include <iostream>
@@ -25,10 +25,12 @@ int main(int argc, char** argv) {
    std::string keyPath;
 
     
-   // --- Subcomando config ---
-   auto* config = app.add_subcommand("config", "Configura usuario y email global");
-   config->add_option("-u,--user", user_name, "Nombre de usuario")->required();
-   config->add_option("-e,--email", user_email, "Correo electronico")->required();
+   // --- Subcomando nuser ---
+   auto* nuser = app.add_subcommand("nuser", "nuserura usuario y email global");
+   nuser->add_option("-u,--user", user_name, "Nombre de usuario")->required();
+   nuser->add_option("-e,--email", user_email, "Correo electronico")->required();
+   nuser->add_option("-p,--password", password, "Contraseña asociada a la cuenta de usuario")->required();
+
 
    // --- Subcomando: init ---
    auto* init = app.add_subcommand("init", "Inicializa un nuevo repositorio remoto");
@@ -90,7 +92,7 @@ int main(int argc, char** argv) {
    CLI11_PARSE(app, argc, argv);
 
    // Ejecutar el subcomando correspondiente
-   if (config->parsed()) client::cmd::run_config(user_name, user_email);
+   if (nuser->parsed()) client::cmd::run_nuser(user_name, user_email, password);
    if (init->parsed()) client::cmd::run_init(repo_name, collaborators);
    if (keygen->parsed()) client::cmd::run_keygen(keyType, working_dir, user_email, password);
 

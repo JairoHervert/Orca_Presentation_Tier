@@ -3,12 +3,14 @@
 namespace client::json_nlohmann
 {
 
-    json make_config_payload(const std::string &name, const std::string &email) {
+    json make_nuser_payload(const std::string &name, const std::string &email, const std::string& password) {
         return json{
-            {"cmd", "config"},
+            {"cmd", "nuser"},
             {"data", {
                 {"name", name},
-                {"email", email}
+                {"email", email},
+                {"password", password}
+
             }}
         };
     }

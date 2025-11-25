@@ -23,4 +23,6 @@ namespace client::crypto_codec {
 
     std::string sign_file(const PrivateKey& key, const std::string& filepath);
 
+    std::string hash_sha256(const std::string& input);
+
 }
