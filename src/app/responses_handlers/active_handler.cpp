@@ -10,7 +10,7 @@ namespace client::response_handler {
             if (status == "success") {
                 std::cout << " Usuario activado correctamente." << std::endl;
             } else {
-                std::cout << "[FALLO] No se pudo activar al usuario." << std::endl;
+                std::cout << "No se pudo activar al usuario." << std::endl;
             }
         }
 

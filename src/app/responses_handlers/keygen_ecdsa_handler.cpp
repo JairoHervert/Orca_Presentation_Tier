@@ -1,20 +1,31 @@
 #include "client/response_handler.hpp"
+#include <iostream>
 
 namespace client::response_handler {
    void handle_keygen_response(const nlohmann::json &response) {
-      // por ahora solo imprimimos la respuesta
-      std::cout << "Manejando respuesta de keygen:" << std::endl;
-      std::cout << response.dump(4) << std::endl;
 
-      // mostrar cada campo relevante
-      if (response.contains("key_saved"))
-         std::cout << "key_saved: " << response["key_saved"] << std::endl;
+      if (!response.contains("status")) {
+          std::cout << "[-] Error Respuesta del servidor no valida." << std::endl;
+          std::cout << "Raw: " << response.dump() << std::endl;
+          return;
+      }
 
-      if (response.contains("status"))
-         std::cout << "status: " << response["status"] << std::endl;
+      std::string status = response["status"];
 
-      if (response.contains("user_email"))
-         std::cout << "user_email: " << response["user_email"] << std::endl;
-
+      if (status == "ok" || status == "success") {
+          std::cout << "[+] Clave publica vinculada correctamente." << std::endl;
+          
+          if (response.contains("user_email")) {
+              std::cout << "Usuario: " << response["user_email"] << std::endl;
+          }
+      } else {
+          std::cout << "[-] El servidor no pudo registrar la clave." << std::endl;
+          
+          if (response.contains("message")) {
+              std::cout << "Motivo: " << response["message"] << std::endl;
+          }
+      }
+      
+      std::cout << "---------------------------------------" << std::endl;
    }
 }

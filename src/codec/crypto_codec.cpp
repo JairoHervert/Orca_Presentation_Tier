@@ -1,13 +1,3 @@
-// #include "client/crypto_codec.hpp"
-
-// #include <iostream>
-// #include <stdexcept>
-// #include <eccrypto.h>
-// #include <osrng.h>
-// #include <oids.h>
-// #include <base64.h>
-// #include <files.h>
-
 #include "client/crypto_codec.hpp"
 
 #include <iostream>
@@ -17,10 +7,11 @@
 #include <oids.h>
 #include <base64.h>
 #include <files.h>
+#include <rsa.h>
 
 namespace client::crypto_codec {
 
-ECDSAKeyPair generate_ecdsa_keypair() {
+   ECDSAKeyPair generate_ecdsa_keypair() {
       ECDSAKeyPair keyPair;
 
       CryptoPP::AutoSeededRandomPool prng;
@@ -119,6 +110,45 @@ ECDSAKeyPair generate_ecdsa_keypair() {
          std::cerr << "[Crypto] Error signing file: " << e.what() << std::endl;
          return "FILE_SIGN_ERROR";
       }
+   }
+
+   RSAKeyPair generate_rsa_keypair() {
+       RSAKeyPair kp;
+       try {
+           CryptoPP::AutoSeededRandomPool prng;
+           
+           // Parámetros RSA
+           CryptoPP::InvertibleRSAFunction params;
+           params.GenerateRandomWithKeySize(prng, 2048);
+
+           CryptoPP::RSA::PrivateKey privateKey(params);
+           CryptoPP::RSA::PublicKey publicKey(params);
+
+           // Validar
+           if (!privateKey.Validate(prng, 3) || !publicKey.Validate(prng, 3)) {
+               throw std::runtime_error("Error: Llaves RSA generadas invalidas.");
+           }
+
+           // Guardar Privada en String (Base64)
+           std::string privStr;
+           CryptoPP::StringSink sinkPriv(privStr);
+           CryptoPP::Base64Encoder privEncoder(new CryptoPP::StringSink(kp.privateKey), false);
+           privateKey.Save(privEncoder);
+           privEncoder.MessageEnd();
+
+           // Guardar Pública en String (Base64)
+           std::string pubStr;
+           CryptoPP::StringSink sinkPub(pubStr);
+           CryptoPP::Base64Encoder pubEncoder(new CryptoPP::StringSink(kp.publicKey), false);
+           publicKey.Save(pubEncoder);
+           pubEncoder.MessageEnd();
+
+           return kp;
+
+       } catch (const std::exception &e) {
+           std::cerr << "[Crypto] Error generando llaves RSA: " << e.what() << std::endl;
+           throw;
+       }
    }
 
 } // namespace client::crypto_codec

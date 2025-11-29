@@ -15,7 +15,6 @@ namespace client::response_handler {
 
         std::string status = response["status"].get<std::string>();
 
-        // Caso de ÉXITO
         if (status == "ok") {
             std::cout << "[+] Usuario creado exitosamente." << std::endl;
             

@@ -3,29 +3,41 @@
 #include "client/json_codec.hpp"
 #include "client/client_https.hpp"
 #include "client/response_handler.hpp"
+#include "client/hasher_codec.hpp" 
 
 namespace client::cmd {
-   bool run_init(const std::string& repo, const std::vector<std::string>& cols) {
-      std::cout << "Inicializando repositorio: " << repo << std::endl;
-      std::cout << "Colaboradores:" << std::endl;
-      for (const auto& col : cols) {
-         std::cout << " - " << col << std::endl;
+
+   bool run_init(const std::string& repo_name, const std::string& email, const std::string& password) {
+      std::cout << std::endl << "\n --- Inicializando Nuevo Repositorio ---" << std::endl;
+      std::cout << "Nombre: " << repo_name << std::endl;
+      std::cout << "Owner:  " << email << std::endl;
+
+      // Hashear password
+      std::string hashedPassword = client::hasher::hash_sha256(password);
+      if (hashedPassword.empty()) {
+          std::cerr << "[-]] Error al procesar la contrasena." << std::endl;
+          return false;
       }
 
-      // Logica de inicializacion del repositorio iría aquí
-      std::cout << client::json_nlohmann::make_init_payload(repo, cols).dump(4) << std::endl;
-      
-      // enviar payload al servidor
-      //nlohmann::json response = client::http::post_json_https("/repo/create", client::json_nlohmann::make_init_payload(repo, cols));
+      // Crear Payload
+      nlohmann::json payload = client::json_nlohmann::make_init_payload(repo_name, email, hashedPassword);
 
-      // prueba para recibir una respuesta como string del server real
-      std::string response = client::http::post_string_https("/repo/create");
-      std::cout << "Respuesta del servidor: " << response << std::endl;
+      std::cout<< std::endl;
 
+      try {
+          nlohmann::json response = client::http::post_json_https("/repo/init", payload);
 
-      // Procesar la respuesta del servidor
-      //client::response_handler::handle_init_response(response);
+          client::response_handler::handle_init_response(response);
+          
+          if (response.contains("status") && response["status"] == "ok") {
+              return true;
+          }
 
-      return true;
+      } catch (const std::exception &e) {
+          std::cerr << "[!] Error de Conexion " << e.what() << std::endl;
+          return false;
+      }
+
+      return false;
    }
 }

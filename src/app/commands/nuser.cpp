@@ -9,10 +9,10 @@ namespace client::cmd {
 
     bool run_nuser(const std::string& name, const std::string& email, const std::string& password) {
         std::cout << std::endl << "--- Registrando Nuevo Usuario ---" << std::endl;
-        // ... (impresiones de info)
-
+        std::cout << "Usuario: " << name << std::endl;
+        std::cout << "Correo:  " << email << std::endl;
+ 
         try {
-            // Usamos el nuevo módulo hasher_utils para hashear el string de password
             std::string hashedPassword = client::hasher::hash_sha256(password);
             
             if (hashedPassword.empty()) {
@@ -20,7 +20,7 @@ namespace client::cmd {
                 return false;
             }
             
-            // Creamos el payload con la contraseña ya hasheada
+            // Creamos el payload 
             nlohmann::json payload = client::json_nlohmann::make_nuser_payload(name, email, hashedPassword);
 
             // Enviamos la petición

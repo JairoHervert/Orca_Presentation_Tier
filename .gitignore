@@ -17,5 +17,9 @@ certs/
 *.exe
 orca
 
+#Llaves de pureba 
+.key
+.enc
+
 # servidor de prueba inicial
 servidor_test/

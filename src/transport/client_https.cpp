@@ -40,7 +40,8 @@ namespace client::http {
             throw std::runtime_error("No se pudo contactar al servidor (Connection failed)");
          }
 
-         if (res->status >= 200 && res->status < 600) {
+         if (res->status == 200 || res->status == 201 || res->status == 400 || res->status == 500 ) {
+//         if (res->status >= 200 && res->status < 600) {
              try {
                  return nlohmann::json::parse(res->body);
              } catch (...) {

@@ -29,6 +29,14 @@ namespace client::response_handler {
 
    void handle_verify_response(const nlohmann::json &response);
 
+   void handle_change_role_response(const nlohmann::json &response);
+
+   void handle_change_status_response(const nlohmann::json &response);
+
+   void handle_keygen_rsa_response(const nlohmann::json &response);
+
+   void handle_cypher_repo_response(const nlohmann::json &response);
+
    // Otras funciones de manejo de respuestas pueden ir aquí
 
 }

@@ -9,8 +9,11 @@
 #include "client/response_handler.hpp"
 #include "client/scanner_codec.hpp" 
 #include "client/comparator_codec.hpp"
-#include "client/crypto_codec.hpp"
+#include "client/generate_keypair_codec.hpp"
 #include "client/packer_codec.hpp"
+
+
+// **** La fiirma y Cragado de llaves van en otro archivo ******
 
 namespace client::cmd {
     bool run_push(const std::string& project_name, const std::string& directory, const std::string& key_path, const std::string& password) {
@@ -53,10 +56,10 @@ namespace client::cmd {
 
             // Cargar Llave
             std::cout << "[Seguridad] Cargando llave privada..." << std::endl;
-            client::crypto_codec::PrivateKey privateKey;
-            if (!client::crypto_codec::load_private_key(privateKeyFile.string(), privateKey)) {
-                return false;
-            }
+            client::generate_keypair_codec::ECDSAPrivateKey privateKey;
+            // if (!client::generate_keypair_codec::load_private_key(privateKeyFile.string(), privateKey)) {
+            //     return false;
+            // }
 
             // Empaquetar y Firmar
             std::string temp_tar = "upload_temp.tar.gz";
@@ -74,11 +77,11 @@ namespace client::cmd {
 
             // Firmar
             std::map<std::string, std::string> metadata;
-            for(const auto& relative_path : files_to_upload) {
-                // Firmamos el ARCHIVO en disco
-                std::string signature = client::crypto_codec::sign_file(privateKey, relative_path);
-                metadata[relative_path] = signature;
-            }
+            // for(const auto& relative_path : files_to_upload) {
+            //     // Firmamos el ARCHIVO en disco
+            //     std::string signature = client::generate_keypair_codec::sign_file(privateKey, relative_path);
+            //     metadata[relative_path] = signature;
+            // }
             std::filesystem::current_path(original_path);
 
             // FASE 4: Subir

@@ -7,7 +7,7 @@
 namespace client::cmd {
 
     bool run_grant(const std::string& project_name, const std::string& email, const std::string& file_target) {
-        std::cout << "--- Concediendo Permisos ---" << std::endl;
+        std::cout << "\n --- Concediendo Permisos ---" << std::endl;
         std::cout << "Proyecto: " << project_name << std::endl;
         std::cout << "Email:    " << email << std::endl;
         
