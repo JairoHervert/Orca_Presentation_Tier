@@ -34,7 +34,9 @@ namespace client::cmd {
 
     bool run_keygen_rsa(const std::string&, const std::string&, const std::string&);
 
-    bool run_cypher_repo(const std::string&, const std::string&, const std::string&, const std::string&, const std::string&);
+    bool run_cypher_repo(const std::string&, const std::string&, const std::string&, const std::string&, const std::string&, const std::string&);
+    
+    bool run_dcypher_repo();
 
    
 }

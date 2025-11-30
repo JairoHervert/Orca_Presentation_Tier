@@ -16,10 +16,12 @@ certs/
 *.out
 *.exe
 orca
+Makefile
 
 #Llaves de pureba 
 .key
 .enc
+.exe
 
 # servidor de prueba inicial
 servidor_test/
