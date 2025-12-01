@@ -59,5 +59,6 @@ namespace client::json_nlohmann {
    // Cifra un repositorio 
    json make_cypher_repo_payload(const std::string& leader_email, const std::string& leader_password, const std::string& senior_email, const std::string& repo_name, const std::string& repo_tag);
 
+   json make_enroll_payload(const std::string& approver_email, const std::string& approver_password, const std::string& project_name, const std::string& target_email);
 
 }

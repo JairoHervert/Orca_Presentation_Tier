@@ -37,6 +37,8 @@ namespace client::response_handler {
 
    void handle_cypher_repo_response(const nlohmann::json &response);
 
+   void handle_enroll_response(const nlohmann::json &response);
+
    // Otras funciones de manejo de respuestas pueden ir aquí
 
 }

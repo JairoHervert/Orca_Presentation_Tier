@@ -38,5 +38,8 @@ namespace client::cmd {
     
     bool run_dcypher_repo();
 
+    bool run_enroll(const std::string&, const std::string&, const std::string&, const std::string&);
+
+
    
 }

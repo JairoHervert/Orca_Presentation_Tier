@@ -22,9 +22,9 @@ bool OAEP_decryptFile(
         );
 
         // 2. Crear el decryptor OAEP-SHA256 decirle a Jairo 
-        // RSAES<OAEP<SHA256>>::Decryptor decryptor(privKeyOAEP);
+        RSAES<OAEP<SHA256>>::Decryptor decryptor(privKeyOAEP);
 
-        RSAES<OAEP<SHA1>>::Decryptor decryptor(privKeyOAEP);
+        //RSAES<OAEP<SHA1>>::Decryptor decryptor(privKeyOAEP);
 
         // 3. Descifrar → se escribe en outPlaintext
         outPlaintext.clear();

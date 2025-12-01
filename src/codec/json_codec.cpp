@@ -175,4 +175,13 @@ namespace client::json_nlohmann
        };
    }
 
+   json make_enroll_payload(const std::string& approver_email, const std::string& approver_password, const std::string& project_name, const std::string& target_email) {
+       return json{
+           {"approverEmail", approver_email},
+           {"approverPassword", approver_password}, // Recuerda hashear antes
+           {"projectName", project_name},
+           {"userEmail", target_email}
+       };
+   }
+
 } // namespace client::json_nlohmann

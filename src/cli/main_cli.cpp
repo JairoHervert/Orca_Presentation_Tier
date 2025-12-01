@@ -3,7 +3,7 @@
 
 //Compilacion Karol:
 // cd C:/Users/kgonz/Desktop/OrcaProject/Orca_Presentation_Tier
-// g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/nuser.cpp src/app/commands/log.cpp src/app/commands/revoke.cpp src/app/commands/grant.cpp src/app/commands/drop.cpp src/app/commands/active.cpp src/app/commands/remove.cpp src/app/commands/keygen.cpp src/codec/json_codec.cpp src/codec/crypto_codec.cpp src/codec/decipher_RSA_codec.cpp src/codec/decipher_AES_codec.cpp src/codec/generate_keypair_codec.cpp src/codec/console_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/nuser_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/revoke_handler.cpp src/app/responses_handlers/grant_handler.cpp src/app/responses_handlers/drop_handler.cpp src/app/responses_handlers/active_handler.cpp src/app/responses_handlers/remove_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/app/responses_handlers/keygen_rsa_handler.cpp src/codec/downloader_codec.cpp src/transport/http_getter.cpp src/codec/unpacker_codec.cpp src/codec/scanner_codec.cpp src/codec/comparator_codec.cpp src/codec/packer_codec.cpp src/codec/hasher_codec.cpp src/app/commands/verify.cpp src/app/responses_handlers/verify_handler.cpp src/app/commands/change_role.cpp src/app/responses_handlers/change_role_handler.cpp src/app/commands/change_status.cpp src/app/responses_handlers/change_status_handler.cpp src/app/commands/cypher_repo.cpp src/app/responses_handlers/cypher_repo_handler.cpp -o orca -lssl -lcrypto -lws2_32 -lcrypt32 -lcryptopp
+// g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/nuser.cpp src/app/commands/log.cpp src/app/commands/revoke.cpp src/app/commands/grant.cpp src/app/commands/drop.cpp src/app/commands/active.cpp src/app/commands/remove.cpp src/app/commands/keygen.cpp src/codec/json_codec.cpp src/codec/crypto_codec.cpp src/codec/decipher_RSA_codec.cpp src/codec/decipher_AES_codec.cpp src/codec/generate_keypair_codec.cpp src/codec/console_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/nuser_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/revoke_handler.cpp src/app/responses_handlers/grant_handler.cpp src/app/responses_handlers/drop_handler.cpp src/app/responses_handlers/active_handler.cpp src/app/responses_handlers/remove_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/app/responses_handlers/keygen_rsa_handler.cpp src/codec/downloader_codec.cpp src/transport/http_getter.cpp src/codec/unpacker_codec.cpp src/codec/scanner_codec.cpp src/codec/comparator_codec.cpp src/codec/packer_codec.cpp src/codec/hasher_codec.cpp src/app/commands/verify.cpp src/app/responses_handlers/verify_handler.cpp src/app/commands/change_role.cpp src/app/responses_handlers/change_role_handler.cpp src/app/commands/change_status.cpp src/app/responses_handlers/change_status_handler.cpp src/app/commands/cypher_repo.cpp src/app/responses_handlers/cypher_repo_handler.cpp src/app/commands/enroll.cpp src/app/responses_handlers/enroll_handler.cpp -o orca -lssl -lcrypto -lws2_32 -lcrypt32 -lcryptopp
 
 
 // si en windows usan otro comando ponerlo aqui (no modificar el que ya funciona en linux)
@@ -105,23 +105,28 @@ int main(int argc, char** argv) {
    chstatus->add_option("-s,--status", new_status, "Nuevo rol (1=Activo, 0=Inactivo)")->required();
 
    // --- COMANDO: cyprepo ---
-    auto* cyprepo = app.add_subcommand("cyprepo", "Cifra un repositorio en el servidor");
-    cyprepo->add_option("-n,--name", repo_name, "Nombre del repositorio")->required();
+   auto* cyprepo = app.add_subcommand("cyprepo", "Cifra un repositorio en el servidor");
+   cyprepo->add_option("-n,--name", repo_name, "Nombre del repositorio")->required();
    std::string repo_tag;
-    cyprepo->add_option("-t,--tag", repo_tag, "Tag o version")->required();
+   cyprepo->add_option("-t,--tag", repo_tag, "Tag o version")->required();
    std::string senior_email;
-    cyprepo->add_option("-l,--leader", user_email, "Email del Lider")->required(); 
-    cyprepo->add_option("-s,--senior", senior_email, "Email del Senior")->required();
+   cyprepo->add_option("-l,--leader", user_email, "Email del Lider")->required(); 
+   cyprepo->add_option("-s,--senior", senior_email, "Email del Senior")->required();
    cyprepo->add_option("-o,--output", working_dir, "Directorio existente donde se encuentra la clave privada RSA")->default_val("./");
 
-   
+    // --- COMANDO: ENROLL ---
+   auto* enroll = app.add_subcommand("enroll", "Agrega un usuario a un proyecto existente");
+   enroll->add_option("-n,--name", repo_name, "Nombre del proyecto")->required();
+   enroll->add_option("-a,--approver", approver_email, "Email del Lider/Senior")->required();
+   enroll->add_option("-t,--target", user_email, "Email del usuario a agregar")->required();
+
 
 
    // Parsear los argumentos
    CLI11_PARSE(app, argc, argv);
 
    // Comandos que requieren seguridad
-   std::vector<CLI::App*> secure_cmds = {nuser, init, keygen, push, verify, chrole, chstatus, cyprepo};
+   std::vector<CLI::App*> secure_cmds = {nuser, init, keygen, push, verify, chrole, chstatus, cyprepo, enroll};
     
    bool needs_password = false;
    for (auto* cmd : secure_cmds) {
@@ -184,6 +189,7 @@ int main(int argc, char** argv) {
    if (chrole->parsed()) client::cmd::run_change_role(approver_email, password, user_email, new_role);
    if (chstatus->parsed()) client::cmd::run_change_status(approver_email, password, user_email, new_status);
    if (cyprepo->parsed()) client::cmd::run_cypher_repo(user_email, password, senior_email, repo_name, repo_tag, working_dir);
+   if (enroll->parsed()) client::cmd::run_enroll(approver_email, password, repo_name, user_email);
     
 
    // Si no se ejecuta algun subcomando, muestra ayuda
