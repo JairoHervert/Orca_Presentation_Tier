@@ -10,7 +10,7 @@ namespace client::cmd {
 
     bool run_keygen(const std::string&, const std::string&, const std::string&, const std::string&);
 
-    bool run_clone(const std::string&, const std::string&);
+     bool run_clone(const std::string&, const std::string&, const std::string&, const std::string&);
   
     bool run_push(const std::string&, const std::string&, const std::string&, const std::string&);
 

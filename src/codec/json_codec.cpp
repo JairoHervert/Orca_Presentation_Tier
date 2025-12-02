@@ -28,12 +28,14 @@ namespace client::json_nlohmann
                   };
    }
 
-   json make_clone_payload(const std::string &repo_name, const std::string &destination) {
-      return json{
-                    {"cmd", "clone"},
-                    {"data", {{"repo", repo_name}, {"destination", destination}}}
-                };
+   json make_clone_payload(const std::string &repo_name, const std::string &email, const std::string &hashed_password) {
+       return json{
+           {"repoName", repo_name},
+           {"userEmail", email},
+           {"userPassword", hashed_password} 
+       };
    }
+
 
     json make_push_check_payload(const std::string &project_name) {
       return json{

@@ -2,6 +2,9 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <filesystem>
+#include <fstream>
+#include <regex>
 #include "client/client_https.hpp"
 #include "../../include/third_party/dotenv.h"
 
@@ -37,7 +40,7 @@ namespace client::http {
          auto res = cli->Post(path.c_str(), payload_str, "application/json");
          
          if (!res) {
-            throw std::runtime_error("No se pudo contactar al servidor (Connection failed)");
+            throw std::runtime_error("[!] No se pudo contactar al servidor (Connection failed)");
          }
 
          if (res->status == 200 || res->status == 201 || res->status == 400 || res->status == 500 ) {
@@ -55,7 +58,7 @@ namespace client::http {
          return nlohmann::json::parse(res->body);throw std::runtime_error("Error HTTP desconocido: " + std::to_string(res->status));
 
       } catch (const std::exception &e) {
-         std::cerr << "Error en post_json_https: " << e.what() << std::endl;
+         std::cerr << "[-] Error en post_json_https: " << e.what() << std::endl;
          throw;
       }
    }
@@ -70,12 +73,12 @@ namespace client::http {
          auto res = cli->Post(path.c_str(), "", "application/json");
          
          if (!res || res->status != 200) {
-            throw std::runtime_error("Error en la respuesta del servidor");
+            throw std::runtime_error("[-] Error en la respuesta del servidor");
          }
          
          return res->body;
       } catch (const std::exception &e) {
-         std::cerr << "Error en post_string_https: " << e.what() << std::endl;
+         std::cerr << "[-] Error en post_string_https: " << e.what() << std::endl;
          throw;
       }
    }
@@ -103,5 +106,81 @@ namespace client::http {
             throw;
         }
     }
+
+
+    // Para clone 
+    std::string extract_filename(const std::string& cd) {
+        std::smatch m;
+        std::regex re("filename=\"?([^\"]+)\"?");
+        return (std::regex_search(cd, m, re) && m.size() > 1) ? m.str(1) : "";
+    }
+
+    std::string ensure_tar_extension(std::string name) {
+        if (!std::filesystem::path(name).has_extension())
+            name += ".tar";
+        return name;
+    }
+        
+
+    nlohmann::json post_download_file(const std::string& path, const nlohmann::json& payload, const std::string& default_path) {
+        try {
+            auto cli = conect();
+            cli->set_read_timeout(120, 0); // Timeout largo para descargas
+
+            auto res = cli->Post(path.c_str(), payload.dump(), "application/json");
+
+            // Error de Conexion
+            if (!res) {
+                return {
+                    {"status", "error"},
+                    {"message", "[!] No se pudo contactar al servidor (Connection failed)"}
+                };
+            }
+
+            if (res->status != 200) {
+                try {
+                    return nlohmann::json::parse(res->body);
+                } catch (...) {
+                    return {
+                        {"status", "error"},
+                        {"message", res->body}
+                    };
+                }
+            }
+            
+            // Obtener nombre del archivo del header
+            std::string final_name = default_path;
+            if (res->has_header("Content-Disposition")) {
+                auto fname = extract_filename(res->get_header_value("Content-Disposition"));
+                if (!fname.empty()) {
+                    fname = std::filesystem::path(fname).filename().string(); 
+                    final_name = ensure_tar_extension(fname);
+                }
+            }
+
+            std::ofstream file(final_name, std::ios::binary);
+            if (!file) {
+                return {
+                    {"status", "error"},
+                    {"message", "[-] Error local: No se pudo crear el archivo " + final_name}
+                };
+            }
+
+            file.write(res->body.data(), res->body.size());
+
+            return {
+                {"status", "ok"},
+                {"message", "Repositorio descargado correctamente."},
+                {"downloaded_file", final_name} 
+            };
+
+        } catch (const std::exception& e) {
+            return {
+                {"status", "error"},
+                {"message", std::string("[-] Excepcion interna: ") + e.what()}
+            };
+        }
+    }
 }
+
    

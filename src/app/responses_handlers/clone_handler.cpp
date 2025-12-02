@@ -1,19 +1,27 @@
-// #include "client\response_handler.hpp"
 #include "client/response_handler.hpp"
+#include <iostream>
 
 namespace client::response_handler {
+
     void handle_clone_response(const nlohmann::json &response) {
-      std::cout << "Manejando respuesta de clone:" << std::endl;
-      std::cout << response.dump(4) << std::endl;
+        
+        if (!response.contains("status")) {
+            std::cerr << "[!] Respuesta invalida del servidor (sin status)." << std::endl;
+            return;
+        }
 
-      if (response.contains("status"))
-         std::cout << "Status: " << response["status"] << std::endl;
+        std::string status = response["status"];
 
-      if (response.contains("message"))
-         std::cout << "Message: " << response["message"] << std::endl;
-
-      if (response.contains("timestamp"))
-         std::cout << "Timestamp: " << response["timestamp"] << std::endl;
-
-   }
+        if (status == "ok") {
+            
+            std::cout << "[+] Conexion establecida. Paquete de datos recibido." << std::endl;
+            
+        } else {
+            
+            std::cout << "[-] El servidor rechazo la solicitud de clonado." << std::endl;
+            if (response.contains("message")) {
+                std::cout <<  response["message"].get<std::string>() << std::endl;
+            }
+        }
+    }
 }

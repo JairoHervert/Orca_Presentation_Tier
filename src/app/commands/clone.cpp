@@ -1,77 +1,75 @@
 #include <iostream>
 #include <filesystem>
+#include <string>
 
 #include "client/commands.hpp"
 #include "client/json_codec.hpp"
-#include "client/response_handler.hpp"
 #include "client/client_https.hpp"
-#include "client/downloader_codec.hpp"
+#include "client/response_handler.hpp"
 #include "client/unpacker_codec.hpp" 
+#include "client/hasher_codec.hpp" 
 
 namespace client::cmd {
-    bool run_clone(const std::string& repo_name, const std::string& destination) {
-        std::cout << "Clonando repositorio: " << repo_name << std::endl;
-        std::cout << "Directorio de destino: " << destination << std::endl;
+
+    bool run_clone(const std::string& repo_name, const std::string& destination, const std::string& email, const std::string& password) {
+        std::cout << "\n--- Clonando Repositorio ---" << std::endl;
+        std::cout << "Proyecto: " << repo_name << std::endl;
+        std::cout << "Destino:  " << destination << std::endl;
 
         try {
-            nlohmann::json payload = client::json_nlohmann::make_clone_payload(repo_name, destination);
-            std::cout << "Enviando peticion de clonado..." << std::endl;
-
-            //Enviar la peticion POST /clone
-            nlohmann::json response = client::http::post_json_https("/clone", payload);
-
-            std::cout << "\nRespuesta del servidor " << std::endl;
-            client::response_handler::handle_clone_response(response);
-
-            // Verificar si la primera peticion fue exitosa
-            if (response.contains("status") && response["status"] == "success") {
-
-                std::cout << "\nIniciando descarga ..." << std::endl;
-
-                // Extraer los datos para la descarga
-                std::string archive_file = response["archive_file"];
-                std::string download_path = "/download/" + archive_file;
-
-                // Construir la ruta de guardado local
-                std::filesystem::path save_path = std::filesystem::path(destination) / archive_file;
-
-                // Se asegura de que el directorio de destino exista antes de descargar.
-                std::filesystem::create_directories(destination);
-
-                // Pedir la conexion a la capa de transporte
-                auto cli = client::http::conect();
-                
-                int status_code = client::dowlander::download_file(*cli, download_path, save_path.string());
-
-                if (status_code == 200) {
-                    std::cout << "\nDescarga completada: " << save_path.string() << std::endl;
-
-                    // Llamar a la herramienta 'unpacker'
-                    bool unpack_ok = client::unpacker::unpack_file(save_path.string(), destination);
-
-                    if (unpack_ok) {
-                        // Borrar el archivo .tar.gz 
-                        std::cout << "Limpiando archivo temporal..." << std::endl;
-                        std::filesystem::remove(save_path.string());
-
-                        std::cout << "\nExito Repositorio clonado y listo en: " << destination << std::endl;
-                    } else {
-                        std::cerr << "\nError: La descarga fue exitosa pero fallo la descompresion." << std::endl;
-                    }
-                } else {
-                    std::cerr << "\nError: La descarga del repositorio fallo (Status: " << status_code << ")." << std::endl;
-                    // Borrar el archivo incompleto si la descarga fallo
-                    std::filesystem::remove(save_path.string());
-                }
-
-            } else {
-                std::cerr << "No se puede continuar debido a un error del servidor." << std::endl;
+            // Hashear password
+            std::string hashedPassword = client::hasher::hash_sha256(password);
+            if (hashedPassword.empty()) {
+                std::cerr << "[-] Error interno de seguridad." << std::endl;
+                return false;
             }
 
-            return true;
+            // Payload
+            auto payload = client::json_nlohmann::make_clone_payload(repo_name, email, hashedPassword);
+
+            // Descargar
+            nlohmann::json response = client::http::post_download_file("/repo/clone", payload, repo_name + ".tar");
+
+            // Mostrar respuesta del servidor (Solo dice "Paquete recibido")
+            client::response_handler::handle_clone_response(response);
+
+            if (response.value("status", "error") != "ok") {
+                return false; 
+            }
+
+            if (!response.contains("downloaded_file")) {
+                std::cerr << "[-] Error interno: No se encuentra el archivo descargado." << std::endl;
+                return false;
+            }
+
+            std::string downloaded_file = response["downloaded_file"];
+            std::string tar_abs_path = std::filesystem::absolute(downloaded_file).string();
+
+            std::cout << "\n[*] Procesando archivos (Desempaquetando)..." << std::endl;
+
+            // Desempaquetar
+            if (client::unpacker::unpack_file(tar_abs_path, destination)) {
+                
+                // Limpiar
+                try {
+                    if (std::filesystem::exists(tar_abs_path)) std::filesystem::remove(tar_abs_path);
+                } catch (...) {}
+
+                std::cout << "--------------------------------------" << std::endl;
+                std::cout << "[+] Repositorio clonado exitosamente." << std::endl;
+                std::cout << "     Tus archivos estan listos en: " << destination << std::endl;
+                return true;
+
+            } else {
+                
+                std::cerr << "--------------------------------------" << std::endl;
+                std::cerr << "[-] Error critico: Se descargo el repositorio pero fallo la extraccion." << std::endl;
+                std::cerr << "    El archivo dañado esta en: " << tar_abs_path << std::endl;
+                return false;
+            }
 
         } catch (const std::exception &e) {
-            std::cerr << "Error al clonar el repositorio: " << e.what() << std::endl;
+            std::cerr << "[-] Excepcion: " << e.what() << std::endl;
             return false;
         }
     }

@@ -18,7 +18,7 @@ namespace client::json_nlohmann {
    json make_keygen_ecdsa_payload(const std::string &kPubECDSA, const std::string &email, const std::string &password);
 
    // Crea el payload para el comando 'clone'
-   json make_clone_payload(const std::string &repo_name, const std::string &destination); 
+   json make_clone_payload(const std::string &repo_name, const std::string &email, const std::string &hashed_password);
    
    // Crea el payload para el comando 'push' (Solicita los hashes)
    json make_push_check_payload(const std::string &project_name);

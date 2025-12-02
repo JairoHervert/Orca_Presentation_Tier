@@ -12,6 +12,9 @@ namespace client::http {
    // primera prueba para recibir una respuesta como string del server real
    std::string post_string_https(const std::string &path);
 
+   // Envía un JSON vía POST y guarda la respuesta (el archivo binario) en disco.
+   nlohmann::json post_download_file(const std::string& path, const nlohmann::json& payload, const std::string& default_path);
+
    // Se conecta al servidor y devuelve un puntero al cliente SSL.
    std::unique_ptr<httplib::SSLClient> conect();
 

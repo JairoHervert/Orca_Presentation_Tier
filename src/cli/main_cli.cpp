@@ -47,7 +47,8 @@ int main(int argc, char** argv) {
    // --- Subcomando: clone ---
    auto* clone = app.add_subcommand("clone", "Clona un repositorio remoto");
    clone->add_option("-n,--name", repo_name, "Nombre del repositorio")->required();
-   clone->add_option("-d, --dir", working_dir, "Directorio de destino")->default_val("./")->required();
+   clone->add_option("-d,--dir,--dtt", working_dir, "Directorio de destino")->default_val("./");
+   clone->add_option("-e,--email", user_email, "Email del usuario")->required();
 
    // --- Subcomando: push
    auto* push = app.add_subcommand("push", "Sube los cambios de un proyecto al Repositorio Remoto");
@@ -126,7 +127,7 @@ int main(int argc, char** argv) {
    CLI11_PARSE(app, argc, argv);
 
    // Comandos que requieren seguridad
-   std::vector<CLI::App*> secure_cmds = {nuser, init, keygen, push, verify, chrole, chstatus, cyprepo, enroll};
+   std::vector<CLI::App*> secure_cmds = {nuser, init, keygen, push, verify, chrole, chstatus, cyprepo, enroll, clone};
     
    bool needs_password = false;
    for (auto* cmd : secure_cmds) {
@@ -173,7 +174,7 @@ int main(int argc, char** argv) {
 
    if (clone->parsed()) {
       std::string absolute_path = std::filesystem::absolute(working_dir).string();
-      client::cmd::run_clone(repo_name, absolute_path);
+      client::cmd::run_clone(repo_name, absolute_path, user_email, password);
    }
    if (push->parsed()) {
       std::string absolute_path = std::filesystem::absolute(working_dir).string();
