@@ -186,4 +186,12 @@ namespace client::json_nlohmann
        };
    }
 
+   nlohmann::json make_unprotect_payload(const std::string &repo_name, const std::string &email, const std::string &hashed_password) {
+        return nlohmann::json{
+            {"repoName", repo_name},
+            {"userEmail", email},
+            {"userPassword", hashed_password} 
+        };
+    }
+
 } // namespace client::json_nlohmann

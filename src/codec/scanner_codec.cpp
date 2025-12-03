@@ -7,7 +7,6 @@
 #include "client/scanner_codec.hpp"
 #include "client/hasher_codec.hpp" 
 namespace { 
-    // Lógica de .orcaignore (simplificada)
     bool should_ignore(const std::string& path) {
         return path.find(".git") != std::string::npos || 
                path.find(".orca") != std::string::npos ||
@@ -26,7 +25,6 @@ namespace {
             if (entry.is_directory()) {
                 scan_recursive(entry.path(), base_path, file_map);
             } else if (entry.is_regular_file()) {
-                // Usamos la función separada
                 file_map[rel_path] = client::hasher::hash_file_sha256(entry.path().string());
             }
         }

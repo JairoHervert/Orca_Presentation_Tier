@@ -61,4 +61,5 @@ namespace client::json_nlohmann {
 
    json make_enroll_payload(const std::string& approver_email, const std::string& approver_password, const std::string& project_name, const std::string& target_email);
 
+   json make_unprotect_payload(const std::string &repo_name, const std::string &email, const std::string &hashed_password);
 }

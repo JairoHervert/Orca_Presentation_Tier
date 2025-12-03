@@ -40,6 +40,6 @@ namespace client::cmd {
 
     bool run_enroll(const std::string&, const std::string&, const std::string&, const std::string&);
 
-
+    bool run_uncyp(const std::string&, const std::string&, const std::string&, const std::string&, const std::string&);
    
 }

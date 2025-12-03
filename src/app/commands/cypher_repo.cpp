@@ -25,21 +25,16 @@ namespace client::cmd {
         std::cout << "Lider:    " << leader_email << std::endl;
 
         try {
-            // --- LOGICA DE RUTAS (NUEVO) ---
             std::filesystem::path keyPath(raw_pathkey);
-
-            // 1. Si el usuario nos dio un directorio (ej. .../Keys), le pegamos el nombre por defecto
             if (std::filesystem::is_directory(keyPath)) {
-                keyPath /= "private_rsa.key"; // El operador /= pone el \ o / automáticamente
-                std::cout << "[i] Ruta de carpeta detectada. Buscando llave en: " << keyPath.string() << std::endl;
+                keyPath /= "private_rsa.key";
             }
 
-            // 2. Verificamos que el archivo final exista
+            // Verificamos que el archivo exista
             if (!std::filesystem::exists(keyPath)) {
                 std::cerr << "[-] Error: No se encuentra el archivo de llave privada en: " << keyPath.string() << std::endl;
                 return false;
             }
-            // --------------------------------
 
             // Hashear password del líder
             std::string hashedPassword = client::hasher::hash_sha256(leader_password);
@@ -65,16 +60,10 @@ namespace client::cmd {
                 std::cin >> opt;
 
                 if (opt == 's' || opt == 'S') {
-                    std::string filename;
-                    std::cout << "Ingresa el nombre del archivo (ej. repo_key): ";
-                    std::cin >> filename;
-                    filename += ".key";
 
                     // Recuramos la clave RSA privada 
                     client::decipher_RSA_codec::RSAPrivateKey RSAprivatekey;
-                    
-                    // --- CARGA SEGURA (CORREGIDO) ---
-                    // Usamos keyPath.string() que ya tiene la ruta completa corregida
+
                     if (!client::key_loader::load_private_key(keyPath.string(), RSAprivatekey)) {
                         std::cerr << "[-] Fallo critico: No se pudo cargar la llave privada." << std::endl;
                         return false; 
@@ -87,61 +76,10 @@ namespace client::cmd {
                          return false;
                     }
 
-                    // Usamos files_codec para guardar
+                    std::string filename = "AES.key";
                     if (client::files_codec::save_string_to_file(outPlaintext, filename)) {
                         std::cout << "[+] Clave guardada exitosamente en: " << filename << std::endl;
                         std::cout << "Guardala en un lugar seguro. Solo la llave privada RSA del lider puede descifrarla." << std::endl;
-
-                       // ---------------------------------------------------------
-                        // --- ZONA DE PRUEBAS (TESTING) ---
-                        // ---------------------------------------------------------
-                        std::cout << "\n----------------------------------------------" << std::endl;
-                        std::cout << "[TEST] Quieres probar el ciclo completo (Descifrar -> Desempaquetar)? [s/n]: ";
-                        char testOpt;
-                        std::cin >> testOpt;
-
-                        if (testOpt == 's' || testOpt == 'S') {
-                            
-                            // RUTAS (Puedes hacerlas dinámicas luego, por ahora hardcoded para la prueba)
-                            std::string inputEncFile = "C:\\Users\\kgonz\\Desktop\\Repos\\enc\\Example04_v1.f2.tar.enc";
-                            std::string outputDecFile = "C:\\Users\\kgonz\\Desktop\\Repos\\enc\\Example04_v1.f2.tar"; // Archivo temporal
-                            std::string outputDir   = "C:\\Users\\kgonz\\Desktop\\Repos\\enc\\Example04_Restored"; // Carpeta final
-
-                            std::cout << "\n1. Descifrando AES-GCM..." << std::endl;
-                            
-                            // 1. DESCIFRAR
-                            bool decryptSuccess = client::decipher_aes::decipher_AES_GCM(inputEncFile, outputDecFile, outPlaintext);
-                            
-                            if (decryptSuccess) {
-                                std::cout << "[OK] Archivo descifrado: " << outputDecFile << std::endl;
-
-                                // 2. DESEMPAQUETAR
-                                std::cout << "2. Desempaquetando contenido..." << std::endl;
-                                
-                                if (client::unpacker::unpack_file(outputDecFile, outputDir)) {
-                                    
-                                    // 3. LIMPIEZA (BORRAR EL .TAR)
-                                    std::cout << "3. Limpiando archivos temporales..." << std::endl;
-                                    try {
-                                        if (std::filesystem::remove(outputDecFile)) {
-                                            std::cout << "[+] Archivo temporal (.tar) eliminado correctamente." << std::endl;
-                                        }
-                                    } catch (const std::filesystem::filesystem_error& e) {
-                                        std::cerr << "[!] No se pudo borrar el archivo temporal: " << e.what() << std::endl;
-                                    }
-
-                                    std::cout << "\n[EXITO TOTAL] Tu repositorio ha sido recuperado en:\n    " << outputDir << std::endl;
-
-                                } else {
-                                    std::cerr << "[FAIL] Fallo al desempaquetar el archivo tar." << std::endl;
-                                }
-
-                            } else {
-                                std::cerr << "[FAIL] No se pudo descifrar el archivo AES." << std::endl;
-                            }
-                        }
-                        // ---------------------------------------------------------
-
                     } else {
                         std::cerr << "[-] Error No se pudo guardar el archivo." << std::endl;
                         return false;

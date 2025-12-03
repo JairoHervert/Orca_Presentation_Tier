@@ -13,7 +13,7 @@ namespace client::cmd {
         std::cout << "Objetivo:  " << target_email << std::endl;
         
         try {
-            // 1. Hashear la contraseña del aprobador (Seguridad)
+            // Hashear la contraseña del aprobador (Seguridad)
             std::string hashedPassword = client::hasher::hash_sha256(approver_password);
             
             if (hashedPassword.empty()) {
