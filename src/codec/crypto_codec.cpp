@@ -89,26 +89,29 @@ namespace client::crypto_codec {
 
          std::string signature;
 
+         // 1. Leer y Firmar el archivo (SHA256 + ECDSA)
+         // FileSource maneja la apertura y cierre del archivo automáticamente
          CryptoPP::FileSource fs(
-               filepath.c_str(), true,
-               new CryptoPP::SignerFilter(prng, signer,
-                  new CryptoPP::StringSink(signature)
-               )
+             filepath.c_str(), true,
+             new CryptoPP::SignerFilter(prng, signer,
+                new CryptoPP::StringSink(signature)
+             )
          );
 
+         // 2. Codificar a Base64 para enviar en JSON
          std::string encoded;
          CryptoPP::StringSource ssSig(
-               signature, true,
-               new CryptoPP::Base64Encoder(
-                  new CryptoPP::StringSink(encoded), false
-               )
+             signature, true,
+             new CryptoPP::Base64Encoder(
+                new CryptoPP::StringSink(encoded), false // false = sin saltos de línea
+             )
          );
 
          return encoded;
 
       } catch (const std::exception& e) {
          std::cerr << "[Crypto] Error signing file: " << e.what() << std::endl;
-         return "FILE_SIGN_ERROR";
+         return "";
       }
    }
 

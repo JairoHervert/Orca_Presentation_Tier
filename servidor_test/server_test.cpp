@@ -225,61 +225,107 @@ int main() {
         }
     });
 
-    // Push check
+    // ... (Tus includes y setup inicial igual) ...
+
+    // --- Endpoint: /push/check ---
     svr.Post("/push/check", [](const httplib::Request &req, httplib::Response &res) {
+        std::cout << "\n\n=== [POST] /push/check (Simulacion) ===" << std::endl;
+        std::cout << "--- Headers ---" << std::endl;
+        std::cout << "Content-Type: " << req.get_header_value("Content-Type") << std::endl;
+        
+        std::cout << "--- Body (JSON) ---" << std::endl;
+        std::cout << req.body << std::endl; // Imprime el JSON crudo que manda el cliente
+
         json response;
         try {
             json payload = json::parse(req.body);
-            std::string project = payload["data"]["project_name"];
-            std::cout << "Solicitud hashes para: " << project << std::endl;
-
-            json server_files;
             
-            // Hash prueba
-            server_files["Orcaleros.cpp"] = "8eff10dad83140ee3de0ec2e7e17ec815af61d1d33dc2a277816f3aafea77b6d";
+            // Validamos campos (Estilo CamelCase)
+            if (!payload.contains("repoName") || !payload.contains("userEmail")) {
+                std::cout << "(!) Faltan campos en el JSON" << std::endl;
+                res.status = 400;
+                res.set_content("{\"status\":\"error\",\"message\":\"Missing fields\"}", "application/json");
+                return;
+            }
+
+            std::string project = payload["repoName"];
+            std::cout << "-> Cliente pregunta por repo: " << project << std::endl;
+
+            // RESPUESTA SIMULADA
+            // El servidor dice que ya tiene estos archivos con estos hashes
+            json server_files;
+            server_files["src/main.cpp"] = "hash_viejo_12345"; 
+            server_files["README.md"]    = "hash_viejo_67890";
 
             response["status"] = "success";
             response["server_hashes"] = server_files;
             
-            std::cout << "Enviando hashes simulados (incluyendo Orcaleros.cpp igual)..." << std::endl;
-            
+            std::cout << "-> Respondiendo con lista de archivos simulada." << std::endl;
             res.set_content(response.dump(), "application/json");
             res.status = 200;
-        } catch (...) { res.status = 500; }
-    });
 
-    // PUSH UPLOAD
-    svr.Post("/push/upload", [](const httplib::Request &req, httplib::Response &res) {
-        std::cout << "\n=== Nueva peticion POST /push/upload ===" << std::endl;
-        
-        if (req.files.find("metadata") != req.files.end()) {
-            auto metadata_content = req.files.find("metadata")->second.content;
-            
-            try {
-                // Parseamos e imprimimos bonito para ver las firmas
-                json metadata = json::parse(metadata_content);
-                std::cout << "Metadata recibida (JSON):" << std::endl;
-                std::cout << metadata.dump(4) << std::endl; // <--- AQUÍ SE VERÁN LAS FIRMAS
-                
-                // Verificación visual rápida
-                if (metadata["data"].contains("files_metadata")) {
-                    std::cout << "-> Se detectaron " << metadata["data"]["files_metadata"].size() << " archivos firmados." << std::endl;
-                }
-
-            } catch (...) {
-                std::cout << "Metadata recibida (Raw): " << metadata_content << std::endl;
-            }
-
-            if (req.files.find("archive") != req.files.end()) {
-                auto archive_size = req.files.find("archive")->second.content.size();
-                std::cout << "Archivo TAR recibido: " << archive_size << " bytes." << std::endl;
-            }
-
-            res.set_content("{\"status\":\"success\", \"message\":\"Recibido y Firmas Verificadas (Simulado)\"}", "application/json");
-        } else {
-            res.status = 400;
+        } catch (...) { 
+            res.status = 500; 
+            res.set_content("{\"status\":\"error\"}", "application/json");
         }
     });
+
+    // --- Endpoint: /push/upload ---
+    svr.Post("/push/upload", [](const httplib::Request &req, httplib::Response &res) {
+        std::cout << "\n\n=== [POST] /push/upload (Simulacion) ===" << std::endl;
+        
+        // 1. Verificar Metadata (JSON)
+        if (req.has_file("metadata")) {
+            const auto& file = req.get_file_value("metadata");
+            std::cout << "--- Part: metadata (JSON) ---" << std::endl;
+            
+            try {
+                // Imprimimos bonito el JSON para ver las firmas
+                json meta = json::parse(file.content);
+                std::cout << meta.dump(4) << std::endl; 
+                
+                if (meta.contains("files_signatures")) {
+                    std::cout << "\n[OK] Se recibieron " << meta["files_signatures"].size() << " firmas." << std::endl;
+                }
+            } catch (...) {
+                std::cout << file.content << std::endl; // Si falla parse, imprime crudo
+            }
+        } else {
+            std::cout << "[!] Falta la parte 'metadata'" << std::endl;
+        }
+
+        // 2. Verificar Archivo (Binario)
+        if (req.has_file("archive")) {
+            const auto& file = req.get_file_value("archive");
+            std::cout << "\n--- Part: archive (Binario .tar.gz) ---" << std::endl;
+            std::cout << "Nombre del archivo: " << file.filename << std::endl;
+            std::cout << "Tamano recibido:    " << file.content.size() << " bytes" << std::endl;
+            
+            // --- ESTO ES LO NUEVO: GUARDAR EL BINARIO PARA PROBAR ---
+            std::string debug_filename = "debug_received_" + file.filename;
+            std::ofstream out(debug_filename, std::ios::binary);
+            if (out) {
+                out.write(file.content.data(), file.content.size());
+                out.close();
+                std::cout << "[PRUEBA] Archivo binario guardado en disco como: " << debug_filename << std::endl;
+                std::cout << "         -> Intenta abrirlo para verificar que no este corrupto." << std::endl;
+            } else {
+                std::cerr << "[ERROR] No se pudo guardar el archivo de prueba." << std::endl;
+            }
+            // ---------------------------------------------------------
+        } else {
+            std::cout << "[!] Falta la parte 'archive'" << std::endl;
+        }
+
+        // Respuesta final
+        json response;
+        response["status"] = "success";
+        response["message"] = "Push recibido, firmas validadas y repositorio actualizado (Simulado)";
+        
+        res.set_content(response.dump(), "application/json");
+        res.status = 200;
+    });
+
     // --- CONFIG ---
     svr.Post("/nuser", [](const httplib::Request &req, httplib::Response &res) {
         std::cout << "\n=== Nueva peticion POST /nuser ===" << std::endl;

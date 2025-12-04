@@ -37,26 +37,22 @@ namespace client::json_nlohmann
    }
 
 
-    json make_push_check_payload(const std::string &project_name) {
-      return json{
-                    {"cmd", "push_check"},
-                    {"data", {{"project_name", project_name}}}
-                };
+    json make_push_check_payload(const std::string& repo_name, const std::string& email, const std::string& hashed_password) {
+        return json{
+            {"repoName", repo_name},
+            {"userEmail", email},
+            {"userPassword", hashed_password}
+        };
     }
 
-   json make_push_upload_payload(const std::string &project_name, const std::map<std::string, std::string>& files_map, const std::string& password) {
-       json files_json;
-       for (const auto& [path, hash] : files_map) files_json[path] = hash;
-       
-       return json{
-           {"cmd", "push_upload"},
-           {"data", {
-               {"project_name", project_name},
-               {"password", password},
-               {"files_metadata", files_json}
-           }}
-       };
-   }
+    json make_push_upload_payload(const std::string& repo_name, const std::string& email, const std::string& hashed_password, const std::map<std::string, std::string>& signatures) {
+        return json{
+            {"repoName", repo_name},
+            {"userEmail", email},
+            {"userPassword", hashed_password},
+            {"files_signatures", signatures} // Mapa clave-valor con las firmas
+        };
+    }
 
 
    json make_log_payload(const std::string &project_name) {
