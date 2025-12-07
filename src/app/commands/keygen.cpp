@@ -19,7 +19,7 @@ namespace client::cmd {
         // Validar Directorio
         std::filesystem::path outputDir(pathToOutput);
         if (!std::filesystem::exists(outputDir)) {
-            std::cerr << "[-] Error: Directory does not exist: " << pathToOutput << std::endl;
+            std::cerr << "\n[-] Error: Directory does not exist: " << pathToOutput << std::endl;
             return false; 
         }
 
@@ -80,7 +80,7 @@ namespace client::cmd {
         // Validar Directorio
         std::filesystem::path outputDir(pathToOutput);
         if (!std::filesystem::exists(outputDir) || !std::filesystem::is_directory(outputDir)) {
-            std::cerr << "[-] Error: Invalid output directory: " << pathToOutput << std::endl;
+            std::cerr << "\n[-] Error: Directory does not exist: " << pathToOutput << std::endl;
             return false;
         }
 

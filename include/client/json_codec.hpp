@@ -29,21 +29,6 @@ namespace client::json_nlohmann {
    // Crea el payload para el comando 'log' 
    json make_log_payload(const std::string &project_name);
 
-   // Crea el payload para el comando 'revoke' 
-   json make_revoke_payload(const std::string &project_name, const std::string &email, const std::string &file);
-
-   // Crea el payload para el comando 'grant' 
-   json make_grant_payload(const std::string &project_name, const std::string &email, const std::string &file);
-
-   // Crea el payload para el comando 'drop' 
-   json make_drop_payload(const std::string &email);
-
-   // Crea el payload para el comando 'active'
-   json make_active_payload(const std::string &email);
-
-   // Crea el payload para el comando 'remove'
-   json make_remove_payload(const std::string &project_name);
-
    // Verifica un usuario en el sistema 
    json make_verify_user_payload(const std::string &approver_email, const std::string &hashed_password, const std::string &target_email);
 

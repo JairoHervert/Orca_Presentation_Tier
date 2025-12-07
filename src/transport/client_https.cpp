@@ -42,31 +42,31 @@ namespace client::http {
     }
 
         // Para clone y uncyp
-        std::string extract_filename(const std::string& cd) {
-            std::smatch m;
-            std::regex re("filename=\"?([^\"]+)\"?");
-            return (std::regex_search(cd, m, re) && m.size() > 1) ? m.str(1) : "";
-        }
+    std::string extract_filename(const std::string& cd) {
+        std::smatch m;
+        std::regex re("filename=\"?([^\"]+)\"?");
+        return (std::regex_search(cd, m, re) && m.size() > 1) ? m.str(1) : "";
+    }
 
-        std::string ensure_tar_extension(std::string name) {
-            if (!std::filesystem::path(name).has_extension())
-                name += ".tar";
-            return name;
+    std::string ensure_tar_extension(std::string name) {
+        if (!std::filesystem::path(name).has_extension())
+            name += ".tar";
+        return name;
     }
         
 
     nlohmann::json post_download_file(const std::string& path, const nlohmann::json& payload, const std::string& default_path) {
         try {
             auto cli = conect();
-            cli->set_read_timeout(120, 0); // Timeout largo para descargas
+            cli->set_read_timeout(120, 0); // Long timeout for downloads
 
             auto res = cli->Post(path.c_str(), payload.dump(), "application/json");
 
-            // Error de Conexion
+            // Connection Error
             if (!res) {
                 return {
                     {"status", "error"},
-                    {"message", "[!] No se pudo contactar al servidor (Connection failed)"}
+                    {"message", "[!] Could not contact the server (Connection failed)"}
                 };
             }
 
@@ -81,7 +81,7 @@ namespace client::http {
                 }
             }
             
-            // Obtener nombre del archivo del header
+            // Get filename from header
             std::string final_name = default_path;
             if (res->has_header("Content-Disposition")) {
                 auto fname = extract_filename(res->get_header_value("Content-Disposition"));
@@ -95,7 +95,7 @@ namespace client::http {
             if (!file) {
                 return {
                     {"status", "error"},
-                    {"message", "[-] Error local: No se pudo crear el archivo " + final_name}
+                    {"message", "[-] Local error: Could not create file " + final_name}
                 };
             }
 
@@ -103,18 +103,17 @@ namespace client::http {
 
             return {
                 {"status", "ok"},
-                {"message", "Repositorio descargado correctamente."},
+                {"message", "Repository downloaded successfully."},
                 {"downloaded_file", final_name} 
             };
 
         } catch (const std::exception& e) {
             return {
                 {"status", "error"},
-                {"message", std::string("[-] Excepcion interna: ") + e.what()}
+                {"message", std::string("[-] Internal exception: ") + e.what()}
             };
         }
     }
-
 
     // ********* SE PUEDEN QUITAR **************
     

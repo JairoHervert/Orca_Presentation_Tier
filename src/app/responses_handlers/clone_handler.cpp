@@ -6,7 +6,7 @@ namespace client::response_handler {
     void handle_clone_response(const nlohmann::json &response) {
         
         if (!response.contains("status")) {
-            std::cerr << "[!] Respuesta invalida del servidor (sin status)." << std::endl;
+            std::cerr << "[!] Invalid server response (missing status)." << std::endl;
             return;
         }
 
@@ -14,13 +14,13 @@ namespace client::response_handler {
 
         if (status == "ok") {
             
-            std::cout << "[+] Conexion establecida. Paquete de datos recibido." << std::endl;
+            std::cout << "\n[+] Connection established. Data packet received." << std::endl;
             
         } else {
             
-            std::cout << "[-] El servidor rechazo la solicitud de clonado." << std::endl;
+            std::cout << "\n[-] The server rejected the clone request." << std::endl;
             if (response.contains("message")) {
-                std::cout <<  response["message"].get<std::string>() << std::endl;
+                std::cout << "    " << response["message"].get<std::string>() << std::endl;
             }
         }
     }

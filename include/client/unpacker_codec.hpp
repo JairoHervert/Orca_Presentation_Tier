@@ -1,5 +1,8 @@
 #pragma once
 #include <string>
+#include <cstdlib>
+#include <iostream>
+#include <filesystem>
 
 namespace client::unpacker {
 

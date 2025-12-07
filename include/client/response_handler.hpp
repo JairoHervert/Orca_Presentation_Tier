@@ -18,16 +18,6 @@ namespace client::response_handler {
 
    void handle_log_response(const nlohmann::json &response);
 
-   void handle_revoke_response(const nlohmann::json &response);
-
-   void handle_grant_response(const nlohmann::json &response);
-
-   void handle_drop_response(const nlohmann::json &response);
-
-   void handle_active_response(const nlohmann::json &response);
-
-   void handle_remove_response(const nlohmann::json &response);
-
    void handle_verify_response(const nlohmann::json &response);
 
    void handle_change_role_response(const nlohmann::json &response);

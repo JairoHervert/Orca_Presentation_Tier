@@ -1,9 +1,9 @@
 // Estando en Orca_Presentation_Tier/
-// g++ -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/nuser.cpp src/app/commands/log.cpp src/app/commands/revoke.cpp src/app/commands/grant.cpp src/app/commands/drop.cpp src/app/commands/active.cpp src/app/commands/remove.cpp src/app/commands/keygen_ecdsa.cpp src/codec/json_codec.cpp src/codec/crypto_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/nuser_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/revoke_handler.cpp src/app/responses_handlers/grant_handler.cpp src/app/responses_handlers/drop_handler.cpp src/app/responses_handlers/active_handler.cpp src/app/responses_handlers/remove_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/codec/downloader.cpp src/transport/http_getter.cpp src/codec/unpacker.cpp src/codec/hasher.cpp src/codec/comparator.cpp src/codec/packer.cpp -o orca -lssl -lcrypto -lcryptopp
+// g++ -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/nuser.cpp src/app/commands/log.cpp src/app/commands/keygen_ecdsa.cpp src/codec/json_codec.cpp src/codec/crypto_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/nuser_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/codec/downloader.cpp src/transport/http_getter.cpp src/codec/unpacker.cpp src/codec/hasher.cpp src/codec/comparator.cpp src/codec/packer.cpp -o orca -lssl -lcrypto -lcryptopp
 
 //Compilacion Karol:
 // cd C:/Users/kgonz/Desktop/OrcaProject/Orca_Presentation_Tier
-// g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/nuser.cpp src/app/commands/log.cpp src/app/commands/revoke.cpp src/app/commands/grant.cpp src/app/commands/drop.cpp src/app/commands/active.cpp src/app/commands/remove.cpp src/app/commands/keygen.cpp src/codec/json_codec.cpp src/codec/crypto_codec.cpp src/codec/decipher_RSA_codec.cpp src/codec/decipher_AES_codec.cpp src/codec/generate_keypair_codec.cpp src/codec/console_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/nuser_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/revoke_handler.cpp src/app/responses_handlers/grant_handler.cpp src/app/responses_handlers/drop_handler.cpp src/app/responses_handlers/active_handler.cpp src/app/responses_handlers/remove_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/app/responses_handlers/keygen_rsa_handler.cpp src/codec/downloader_codec.cpp src/transport/http_getter.cpp src/codec/unpacker_codec.cpp src/codec/scanner_codec.cpp src/codec/comparator_codec.cpp src/codec/packer_codec.cpp src/codec/hasher_codec.cpp src/app/commands/verify.cpp src/app/responses_handlers/verify_handler.cpp src/app/commands/change_role.cpp src/app/responses_handlers/change_role_handler.cpp src/app/commands/change_status.cpp src/app/responses_handlers/change_status_handler.cpp src/app/commands/cypher_repo.cpp src/app/responses_handlers/cypher_repo_handler.cpp src/app/commands/enroll.cpp src/app/responses_handlers/enroll_handler.cpp src/app/commands/uncyp.cpp src/app/responses_handlers/uncyp_handler.cpp src/codec/sign_codec.cpp src/codec/verify_codec.cpp  -o orca -lssl -lcrypto -lws2_32 -lcrypt32 -lcryptopp
+// g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/nuser.cpp src/app/commands/log.cpp src/app/commands/keygen.cpp src/codec/json_codec.cpp src/codec/crypto_codec.cpp src/codec/decipher_RSA_codec.cpp src/codec/decipher_AES_codec.cpp src/codec/generate_keypair_codec.cpp src/codec/console_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/nuser_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/app/responses_handlers/keygen_rsa_handler.cpp src/codec/downloader_codec.cpp src/transport/http_getter.cpp src/codec/unpacker_codec.cpp src/codec/scanner_codec.cpp src/codec/comparator_codec.cpp src/codec/packer_codec.cpp src/codec/hasher_codec.cpp src/app/commands/verify.cpp src/app/responses_handlers/verify_handler.cpp src/app/commands/change_role.cpp src/app/responses_handlers/change_role_handler.cpp src/app/commands/change_status.cpp src/app/responses_handlers/change_status_handler.cpp src/app/commands/cypher_repo.cpp src/app/responses_handlers/cypher_repo_handler.cpp src/app/commands/enroll.cpp src/app/responses_handlers/enroll_handler.cpp src/app/commands/uncyp.cpp src/app/responses_handlers/uncyp_handler.cpp src/codec/sign_codec.cpp src/codec/verify_codec.cpp  -o orca -lssl -lcrypto -lws2_32 -lcrypt32 -lcryptopp
 
 
 // si en windows usan otro comando ponerlo aqui (no modificar el que ya funciona en linux)
@@ -47,9 +47,14 @@ int main(int argc, char** argv) {
    // --- Subcomando: clone ---
    auto* clone = app.add_subcommand("clone", "Clona un repositorio remoto");
    clone->add_option("-n,--name", repo_name, "Nombre del repositorio")->required();
-   clone->add_option("-d,--dir,--dtt", working_dir, "Directorio de destino")->default_val("./");
    clone->add_option("-e,--email", user_email, "Email del usuario")->required();
+   clone->add_option("-d,--dir,--dtt", working_dir, "Directorio de destino")->default_val("./");
 
+   
+   
+   
+   
+   
    // --- Subcomando: push
    auto* push = app.add_subcommand("push", "Sube los cambios de un proyecto al Repositorio Remoto");
    push->add_option("-n,--name", repo_name, "Nombre del proyecto en el servidor")->required();
@@ -61,30 +66,6 @@ int main(int argc, char** argv) {
    // --- Subcomando: log
    auto* log = app.add_subcommand("log", "Muestra el historial de cambios");
    log->add_option("-n,--name", repo_name, "Nombre del proyecto")->required();
-
-   // --- Subcomando: revoke
-   auto* revoke = app.add_subcommand("revoke", "Revoca permisos de acceso");
-   revoke->add_option("-n,--name", repo_name, "Nombre del proyecto")->required();
-   revoke->add_option("-e,--email", user_email, "Email del usuario a revocar")->required();
-   revoke->add_option("-f,--file", target_file, "Archivo especifico (Opcional)");
-
-   // --- Subcomando: grant
-   auto* grant = app.add_subcommand("grant", "Concede permisos de acceso");
-    grant->add_option("-n,--name", repo_name, "Nombre del proyecto")->required();
-    grant->add_option("-e,--email", user_email, "Email del usuario")->required();
-    grant->add_option("-f,--file", target_file, "Archivo especifico (Opcional)");
-
-   // --- Subcomando: drop
-   auto* drop = app.add_subcommand("drop", "Da de baja a un usuario del sistema");
-   drop->add_option("-e,--email", user_email, "Email del usuario a dar de baja")->required();
-
-   // --- Subcomando: active
-   auto* active = app.add_subcommand("active", "Reactiva a un usuario del sistema");
-   active->add_option("-e,--email", user_email, "Email del usuario a activar")->required();
-
-   // --- Subcomando: remove
-   auto* remove = app.add_subcommand("remove", "Elimina un repositorio del servidor");
-   remove->add_option("-n,--name", repo_name, "Nombre del repositorio a borrar")->required();
 
    // --- Subcomando: verify
    auto* verify = app.add_subcommand("verify", "Verifica (aprueba) a un usuario nuevo");
@@ -185,11 +166,6 @@ int main(int argc, char** argv) {
       client::cmd::run_push(repo_name, user_email, absolute_dest, keyPath, password);
    }
    if (log->parsed()) client::cmd::run_log(repo_name);
-   if (revoke->parsed()) client::cmd::run_revoke(repo_name, user_email, target_file);
-   if (grant->parsed()) client::cmd::run_grant(repo_name, user_email, target_file);
-   if (drop->parsed()) client::cmd::run_drop(user_email);
-   if (active->parsed()) client::cmd::run_active(user_email);
-   if (remove->parsed()) client::cmd::run_remove(repo_name);
    if (verify->parsed()) client::cmd::run_verify(approver_email, password, user_email);
    if (chrole->parsed()) client::cmd::run_change_role(approver_email, password, user_email, new_role);
    if (chstatus->parsed()) client::cmd::run_change_status(approver_email, password, user_email, new_status);
