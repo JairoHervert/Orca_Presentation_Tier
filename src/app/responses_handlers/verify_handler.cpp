@@ -1,36 +1,31 @@
 #include "client/response_handler.hpp"
-#include <iostream>
-// En client/response_handler.cpp
-
 namespace client::response_handler {
 
     void handle_verify_response(const nlohmann::json &response) {
         std::cout<< std::endl;
         
-        // Validar formato básico
         if (!response.contains("status")) {
-            std::cout << "[-] Respuesta inválida del servidor." << std::endl;
-            std::cout << "Raw: " << response.dump() << std::endl;
+            std::cout << "\n[-] Invalid server response." << std::endl;
             return;
         }
 
         std::string status = response["status"].get<std::string>();
 
         if (status == "ok" || status == "success") {
-            std::cout << "[+] Usuario verificado correctamente." << std::endl;
+            std::cout << "[+] User verified successfully." << std::endl;
             
             // Mostrar a quién verificamos si el dato viene
             if (response.contains("target_user_email")) {
-                std::cout << "Usuario objetivo: " << response["target_user_email"].get<std::string>() << std::endl;
+                std::cout << "    [*]Target user: " << response["target_user_email"].get<std::string>() << std::endl;
             }
         } else {
-            std::cout << "[!] No se pudo verificar al usuario." << std::endl;
+            std::cout << "\n[!] Could not verify user." << std::endl;
             
-            // Imprimir el motivo del error (sea del servidor o del parche de conexión)
+            // Imprimir el motivo del error si está disponible
             if (response.contains("message")) {
-                std::cout  << response["message"].get<std::string>() << std::endl;
+                std::cout  << "    " << response["message"].get<std::string>() << std::endl;
             } else {
-                std::cout << "[!] Motivo desconocido." << std::endl;
+                std::cout << "\n[!] Unknown reason." << std::endl;
             }
         }
         

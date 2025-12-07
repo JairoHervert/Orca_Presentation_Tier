@@ -1,6 +1,4 @@
 #include "client/response_handler.hpp"
-#include <iostream>
-
 namespace client::response_handler {
 
     void handle_change_role_response(const nlohmann::json &response) {
@@ -9,20 +7,20 @@ namespace client::response_handler {
         if (response.contains("status")) {
             std::string status = response["status"];
             if (status == "ok" || status == "success") {
-                std::cout << " [+] Rol de usuario actualizado correctamente." << std::endl;
+                std::cout << " [+] User role updated successfully." << std::endl;
                 if (response.contains("target_user_email") && response.contains("new_role")) {
-                    std::cout << "Usuario: " << response["target_user_email"] 
-                              << " -> Nuevo Rol: " << response["new_role"] << std::endl;
+                    std::cout << "    User: " << response["target_user_email"] 
+                              << "\n     -> New Role: " << response["new_role"] << std::endl;
                 }
             } else {
-                std::cout << "[-] No se pudo cambiar el rol." << std::endl;
+                std::cout << "\n[!] Failed to change role." << std::endl;
             }
         }
 
         if (response.contains("message")) {
-            std::cout << "Detalle: " << response["message"] << std::endl;
+            std::cout << "    " << response["message"] << std::endl;
         }
         
         std::cout << "------------------------------------" << std::endl;
     }
-} 
+}

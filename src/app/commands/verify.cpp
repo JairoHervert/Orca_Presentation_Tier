@@ -8,16 +8,16 @@
 namespace client::cmd {
 
     bool run_verify(const std::string& approver_email, const std::string& approver_password, const std::string& target_email) {
-        std::cout << "\n --- Verificando Usuario Nuevo ---" << std::endl;
-        std::cout << "Aprobador: " << approver_email << std::endl;
-        std::cout << "Objetivo:  " << target_email << std::endl;
+        std::cout << "\n --- Verifying New User ---" << std::endl;
+        std::cout << "Approver: " << approver_email << std::endl;
+        std::cout << "Target:   " << target_email << std::endl;
         
         try {
             // Hashear la contraseña del aprobador (Seguridad)
             std::string hashedPassword = client::hasher_codec::hash_sha256(approver_password);
             
             if (hashedPassword.empty()) {
-                std::cerr << "[-] Error interno al procesar la contrasena." << std::endl;
+                std::cerr << "\n[-] Internal error processing password." << std::endl;
                 return false;
             }
 
@@ -36,7 +36,7 @@ namespace client::cmd {
             return false;
 
         } catch (const std::exception &e) {
-            std::cerr << "[-] Error en la operacion de verificacion: " << e.what() << std::endl;
+            std::cerr << "\n[-] Error in verification operation: " << e.what() << std::endl;
             return false;
         }
     }

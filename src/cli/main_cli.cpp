@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
 
     
    // --- Subcomando nuser --- //
-   auto* nuser = app.add_subcommand("nuser", "nuserura usuario y email global");
+   auto* nuser = app.add_subcommand("nuser", "Da de alta a un Nuevo usuario en el sistema");
    nuser->add_option("-u,--user", user_name, "Nombre de usuario")->required();
    nuser->add_option("-e,--email", user_email, "Correo electronico")->required();
 
@@ -50,7 +50,19 @@ int main(int argc, char** argv) {
    clone->add_option("-e,--email", user_email, "Email del usuario")->required();
    clone->add_option("-d,--dir,--dtt", working_dir, "Directorio de destino")->default_val("./");
 
+      // --- Subcomando: verify //
+   auto* verify = app.add_subcommand("verify", "Verifica (aprueba) a un usuario nuevo");
+   std::string approver_email;
+   verify->add_option("-a,--approver", approver_email, "Email del aprobador (Senior)")->required();
+   verify->add_option("-t,--target", user_email, "Email del usuario a verificar")->required();
    
+      // --- Subcomando: chrole
+   auto* chrole = app.add_subcommand("chrole", "Cambia el nivel (rol) de un usuario");
+   chrole->add_option("-a,--approver", approver_email, "Email del aprobador (Senior)")->required();
+   chrole->add_option("-t,--target", user_email, "Email del usuario a modificar")->required();
+   int new_role = 0;
+   chrole->add_option("-r,--role", new_role, "Nuevo rol (1=Dev, 2=Leader, 3=Senior)")->required();
+
    
    
    
@@ -62,23 +74,14 @@ int main(int argc, char** argv) {
    push->add_option("-d,--dir", working_dir, "Directorio local del proyecto")->default_val("./");
    push->add_option("-k,--key", keyPath, "Ruta de la carpeta con las llaves (.key)")->default_val("./");
 
-
    // --- Subcomando: log
    auto* log = app.add_subcommand("log", "Muestra el historial de cambios");
    log->add_option("-n,--name", repo_name, "Nombre del proyecto")->required();
 
-   // --- Subcomando: verify
-   auto* verify = app.add_subcommand("verify", "Verifica (aprueba) a un usuario nuevo");
-   std::string approver_email;
-   verify->add_option("-a,--approver", approver_email, "Email del aprobador (Senior)")->required();
-   verify->add_option("-t,--target", user_email, "Email del usuario a verificar")->required();
 
-   // --- Subcomando: chrole
-   auto* chrole = app.add_subcommand("chrole", "Cambia el nivel (rol) de un usuario");
-   chrole->add_option("-a,--approver", approver_email, "Email del aprobador (Senior)")->required();
-   chrole->add_option("-t,--target", user_email, "Email del usuario a modificar")->required();
-   int new_role = 0;
-   chrole->add_option("-r,--role", new_role, "Nuevo rol (1=Dev, 2=Leader, 3=Senior)")->required();
+
+
+
 
    // --- Subcomando: chstatus
    auto* chstatus = app.add_subcommand("chstatus", "Cambia el status de un usuario");
@@ -160,14 +163,16 @@ int main(int argc, char** argv) {
       std::string absolute_path = std::filesystem::absolute(working_dir).string();
       client::cmd::run_clone(repo_name, absolute_path, user_email, password);
    }
+   if (verify->parsed()) client::cmd::run_verify(approver_email, password, user_email);
+   if (chrole->parsed()) client::cmd::run_change_role(approver_email, password, user_email, new_role);
+
+
    if (push->parsed()) {
       std::string absolute_dest = std::filesystem::absolute(working_dir).string();
       std::string absolute_key  = std::filesystem::absolute(keyPath).string();
       client::cmd::run_push(repo_name, user_email, absolute_dest, keyPath, password);
    }
    if (log->parsed()) client::cmd::run_log(repo_name);
-   if (verify->parsed()) client::cmd::run_verify(approver_email, password, user_email);
-   if (chrole->parsed()) client::cmd::run_change_role(approver_email, password, user_email, new_role);
    if (chstatus->parsed()) client::cmd::run_change_status(approver_email, password, user_email, new_status);
    if (cyprepo->parsed()) client::cmd::run_cypher_repo(user_email, password, senior_email, repo_name, repo_tag, working_dir);
    if (enroll->parsed()) client::cmd::run_enroll(approver_email, password, repo_name, user_email);

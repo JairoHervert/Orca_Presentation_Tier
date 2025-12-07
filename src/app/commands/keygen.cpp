@@ -71,7 +71,6 @@ namespace client::cmd {
         }
    }
 
-   // ... (run_keygen_rsa y run_keygen se quedan igual) ...
     bool run_keygen_rsa(const std::string& pathToOutput, const std::string& email, const std::string& password) {
         std::cout << "\n --- Key Generation ---" << std::endl;
         std::cout << "User: " << email << std::endl;
@@ -141,7 +140,6 @@ namespace client::cmd {
         }
     }
 
-   // --- Despachador Principal ---
    bool run_keygen(const std::string& keyType, const std::string& pathToOutput, const std::string& email, const std::string& password) {
        if (keyType == "ecdsa") {
            return run_keygen_ecdsa(pathToOutput, email, password);

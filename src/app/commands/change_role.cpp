@@ -1,29 +1,27 @@
 #include "client/commands.hpp"
-#include <iostream>
 #include "client/json_codec.hpp"
 #include "client/client_https.hpp"
-#include "client/response_handler.hpp"
 #include "client/hasher_codec.hpp" 
-
+#include "client/response_handler.hpp"
 namespace client::cmd {
 
     bool run_change_role(const std::string& approver_email, const std::string& approver_password, const std::string& target_email, int new_role) {
-        std::cout << "\n --- Cambiando Nivel de Usuario ---" << std::endl;
-        std::cout << "Aprobador: " << approver_email << std::endl;
-        std::cout << "Objetivo:  " << target_email << std::endl;
-        std::cout << "Nuevo Rol: " << new_role << " (1=Dev, 2=Lead, 3=Sen)" << std::endl;
+        std::cout << "\n --- Changing User Level ---" << std::endl;
+        std::cout << "Approver: " << approver_email << std::endl;
+        std::cout << "Target:   " << target_email << std::endl;
+        std::cout << "New Role: " << new_role << " (1=Dev, 2=Lead, 3=Sen)" << std::endl;
         
         if (new_role < 1 || new_role > 3) {
-            std::cerr << "Error: El rol debe ser 1, 2 o 3." << std::endl;
+            std::cerr << "\n[!] Error: Role must be 1, 2, or 3." << std::endl;
             return false;
         }
 
         try {
-            // Hashear password 
+            // Hash password 
             std::string hashedPassword = client::hasher_codec::hash_sha256(approver_password);
             
             if (hashedPassword.empty()) {
-                std::cerr << "Error interno al procesar la contrasena." << std::endl;
+                std::cerr << "\n[!] Internal error processing password." << std::endl;
                 return false;
             }
 
@@ -40,7 +38,7 @@ namespace client::cmd {
             return false;
 
         } catch (const std::exception &e) {
-            std::cerr << " Error en la operacion: " << e.what() << std::endl;
+            std::cerr << "\n[-] Error in operation: " << e.what() << std::endl;
             return false;
         }
     }
