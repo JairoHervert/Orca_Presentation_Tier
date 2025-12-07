@@ -1,15 +1,11 @@
-#include <iostream>
-#include <filesystem>
-#include <string>
-
 #include "client/commands.hpp"
 #include "client/json_codec.hpp"
+#include "client/key_loader.hpp"        
 #include "client/client_https.hpp"
-#include "client/response_handler.hpp" 
-#include "client/unpacker_codec.hpp" 
 #include "client/hasher_codec.hpp" 
+#include "client/unpacker_codec.hpp" 
+#include "client/response_handler.hpp" 
 #include "client/decipher_AES_codec.hpp" 
-#include "client/key_loader.hpp"         
 
 
 namespace client::cmd {
@@ -18,32 +14,32 @@ namespace client::cmd {
                    const std::string& email, const std::string& password, 
                    const std::string& key_path) {
 
-        std::cout << "\n--- Descifrando Repositorio ---" << std::endl;
-        std::cout << "Proyecto: " << repo_name << std::endl;
-        std::cout << "Destino:  " << destination << std::endl;
+        std::cout << "\n--- Decrypting Repository ---" << std::endl;
+        std::cout << "Project: " << repo_name << std::endl;
+        std::cout << "Destination: " << destination << std::endl;
 
         try {
 
-            // Ruta de llave AES
+            // Ruta de clave AES
             std::filesystem::path dirPath(key_path);
             std::filesystem::path fullKeyPath = dirPath / "AES.key";
 
             // Verificar que el archivo exista 
             if (!std::filesystem::exists(fullKeyPath)) {
-                std::cerr << "[-] Error: No se encuentra el archivo 'AES.key' en el directorio: " << key_path << std::endl;
+                std::cerr << "\n[-] Error: 'AES.key' file not found in directory: " << key_path << std::endl;
                 return false;
             }
 
-            // Cargar la llave
+            // Cargar la clave
             std::string aes_key_raw;
-            // Usamos la funcion que lee y decodifica el Base64 a bytes crudos
             if (!client::key_loader::load_aes_key(fullKeyPath.string(), aes_key_raw)) {
-                return false; // El loader ya imprimio el error especifico
+                return false;
             }
 
+            // Hashear la contraseña
             std::string hashedPassword = client::hasher_codec::hash_sha256(password);
             if (hashedPassword.empty()) {
-                std::cerr << "[-] Error interno de seguridad (Hashing)." << std::endl;
+                std::cerr << "\n[-] Internal security error (Hashing)." << std::endl;
                 return false;
             }
 
@@ -60,7 +56,7 @@ namespace client::cmd {
             }
 
             if (!response.contains("downloaded_file")) {
-                std::cerr << "[-] Error: No se encuentra la ruta del archivo descargado." << std::endl;
+                std::cerr << "\n[-] Error: Downloaded file path not found." << std::endl;
                 return false;
             }
 
@@ -76,12 +72,11 @@ namespace client::cmd {
             }
 
             // Descifrar con AES-GCM
-            std::cout << "\n[*] Descifrando datos (Usando llave local)..." << std::endl;
+            std::cout << "\n    Decrypting data (Using local key)..." << std::endl;
 
             // Pasamos 'aes_key_raw' que contiene los bytes listos para usar
             if (!client::decipher_aes::decipher_AES_GCM(encrypted_abs_path, tar_file_path, aes_key_raw)) {
-                std::cerr << "[-] Fallo el descifrado." << std::endl; 
-                std::cerr << "    Causas probables: Llave incorrecta o archivo corrupto." << std::endl;
+                std::cerr << "[-] Decryption failed." << std::endl; 
                 
                 // Limpieza parcial
                 try { std::filesystem::remove(encrypted_abs_path); } catch(...) {}
@@ -89,7 +84,7 @@ namespace client::cmd {
             }
 
             // Desempaquetar
-            std::cout << " [*] Extrayendo archivos..." << std::endl;
+            std::cout << "    Extracting files..." << std::endl;
             
             std::filesystem::path baseDest(destination);
             std::filesystem::path finalDest = baseDest / repo_name;
@@ -104,12 +99,12 @@ namespace client::cmd {
                 } catch (...) {}
 
                 std::cout << "--------------------------------------" << std::endl;
-                std::cout << "[OK] Repositorio recuperado exitosamente." << std::endl;
-                std::cout << "     Ubicacion final: " << finalDest.string() << std::endl; 
+                std::cout << "[OK] Repository recovered successfully." << std::endl;
+                std::cout << "     Final location: " << finalDest.string() << std::endl; 
                 return true;
 
             } else {
-                std::cerr << "[-] Error critico al desempaquetar el archivo." << std::endl;
+                std::cerr << "[-] Critical error unpacking the file." << std::endl;
                 try { 
                     if (std::filesystem::exists(encrypted_abs_path)) std::filesystem::remove(encrypted_abs_path);
                     if (std::filesystem::exists(tar_file_path)) std::filesystem::remove(tar_file_path);
@@ -118,7 +113,7 @@ namespace client::cmd {
             }
 
         } catch (const std::exception &e) {
-            std::cerr << "[-] Excepcion critica en run_uncyp: " << e.what() << std::endl;
+            std::cerr << "[-] Critical exception in run_uncyp: " << e.what() << std::endl;
             return false;
         }
     }

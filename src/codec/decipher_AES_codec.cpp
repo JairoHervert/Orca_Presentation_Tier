@@ -1,12 +1,11 @@
 #include "client/decipher_AES_codec.hpp"
-
 namespace client::decipher_aes {
     bool decipher_AES_GCM(const std::string &filePath, const std::string &fileOutPath, const std::string &keyAESRaw) {
         try {
             // Leer archivo cifrado
             std::ifstream inFile(filePath, std::ios::binary);
             if (!inFile) {
-                std::cerr << "[-] No se pudo abrir el archivo cifrado: " << filePath << std::endl;
+                std::cerr << "\n[-] Could not open encrypted file: " << filePath << std::endl;
                 return false;
             }
 
@@ -40,7 +39,7 @@ namespace client::decipher_aes {
             // Guardar
             std::ofstream outFile(fileOutPath, std::ios::binary);
             if (!outFile) {
-                std::cerr << "[-] No se pudo crear el archivo de salida." << std::endl;
+                std::cerr << "\n[-] Could not create output file." << std::endl;
                 return false;
             }
             outFile.write(plainText.data(), plainText.size());
@@ -49,10 +48,10 @@ namespace client::decipher_aes {
             return true;
 
         } catch (const CryptoPP::Exception &e) {
-            std::cerr << "[-] Error Crypto++: " << e.what() << std::endl;
+            std::cerr << "\n[!] Error: " << e.what() << std::endl;
             return false;
         } catch (const std::exception &e) {
-            std::cerr << "[-] Error: " << e.what() << std::endl;
+            std::cerr << "\n[!] Error: " << e.what() << std::endl;
             return false;
         }
     }

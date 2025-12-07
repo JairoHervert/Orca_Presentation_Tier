@@ -85,6 +85,13 @@ int main(int argc, char** argv) {
     cyprepo->add_option("-l,--leader", user_email, "Email del Lider")->required(); 
     cyprepo->add_option("-s,--senior", senior_email, "Email del Senior")->required();
 
+   // --- COMANDO: UNCYP ---
+   auto* uncyp = app.add_subcommand("uncyp", "Descarga y descifra un repositorio protegido");
+   uncyp->add_option("-n,--name", repo_name, "Nombre del repositorio")->required();
+   uncyp->add_option("-d,--dir", working_dir, "Directorio de destino")->default_val("./");
+   uncyp->add_option("-e,--email", user_email, "Email del usuario")->required();
+   uncyp->add_option("-k,--key", keyPath, "Directorio donde esta la llave AES.key")->default_val("./");
+
    
    
    // --- Subcomando: push
@@ -98,14 +105,6 @@ int main(int argc, char** argv) {
    auto* log = app.add_subcommand("log", "Muestra el historial de cambios");
    log->add_option("-n,--name", repo_name, "Nombre del proyecto")->required();
 
-
-
-   // --- COMANDO: UNCYP ---
-   auto* uncyp = app.add_subcommand("uncyp", "Descarga y descifra un repositorio protegido");
-   uncyp->add_option("-n,--name", repo_name, "Nombre del repositorio")->required();
-   uncyp->add_option("-d,--dir", working_dir, "Directorio de destino")->default_val("./");
-   uncyp->add_option("-e,--email", user_email, "Email del usuario")->required();
-   uncyp->add_option("-k,--key", keyPath, "Directorio donde esta la llave AES.key")->default_val("./");
 
 
    // Parsear los argumentos
@@ -149,20 +148,24 @@ int main(int argc, char** argv) {
         }
    }
 
-   // Ejecutar el subcomando correspondiente
-   if (nuser->parsed()) client::cmd::run_nuser(user_name, user_email, password);
-   if (init->parsed()) client::cmd::run_init(repo_name, user_email, password);
-   if (keygen->parsed()) client::cmd::run_keygen(keyType, working_dir, user_email, password);
-   if (clone->parsed()) {
-      std::string absolute_path = std::filesystem::absolute(working_dir).string();
-      client::cmd::run_clone(repo_name, absolute_path, user_email, password);
-   }
-   if (verify->parsed()) client::cmd::run_verify(approver_email, password, user_email);
-   if (chrole->parsed()) client::cmd::run_change_role(approver_email, password, user_email, new_role);
-   if (chstatus->parsed()) client::cmd::run_change_status(approver_email, password, user_email, new_status);
-   if (enroll->parsed()) client::cmd::run_enroll(approver_email, password, repo_name, user_email);
-   if (cyprepo->parsed()) client::cmd::run_cypher_repo(user_email, password, senior_email, repo_name, repo_tag);
-
+    // Ejecutar el subcomando correspondiente
+    if (nuser->parsed()) client::cmd::run_nuser(user_name, user_email, password);
+    if (init->parsed()) client::cmd::run_init(repo_name, user_email, password);
+    if (keygen->parsed()) client::cmd::run_keygen(keyType, working_dir, user_email, password);
+    if (clone->parsed()) {
+        std::string absolute_path = std::filesystem::absolute(working_dir).string();
+        client::cmd::run_clone(repo_name, absolute_path, user_email, password);
+    }
+    if (verify->parsed()) client::cmd::run_verify(approver_email, password, user_email);
+    if (chrole->parsed()) client::cmd::run_change_role(approver_email, password, user_email, new_role);
+    if (chstatus->parsed()) client::cmd::run_change_status(approver_email, password, user_email, new_status);
+    if (enroll->parsed()) client::cmd::run_enroll(approver_email, password, repo_name, user_email);
+    if (cyprepo->parsed()) client::cmd::run_cypher_repo(user_email, password, senior_email, repo_name, repo_tag);
+    if (uncyp->parsed()) {
+    std::string absolute_dest = std::filesystem::absolute(working_dir).string();
+    std::string absolute_key  = std::filesystem::absolute(keyPath).string();
+    client::cmd::run_uncyp(repo_name, absolute_dest, user_email, password, absolute_key);
+    }
 
    if (push->parsed()) {
       std::string absolute_dest = std::filesystem::absolute(working_dir).string();
@@ -170,11 +173,7 @@ int main(int argc, char** argv) {
       client::cmd::run_push(repo_name, user_email, absolute_dest, keyPath, password);
    }
    if (log->parsed()) client::cmd::run_log(repo_name);
-   if (uncyp->parsed()) {
-      std::string absolute_dest = std::filesystem::absolute(working_dir).string();
-      std::string absolute_key  = std::filesystem::absolute(keyPath).string();
-      client::cmd::run_uncyp(repo_name, absolute_dest, user_email, password, absolute_key);
-   }
+
 
    // Si no se ejecuta algun subcomando, muestra ayuda
    if (app.get_subcommands().empty()) {

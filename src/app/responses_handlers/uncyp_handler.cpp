@@ -5,25 +5,25 @@ namespace client::response_handler {
         std::cout << std::endl;
 
         if (!response.contains("status")) {
-            std::cerr << "[!] Error de protocolo: Respuesta sin status." << std::endl;
+            std::cerr << "[!] Protocol error: Response without status." << std::endl;
             return;
         }
 
         std::string status = response["status"];
 
         if (status == "ok") {
-            std::cout << "[+] Solicitud aceptada por el servidor." << std::endl;
-            std::cout << "    Descargando paquete cifrado..." << std::endl;
+            std::cout << "[+] Request accepted by server." << std::endl;
+            std::cout << "    Downloading encrypted packet..." << std::endl;
         } 
         
         else {
-            std::cerr << "[-] El servidor rechazo la solicitud." << std::endl;
+            std::cerr << "[-] Server rejected the request." << std::endl;
             
             if (response.contains("message")) {
                 
-                std::cerr <<  response["message"].get<std::string>() << std::endl;
+                std::cerr << "    " <<  response["message"].get<std::string>() << std::endl;
             } else {
-                std::cerr << "Razon desconocida." << std::endl;
+                std::cerr << "\n[!] Unknown reason." << std::endl;
             }
         }
     }
