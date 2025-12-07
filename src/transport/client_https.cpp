@@ -115,6 +115,78 @@ namespace client::http {
         }
     }
 
+    nlohmann::json upload_push_data(const std::string &path, const nlohmann::json &metadata_payload, const std::string &tar_filepath) {
+        try {
+            auto cli = conect();
+            std::ifstream file(tar_filepath, std::ios::binary | std::ios::ate);
+            if (!file) throw std::runtime_error("\n[!] Could not read the tar file");
+            
+            std::streamsize size = file.tellg();
+            file.seekg(0, std::ios::beg);
+            std::vector<char> buffer(size);
+            
+            if (!file.read(buffer.data(), size)) throw std::runtime_error("Error reading tar file");
+            std::string tar_content(buffer.begin(), buffer.end());
+
+            std::vector<httplib::MultipartFormData> items;
+            items.push_back({"metadata", metadata_payload.dump(), "", "application/json"});
+            items.push_back({"archive", tar_content, "upload.tar.gz", "application/x-gzip"});
+
+            auto res = cli->Post(path.c_str(), items);
+            if (!res || res->status != 200) throw std::runtime_error("Upload error");
+            
+            return nlohmann::json::parse(res->body);
+        } catch (const std::exception &e) {
+            std::cerr << "\n[!] Upload error: " << e.what() << std::endl;
+            throw;
+        }
+    }
+
+    // Enviar peticiones get HTTPS
+    nlohmann::json get_json_https(const std::string &path) {
+        try {
+            auto cli = conect(); 
+            cli->set_read_timeout(10, 0);
+
+            // GET
+            auto res = cli->Get(path.c_str());
+
+            // Error de Conexión
+            if (!res) {
+                return {
+                    {"status", "error"},
+                    {"message", "[!] Could not contact the server (Connection failed)"}
+                };
+            }
+
+            // Verificar Status HTTP
+            if (res->status == 200) {
+                try {
+                    return nlohmann::json::parse(res->body);
+                } catch (...) {
+                    return {
+                        {"status", "error"},
+                        {"message", "Error parsing response JSON: " + res->body}
+                    };
+                }
+            } else {
+
+                // Si el servidor devuelve error (404, 500, etc.)
+                return {
+                    {"status", "error"},
+                    {"message", "HTTP Error " + std::to_string(res->status)}
+                };
+            }
+
+        } catch (const std::exception &e) {
+            std::cerr << "\n[!] Exception in get_json_https: " << e.what() << std::endl;
+            return {
+                {"status", "error"},
+                {"message", e.what()}
+            };
+        }
+    }
+
     // ********* SE PUEDEN QUITAR **************
     
     // primera prueba para recibir una respuesta como string del server real
@@ -155,30 +227,6 @@ namespace client::http {
          throw;
       }
    }
-
-   nlohmann::json upload_push_data(const std::string &path, const nlohmann::json &metadata_payload, const std::string &tar_filepath) {
-        try {
-            auto cli = conect();
-            std::ifstream file(tar_filepath, std::ios::binary | std::ios::ate);
-            if (!file) throw std::runtime_error("No se pudo leer el tar");
-            std::streamsize size = file.tellg();
-            file.seekg(0, std::ios::beg);
-            std::vector<char> buffer(size);
-            if (!file.read(buffer.data(), size)) throw std::runtime_error("Error leyendo tar");
-            std::string tar_content(buffer.begin(), buffer.end());
-
-            std::vector<httplib::MultipartFormData> items;
-            items.push_back({"metadata", metadata_payload.dump(), "", "application/json"});
-            items.push_back({"archive", tar_content, "upload.tar.gz", "application/x-gzip"});
-
-            auto res = cli->Post(path.c_str(), items);
-            if (!res || res->status != 200) throw std::runtime_error("Error en upload");
-            return nlohmann::json::parse(res->body);
-        } catch (const std::exception &e) {
-            std::cerr << "Error upload: " << e.what() << std::endl;
-            throw;
-        }
-    }
 
 }
 

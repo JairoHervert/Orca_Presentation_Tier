@@ -190,4 +190,14 @@ namespace client::json_nlohmann
         };
     }
 
+    nlohmann::json make_add_user_file_payload(const std::string& approver_email, const std::string& hashed_password,const std::string& repo_name,const std::string& file_path, const std::string& target_user_email) {
+        return nlohmann::json{
+            {"approver_email", approver_email},
+            {"approver_password", hashed_password},
+            {"project_name", repo_name},    // En postman se llama 'project_name'
+            {"file_name", file_path},       // La ruta del archivo (ej. sub/rufles.py)
+            {"user_email", target_user_email}
+        };
+    }
+
 } // namespace client::json_nlohmann

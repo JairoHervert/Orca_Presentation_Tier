@@ -12,6 +12,13 @@ namespace client::http {
 
    // Envía un JSON vía POST y guarda la respuesta local.
    nlohmann::json post_download_file(const std::string& path, const nlohmann::json& payload, const std::string& default_path);
+   
+   // Sube un archivo .tar junto con un JSON vía POST y retorna la respuesta JSON.
+   nlohmann::json upload_push_data(const std::string &path, const nlohmann::json &metadata_payload, const std::string &tar_filepath);
+
+   // Cabecera para enviar un get request HTTPS y retornar la respuesta JSON
+   nlohmann::json get_json_https(const std::string &path);
+
 
    // ***** PROBABLEMENTE SE QUITEN *************
    // primera prueba para recibir una respuesta como string del server real
@@ -19,5 +26,4 @@ namespace client::http {
    // Se conecta al servidor y devuelve un puntero al cliente SSL.
    std::unique_ptr<httplib::SSLClient> conect();
    // Subir un archivo .tar y un JSON al mismo tiempo (Multipart)
-   nlohmann::json upload_push_data(const std::string &path, const nlohmann::json &metadata_payload, const std::string &tar_filepath);
 }

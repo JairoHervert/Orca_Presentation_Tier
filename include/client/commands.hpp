@@ -17,7 +17,7 @@ namespace client::cmd {
     
     bool run_push(const std::string&, const std::string&, const std::string&, const std::string&, const std::string&);
 
-    bool run_log(const std::string&);
+    void run_log();
 
     bool run_verify(const std::string&, const std::string&, const std::string&);
 
@@ -35,4 +35,6 @@ namespace client::cmd {
 
     bool run_uncyp(const std::string&, const std::string&, const std::string&, const std::string&, const std::string&);
    
+    bool run_add_user_file(const std::string& repo_name, const std::string& file_path,const std::string& target_email,const std::string& senior_email, const std::string& password);
+
 }

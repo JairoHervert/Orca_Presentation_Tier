@@ -3,6 +3,7 @@
 #pragma once
 
 #include <iostream>
+#include <iomanip>
 #include <string>
 
 namespace client::response_handler {
@@ -32,6 +33,11 @@ namespace client::response_handler {
    void handle_enroll_response(const nlohmann::json &response);
 
    void handle_uncyp_response(const nlohmann::json &response);
+
+   void handle_add_user_file_response(const nlohmann::json &response);
+
+   void handle_commits_response(const nlohmann::json &response);
+
 
    // Otras funciones de manejo de respuestas pueden ir aquí
 
