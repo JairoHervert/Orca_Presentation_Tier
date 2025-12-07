@@ -1,10 +1,10 @@
 #include "client/commands.hpp"
-#include <iostream>
 #include "client/json_codec.hpp"
 #include "client/client_https.hpp"
 #include "client/response_handler.hpp"
 #include "client/hasher_codec.hpp" 
 
+#include <iostream>
 namespace client::cmd {
 
     bool run_nuser(const std::string& name, const std::string& email, const std::string& password) {

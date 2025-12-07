@@ -10,7 +10,7 @@ namespace client::files_codec {
       try {
          std::ofstream outFile(filePath, std::ios::binary);
          if (!outFile) {
-            std::cerr << "Error al abrir el archivo para escribir: "
+            std::cerr << "[-] Error: opening file for writing: "
                       << filePath << std::endl;
             return false;
          }
@@ -20,7 +20,7 @@ namespace client::files_codec {
          return true;
       }
       catch (const std::exception &e) {
-         std::cerr << "Error al guardar en el archivo: "
+         std::cerr << "[-] Error: saving to file: "
                    << e.what() << std::endl;
          return false;
       }

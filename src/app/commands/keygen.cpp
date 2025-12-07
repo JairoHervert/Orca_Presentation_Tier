@@ -1,67 +1,93 @@
-#include <iostream>
-#include <filesystem> 
 #include "client/commands.hpp"
 #include "client/json_codec.hpp"
 #include "client/client_https.hpp"
 #include "client/response_handler.hpp"
-//#include "client/crypto_codec.hpp"
 #include "client/generate_keypair_codec.hpp"
 #include "client/files_codec.hpp"
 #include "client/hasher_codec.hpp"
 
+#include <iostream>
+#include <filesystem> 
+
 namespace client::cmd {
 
    bool run_keygen_ecdsa(const std::string& pathToOutput, const std::string& email, const std::string& password) {
-        std::cout << std::endl << "\n --- Generacion de Llaves  ---" << std::endl;
-        std::cout << "Usuario: " << email << std::endl;
-        std::cout << "Claves: (ECDSA P-256) \n";
+        std::cout << std::endl << "\n --- Key Generation ---" << std::endl;
+        std::cout << "User: " << email << std::endl;
+        std::cout << "Keys: (ECDSA P-256) \n";
        
-       std::filesystem::path outputDir(pathToOutput);
-       if (!std::filesystem::exists(outputDir)) {
-           std::cerr << "[-] Error Directorio no existe: " << pathToOutput << std::endl;
-           return false; 
-       }
+        // Validar Directorio
+        std::filesystem::path outputDir(pathToOutput);
+        if (!std::filesystem::exists(outputDir)) {
+            std::cerr << "[-] Error: Directory does not exist: " << pathToOutput << std::endl;
+            return false; 
+        }
 
-       ECDSAKeyPair ECDSAkeyPair;
-       try {
-           ECDSAkeyPair = client::generate_keypair_codec::generate_ecdsa_keypair();
-       } catch (...) { return false; }
+        // Generar Llaves
+        ECDSAKeyPair ECDSAkeyPair;
+        try {
+            ECDSAkeyPair = client::generate_keypair_codec::generate_ecdsa_keypair();
+        } catch (...) { return false; }
 
-       // Guardar
-       std::filesystem::path privPath = outputDir / "private_ecdsa.key";
+        // Hashear password
+        std::string hashedPass = client::hasher_codec::hash_sha256(password);
+        std::cout << std::endl;
        
-       if (!client::files_codec::save_string_to_file(ECDSAkeyPair.ECDSAprivateKey, privPath.string())) return false;
-       
+        try {
+            // Enviar al Servidor
+            auto payload = client::json_nlohmann::make_keygen_ecdsa_payload(ECDSAkeyPair.ECDSApublicKey, email, hashedPass);
+            auto response = client::http::post_json_https("/user/add_kpub_ecdsa", payload);
+            
+            // Imprimir respuesta cruda o procesada
+            client::response_handler::handle_keygen_response(response);
 
-       std::string hashedPass = client::hasher_codec::hash_sha256(password);
-       std::cout << std::endl;
-       
-       try {
-           auto payload = client::json_nlohmann::make_keygen_ecdsa_payload(ECDSAkeyPair.ECDSApublicKey, email, hashedPass);
-           auto response = client::http::post_json_https("/user/add_kpub_ecdsa", payload);
-           client::response_handler::handle_keygen_response(response);
-       } catch (const std::exception& e) {
-           std::cerr << "[!] Error de red: " << e.what() << std::endl;
-       }
-       return true;
+            // Verificar Éxito del Servidor
+            bool serverAccepted = false;
+            if (response.contains("status") && (response["status"] == "ok" || response["status"] == "success")) {
+                serverAccepted = true;
+            }
+
+            // Guardar SOLO si el servidor aceptó
+            if (serverAccepted) {
+                std::cout << "\n[*] Server accepted ECDSA key. Saving to disk..." << std::endl;
+
+                std::filesystem::path privPath = outputDir / "private_ecdsa.key";
+                
+                // Intentar guardar el archivo
+                if (client::files_codec::save_string_to_file(ECDSAkeyPair.ECDSAprivateKey, privPath.string())) {
+                     std::cout << "  -> Private Key: " << privPath.string() << std::endl;
+                     return true;
+                } else {
+                     std::cerr << "[-] Permission error writing files." << std::endl;
+                     return false;
+                }
+            } else {
+                return false; 
+            }
+
+        } catch (const std::exception& e) {
+            std::cerr << "[!] Network Error: " << e.what() << std::endl;
+            return false;
+        }
    }
 
+   // ... (run_keygen_rsa y run_keygen se quedan igual) ...
     bool run_keygen_rsa(const std::string& pathToOutput, const std::string& email, const std::string& password) {
-        std::cout << "\n --- Generacion de Llaves  ---" << std::endl << std::endl;
-        std::cout << "Usuario: " << email << std::endl;
-        std::cout << "Claves: (RSA-OAEP 2048) \n"<< std::endl;
+        std::cout << "\n --- Key Generation ---" << std::endl;
+        std::cout << "User: " << email << std::endl;
+        std::cout << "Keys: (RSA-OAEP 2048) \n"<< std::endl;
 
         // Validar Directorio
         std::filesystem::path outputDir(pathToOutput);
         if (!std::filesystem::exists(outputDir) || !std::filesystem::is_directory(outputDir)) {
-            std::cerr << "[-] Error El directorio de salida no es valido: " << pathToOutput << std::endl;
+            std::cerr << "[-] Error: Invalid output directory: " << pathToOutput << std::endl;
             return false;
         }
 
         // Hashear password
         std::string hashedPass = client::hasher_codec::hash_sha256(password);
         if (hashedPass.empty()) {
-            std::cerr << "[-] Error Fallo interno al procesar password." << std::endl;
+            std::cerr << "[-] Error: Internal failure processing password." << std::endl;
             return false;
         }
 
@@ -70,9 +96,9 @@ namespace client::cmd {
         try {
             RSAkeyPair = client::generate_keypair_codec::generate_rsa_keypair();
             
-            if (RSAkeyPair.RSApublicKey.empty()) throw std::runtime_error("Clave publica vacia");
+            if (RSAkeyPair.RSApublicKey.empty()) throw std::runtime_error("Empty public key");
         } catch (const std::exception& e) { 
-            std::cerr << "[-] Error " << e.what() << std::endl;
+            std::cerr << "[-] Error: " << e.what() << std::endl;
             return false; 
         }
 
@@ -90,19 +116,19 @@ namespace client::cmd {
                 serverAccepted = true;
             }
 
-            //  GuardarSOLO si el servidor aceptó
+            //  Guardar SOLO si el servidor aceptó
             if (serverAccepted) {
-                std::cout << "\n[+] Servidor acepto la clave RSA. Guardando en disco..." << std::endl;
+                std::cout << "\n[*] Server accepted RSA key. Saving to disk..." << std::endl;
                 
                 std::filesystem::path privPath = outputDir / "private_rsa.key";
 
                 bool savePriv = client::files_codec::save_string_to_file(RSAkeyPair.RSAprivateKey, privPath.string());
 
                 if (savePriv) {
-                    std::cout << "  -> Clave Privada: " << privPath.string() << std::endl;
+                    std::cout << "  -> Private Key: " << privPath.string() << std::endl;
                     return true;
                 } else {
-                    std::cerr << "[-] Error de permisos al escribir archivos." << std::endl;
+                    std::cerr << "[-] Permission error writing files." << std::endl;
                     return false;
                 }
             } else {
@@ -110,7 +136,7 @@ namespace client::cmd {
             }
 
         } catch (const std::exception& e) {
-            std::cerr << "[!] Error de Conexion " << e.what() << std::endl;
+            std::cerr << "[!] Connection Error: " << e.what() << std::endl;
             return false;
         }
     }
@@ -122,7 +148,7 @@ namespace client::cmd {
        } else if (keyType == "rsa") {
            return run_keygen_rsa(pathToOutput, email, password);
        } else {
-           std::cerr << "[!] Clave no resgistrada en el Sistema: " << keyType << " (Use 'ecdsa' o 'rsa')" << std::endl;
+           std::cerr << "[!] Key type not registered in system: " << keyType << " (Use 'ecdsa' or 'rsa')" << std::endl;
            return false;
        }
    }

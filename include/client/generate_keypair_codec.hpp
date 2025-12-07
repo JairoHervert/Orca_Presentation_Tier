@@ -1,6 +1,9 @@
 #pragma once
 
+#include <iostream>
+#include <stdexcept>
 #include <string>
+
 #include <eccrypto.h>
 #include <osrng.h>
 #include <oids.h>
@@ -29,7 +32,5 @@ namespace client::generate_keypair_codec {
 
     ECDSAKeyPair generate_ecdsa_keypair();
     RSAKeyPair generate_rsa_keypair();
-
-
 
 }

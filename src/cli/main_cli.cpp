@@ -32,12 +32,12 @@ int main(int argc, char** argv) {
    nuser->add_option("-u,--user", user_name, "Nombre de usuario")->required();
    nuser->add_option("-e,--email", user_email, "Correo electronico")->required();
 
-   // --- Subcomando: init ---
+   // --- Subcomando: init --- //
    auto* init = app.add_subcommand("init", "Inicializa un nuevo repositorio remoto");
    init->add_option("-n,--name", repo_name, "Nombre del Repositorio")->required();
    init->add_option("-e,--email", user_email, "Email del Dueno")->required();
 
-      // --- Subcomando: keygen ---
+      // --- Subcomando: keygen --- //
    auto* keygen = app.add_subcommand("keygen", "Genera un par de claves criptograficas");
    std::string keyType;
    keygen->add_option("-t,--type", keyType, "Tipo de clave (e.g., ecdsa, aes)")->required();

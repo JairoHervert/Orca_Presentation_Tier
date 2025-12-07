@@ -1,14 +1,4 @@
 #include "client/generate_keypair_codec.hpp"
-
-#include <iostream>
-#include <stdexcept>
-#include <eccrypto.h>
-#include <osrng.h>
-#include <oids.h>
-#include <base64.h>
-#include <files.h>
-#include <rsa.h>
-
 namespace client::generate_keypair_codec {
 
    ECDSAKeyPair generate_ecdsa_keypair() {
@@ -23,7 +13,7 @@ namespace client::generate_keypair_codec {
       ECDSAprivateKey.MakePublicKey(ECDSApublicKey);
 
       if (!ECDSAprivateKey.Validate(prng, 3) || !ECDSApublicKey.Validate(prng, 3)) {
-         throw std::runtime_error("Invalid ECC keypair");
+         throw std::runtime_error("[!] Invalid ECC keypair");
       }
 
       // ===== PRIVATE KEY BASE64 =====
@@ -58,7 +48,7 @@ namespace client::generate_keypair_codec {
        try {
            CryptoPP::AutoSeededRandomPool prng;
            
-           // Parámetros RSA
+           // RSA Parameters
            CryptoPP::InvertibleRSAFunction params;
            params.GenerateRandomWithKeySize(prng, 2048);
 
@@ -66,9 +56,9 @@ namespace client::generate_keypair_codec {
             RSAPublicKey RSApublicKey(params);
 
 
-           // Validar
+           // Validate
            if (!RSAprivateKey.Validate(prng, 3) || !RSApublicKey.Validate(prng, 3)) {
-               throw std::runtime_error("Error: Llaves RSA generadas invalidas.");
+               throw std::runtime_error("[-] Error Invalid RSA keypair generated.");
            }
 
            // Guardar Privada en String (Base64)
@@ -88,7 +78,7 @@ namespace client::generate_keypair_codec {
            return RSAkeyPair;
 
        } catch (const std::exception &e) {
-           std::cerr << "[Crypto] Error generando llaves RSA: " << e.what() << std::endl;
+           std::cerr << "[-] Error generating RSA keys: " << e.what() << std::endl;
            throw;
        }
    }
