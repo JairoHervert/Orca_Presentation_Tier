@@ -37,7 +37,7 @@ namespace client::cmd {
             }
 
             // Hashear password del líder
-            std::string hashedPassword = client::hasher::hash_sha256(leader_password);
+            std::string hashedPassword = client::hasher_codec::hash_sha256(leader_password);
             if (hashedPassword.empty()) {
                 std::cerr << "Error interno al procesar password." << std::endl;
                 return false;

@@ -1,12 +1,16 @@
 #pragma once
+
+#include <iostream>
+#include <stdexcept>
 #include <string>
 
-// Headers de Crypto++ necesarios
+
 #include <sha.h>
 #include <hex.h>
+#include <base64.h>
 #include <files.h>
 
-namespace client::hasher {
+namespace client::hasher_codec {
 
     // Calcula el hash SHA-256 de un texto
     std::string hash_sha256(const std::string& input);

@@ -20,7 +20,7 @@ namespace client::cmd {
         
         try {
             // Hashear password
-            std::string hashedPassword = client::hasher::hash_sha256(approver_pass);
+            std::string hashedPassword = client::hasher_codec::hash_sha256(approver_pass);
 
             // Crear Payload
             nlohmann::json payload = client::json_nlohmann::make_change_status_payload(approver_email, hashedPassword, target_email, new_status);

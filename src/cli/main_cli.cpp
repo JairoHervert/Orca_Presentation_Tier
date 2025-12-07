@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
    std::string keyPath;
 
     
-   // --- Subcomando nuser ---
+   // --- Subcomando nuser --- //
    auto* nuser = app.add_subcommand("nuser", "nuserura usuario y email global");
    nuser->add_option("-u,--user", user_name, "Nombre de usuario")->required();
    nuser->add_option("-e,--email", user_email, "Correo electronico")->required();
@@ -149,28 +149,25 @@ int main(int argc, char** argv) {
        int attempts = 0;
        const int MAX_ATTEMPTS = 3;
        
-       while (!valid) {
-       //while (!valid && attempts < MAX_ATTEMPTS) {
-           password = client::console::get_password_secure("password: ");
-
-           if (client::console::validate_password_policy(password)) valid = true;
+      while (!valid && attempts < MAX_ATTEMPTS) {
+           password = client::console::get_password_secure("Password: ");
            
-    //        if (client::console::validate_password_policy(password)) {
-    //            valid = true;
-    //        } else {
-    //            attempts++;
-    //            std::cerr << "\n[ERROR] password debil. Requisitos:" << std::endl;
-    //            std::cerr << "  - Minimo 8 caracteres" << std::endl;
-    //            std::cerr << "  - Al menos una letra" << std::endl;
-    //            std::cerr << "  - Al menos un numero" << std::endl;
+           if (client::console::validate_password_policy(password)) {
+               valid = true;
+           } else {
+               attempts++;
+               std::cerr << "\n[-] Weak password. Requirements:" << std::endl;
+               std::cerr << "  - Minimum 8 characters" << std::endl;
+               std::cerr << "  - At least one letter" << std::endl;
+               std::cerr << "  - At least one number" << std::endl;
                
-    //            if (attempts < MAX_ATTEMPTS) {
-    //                std::cerr << "\nIntentos restantes: " << (MAX_ATTEMPTS - attempts) << std::endl;
-    //            } else {
-    //                std::cerr << "\n[ACCESO DENEGADO] Demasiados intentos fallidos." << std::endl;
-    //                return 1;
-    //            }
-    //        }
+               if (attempts < MAX_ATTEMPTS) {
+                   std::cerr << "\nRemaining attempts: " << (MAX_ATTEMPTS - attempts) << std::endl;
+               } else {
+                   std::cerr << "\n[!] Too many failed attempts." << std::endl;
+                   return 1;
+               }
+           }
         }
    }
 

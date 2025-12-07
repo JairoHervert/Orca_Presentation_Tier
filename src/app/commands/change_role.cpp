@@ -20,7 +20,7 @@ namespace client::cmd {
 
         try {
             // Hashear password 
-            std::string hashedPassword = client::hasher::hash_sha256(approver_password);
+            std::string hashedPassword = client::hasher_codec::hash_sha256(approver_password);
             
             if (hashedPassword.empty()) {
                 std::cerr << "Error interno al procesar la contrasena." << std::endl;

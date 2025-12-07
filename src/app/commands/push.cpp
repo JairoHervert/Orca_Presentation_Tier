@@ -48,7 +48,7 @@ namespace client::cmd {
 
         try {
             
-            std::string hashedPass = client::hasher::hash_sha256(password);
+            std::string hashedPass = client::hasher_codec::hash_sha256(password);
             
             auto payload_check = client::json_nlohmann::make_push_check_payload(project_name, email, hashedPass);
             auto response_check = client::http::post_json_https("/push/check", payload_check);

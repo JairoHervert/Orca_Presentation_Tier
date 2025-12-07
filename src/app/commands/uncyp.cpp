@@ -41,7 +41,7 @@ namespace client::cmd {
                 return false; // El loader ya imprimio el error especifico
             }
 
-            std::string hashedPassword = client::hasher::hash_sha256(password);
+            std::string hashedPassword = client::hasher_codec::hash_sha256(password);
             if (hashedPassword.empty()) {
                 std::cerr << "[-] Error interno de seguridad (Hashing)." << std::endl;
                 return false;

@@ -8,15 +8,15 @@
 namespace client::cmd {
 
     bool run_nuser(const std::string& name, const std::string& email, const std::string& password) {
-        std::cout << std::endl << "--- Registrando Nuevo Usuario ---" << std::endl;
-        std::cout << "Usuario: " << name << std::endl;
-        std::cout << "Correo:  " << email << std::endl;
+        std::cout << std::endl << "--- Registering New User ---" << std::endl;
+        std::cout << "User:  " << name << std::endl;
+        std::cout << "Email: " << email << std::endl;
  
         try {
-            std::string hashedPassword = client::hasher::hash_sha256(password);
+            std::string hashedPassword = client::hasher_codec::hash_sha256(password);
             
             if (hashedPassword.empty()) {
-                std::cerr << "Error al hashear la contrasena." << std::endl;
+                std::cerr << "Error hashing the password." << std::endl;
                 return false;
             }
             
@@ -24,7 +24,7 @@ namespace client::cmd {
             nlohmann::json payload = client::json_nlohmann::make_nuser_payload(name, email, hashedPassword);
 
             // Enviamos la petición
-            std::cout <<std::endl;
+            std::cout << std::endl;
             nlohmann::json response = client::http::post_json_https("/user/create", payload);
 
             // Manejamos la respuesta
@@ -33,7 +33,7 @@ namespace client::cmd {
             return true;
 
         } catch (const std::exception &e) {
-            std::cerr << "Error al registrar usuario: " << e.what() << std::endl;
+            std::cerr << "Error registering user: " << e.what() << std::endl;
             return false;
         }
     }

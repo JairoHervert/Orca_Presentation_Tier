@@ -33,7 +33,7 @@ namespace client::cmd {
        if (!client::files_codec::save_string_to_file(ECDSAkeyPair.ECDSAprivateKey, privPath.string())) return false;
        
 
-       std::string hashedPass = client::hasher::hash_sha256(password);
+       std::string hashedPass = client::hasher_codec::hash_sha256(password);
        std::cout << std::endl;
        
        try {
@@ -59,7 +59,7 @@ namespace client::cmd {
         }
 
         // Hashear password
-        std::string hashedPass = client::hasher::hash_sha256(password);
+        std::string hashedPass = client::hasher_codec::hash_sha256(password);
         if (hashedPass.empty()) {
             std::cerr << "[-] Error Fallo interno al procesar password." << std::endl;
             return false;

@@ -8,14 +8,14 @@
 namespace client::cmd {
 
    bool run_init(const std::string& repo_name, const std::string& email, const std::string& password) {
-      std::cout << std::endl << "\n --- Inicializando Nuevo Repositorio ---" << std::endl;
-      std::cout << "Nombre: " << repo_name << std::endl;
-      std::cout << "Owner:  " << email << std::endl;
+      std::cout << std::endl << "\n --- Initializing New Repository ---" << std::endl;
+      std::cout << "Name:  " << repo_name << std::endl;
+      std::cout << "Owner: " << email << std::endl;
 
       // Hashear password
-      std::string hashedPassword = client::hasher::hash_sha256(password);
+      std::string hashedPassword = client::hasher_codec::hash_sha256(password);
       if (hashedPassword.empty()) {
-          std::cerr << "[-]] Error al procesar la contrasena." << std::endl;
+          std::cerr << "[-] Error processing password." << std::endl;
           return false;
       }
 
@@ -34,7 +34,7 @@ namespace client::cmd {
           }
 
       } catch (const std::exception &e) {
-          std::cerr << "[!] Error de Conexion " << e.what() << std::endl;
+          std::cerr << "[!] Connection Error: " << e.what() << std::endl;
           return false;
       }
 

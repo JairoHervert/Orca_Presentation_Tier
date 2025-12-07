@@ -25,7 +25,7 @@ namespace {
             if (entry.is_directory()) {
                 scan_recursive(entry.path(), base_path, file_map);
             } else if (entry.is_regular_file()) {
-                file_map[rel_path] = client::hasher::hash_file_sha256(entry.path().string());
+                file_map[rel_path] = client::hasher_codec::hash_file_sha256(entry.path().string());
             }
         }
     }

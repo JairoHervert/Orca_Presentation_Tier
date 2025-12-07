@@ -11,49 +11,47 @@
 namespace client::http {
 
    // Enviar peticiones post HTTPS
-   nlohmann::json post_json_https(const std::string &path, const nlohmann::json &payload) {
-      try {
-         auto cli = conect(); // Ahora es un unique_ptr
-         std::string payload_str = payload.dump();
-         
-         // Usar el puntero con ->
-         auto res = cli->Post(path.c_str(), payload_str, "application/json");
-         
-         if (!res) {
-            throw std::runtime_error("[!] No se pudo contactar al servidor (Connection failed)");
-         }
+    nlohmann::json post_json_https(const std::string &path, const nlohmann::json &payload) {
+        try {
+            auto cli = conect(); // Ahora es un unique_ptr
+            std::string payload_str = payload.dump();
+            
+            // Usar el puntero con ->
+            auto res = cli->Post(path.c_str(), payload_str, "application/json");
+            
+            if (!res) {
+                throw std::runtime_error("[!] Could not contact the server (Connection failed)");
+            }
 
-         if (res->status == 200 || res->status == 201 || res->status == 400 || res->status == 500 ) {
-//         if (res->status >= 200 && res->status < 600) {
-             try {
-                 return nlohmann::json::parse(res->body);
-             } catch (...) {
-                 return nlohmann::json{
-                     {"status", "error"},
-                     {"message", res->body}
-                 };
-             }
-         }
-         
-         return nlohmann::json::parse(res->body);throw std::runtime_error("Error HTTP desconocido: " + std::to_string(res->status));
-
-      } catch (const std::exception &e) {
-         std::cerr << "[-] Error en post_json_https: " << e.what() << std::endl;
-         throw;
-      }
-   }
-
-    // Para clone y uncyp
-    std::string extract_filename(const std::string& cd) {
-        std::smatch m;
-        std::regex re("filename=\"?([^\"]+)\"?");
-        return (std::regex_search(cd, m, re) && m.size() > 1) ? m.str(1) : "";
+            if (res->status == 200 || res->status == 201 || res->status == 400 || res->status == 500 ) {
+                try {
+                    return nlohmann::json::parse(res->body);
+                } catch (...) {
+                    return nlohmann::json{
+                        {"status", "error"},
+                        {"message", res->body}
+                    };
+                }
+            }
+            
+            return nlohmann::json::parse(res->body);
+        } catch (const std::exception &e) {
+            std::cerr << "[-] Error in post_json_https: " << e.what() << std::endl;
+            throw;
+        }
     }
 
-    std::string ensure_tar_extension(std::string name) {
-        if (!std::filesystem::path(name).has_extension())
-            name += ".tar";
-        return name;
+        // Para clone y uncyp
+        std::string extract_filename(const std::string& cd) {
+            std::smatch m;
+            std::regex re("filename=\"?([^\"]+)\"?");
+            return (std::regex_search(cd, m, re) && m.size() > 1) ? m.str(1) : "";
+        }
+
+        std::string ensure_tar_extension(std::string name) {
+            if (!std::filesystem::path(name).has_extension())
+                name += ".tar";
+            return name;
     }
         
 
