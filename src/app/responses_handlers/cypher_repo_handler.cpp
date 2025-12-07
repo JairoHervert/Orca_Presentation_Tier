@@ -7,17 +7,17 @@ namespace client::response_handler {
         if (response.contains("status")) {
             std::string status = response["status"];
             if (status == "ok" || status == "success") {
-                std::cout << "[+] El repositorio ha sido cifrado correctamente." << std::endl;
+                std::cout << "[+] Repository encrypted successfully." << std::endl;
             } else {
-                std::cout << "[-] No se pudo cifrar el repositorio." << std::endl;
+                std::cout << "[-] Failed to encrypt repository." << std::endl;
             }
         }
 
         if (response.contains("message")) {
-            std::cout << "Mensaje: " << response["message"] << std::endl;
+            std::cout << "    " << response["message"] << std::endl;
         }
         
         std::cout << "----------------------------------------------" << std::endl;
     }
 
-} 
+}

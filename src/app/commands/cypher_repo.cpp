@@ -1,45 +1,29 @@
 #include "client/commands.hpp"
-#include <iostream>
-#include <filesystem>
-#include <string>
-
 #include "client/json_codec.hpp"
-#include "client/client_https.hpp"
-#include "client/response_handler.hpp"
-#include "client/hasher_codec.hpp"
-#include "client/files_codec.hpp"
 #include "client/key_loader.hpp"
+#include "client/files_codec.hpp"
+#include "client/client_https.hpp"
+#include "client/hasher_codec.hpp"
+#include "client/response_handler.hpp"
 #include "client/decipher_RSA_codec.hpp"
-// Pruebas
-#include "client/decipher_AES_codec.hpp"
-#include "client/unpacker_codec.hpp"
 
 namespace client::cmd {
 
     bool run_cypher_repo(const std::string& leader_email, const std::string& leader_password, 
                          const std::string& senior_email, const std::string& repo_name, 
-                         const std::string& repo_tag, const std::string& raw_pathkey) { // Renombramos a raw_pathkey
+                         const std::string& repo_tag) { 
 
-        std::cout << "\n --- Protegiendo Repositorio (Cifrado) ---" << std::endl;
-        std::cout << "Proyecto: " << repo_name << " (" << repo_tag << ")" << std::endl;
-        std::cout << "Lider:    " << leader_email << std::endl;
+        std::cout << "\n --- Protecting Repository (Encryption) ---" << std::endl;
+        std::cout << "Project: " << repo_name << " (" << repo_tag << ")" << std::endl;
+        std::cout << "Leader:  " << leader_email << std::endl;
 
         try {
-            std::filesystem::path keyPath(raw_pathkey);
-            if (std::filesystem::is_directory(keyPath)) {
-                keyPath /= "private_rsa.key";
-            }
-
-            // Verificamos que el archivo exista
-            if (!std::filesystem::exists(keyPath)) {
-                std::cerr << "[-] Error: No se encuentra el archivo de llave privada en: " << keyPath.string() << std::endl;
-                return false;
-            }
+            
 
             // Hashear password del líder
             std::string hashedPassword = client::hasher_codec::hash_sha256(leader_password);
             if (hashedPassword.empty()) {
-                std::cerr << "Error interno al procesar password." << std::endl;
+                std::cerr << "\n[!] Internal error processing password." << std::endl;
                 return false;
             }
 
@@ -47,7 +31,6 @@ namespace client::cmd {
 
             nlohmann::json response = client::http::post_json_https("/repo/protect", payload);
 
-            // Mostrar respuesta visual
             client::response_handler::handle_cypher_repo_response(response);
 
             // Verificamos si el servidor mandó la clave cifrada
@@ -55,38 +38,62 @@ namespace client::cmd {
                 
                 std::string encryptedKey = response["aes_rsa_key"];
 
-                std::cout << "Deseas guardar esta clave en un archivo ahora [s/n]: ";
+                // CAMBIO:
+                std::cout << "\n[!] Do you want to save this key to a file now [y/n]: ";
                 char opt;
                 std::cin >> opt;
 
-                if (opt == 's' || opt == 'S') {
+                if (opt == 'y' || opt == 'Y') {
+                    // Pedimos la ruta de la clave privada RSA
+                    std::cout << "\n[*] Enter the path to your RSA private key (or directory): ";
+                    std::string pathKey;
+                    std::cin >> pathKey;
+
+                    std::filesystem::path keyPath(pathKey);
+                    if (std::filesystem::is_directory(keyPath)) {
+                        keyPath /= "private_rsa.key";
+                    }
+
+                    // Verificamos que el archivo exista
+                    if (!std::filesystem::exists(keyPath)) {
+                        std::cerr << "\n[-] Error: Private key file not found at: " << keyPath.string() << std::endl;
+                        return false;
+                    }
 
                     // Recuramos la clave RSA privada 
                     client::decipher_RSA_codec::RSAPrivateKey RSAprivatekey;
 
+
                     if (!client::key_loader::load_private_key(keyPath.string(), RSAprivatekey)) {
-                        std::cerr << "[-] Fallo critico: No se pudo cargar la llave privada." << std::endl;
+                        std::cerr << "\n[-] Critical failure: Could not load private key." << std::endl;
                         return false; 
                     }
 
-                    std::string outPlaintext;
+                    std::string AESkey;
                     // Intentamos descifrar
-                    if(!client::decipher_RSA_codec::OAEP_decryptFile(RSAprivatekey, encryptedKey, outPlaintext)) {
-                         std::cerr << "[-] Fallo el descifrado. Verifica que sea la llave correcta." << std::endl;
+                    if(!client::decipher_RSA_codec::OAEP_decryptFile(RSAprivatekey, encryptedKey, AESkey)) {
+                         std::cerr << "\n[-] Decryption failed. Verify it is the correct key." << std::endl;
                          return false;
                     }
 
-                    std::string filename = "AES.key";
-                    if (client::files_codec::save_string_to_file(outPlaintext, filename)) {
-                        std::cout << "[+] Clave guardada exitosamente en: " << filename << std::endl;
-                        std::cout << "Guardala en un lugar seguro. Solo la llave privada RSA del lider puede descifrarla." << std::endl;
+                    //ingresar ruta y nombre de archivo para guardar la clave AES
+                    std::cout << "\n[*] Enter the path to save the AES key: ";
+                    std::string filename;
+                    std::cin >> filename;
+                    //agregar el _tag al AES.key
+                    //filename += "_" + repo_tag + "\\AES.key";
+                    
+                    filename += "\\AES.key";
+                    if (client::files_codec::save_string_to_file(AESkey, filename)) {
+                        std::cout << "\n[+] Key saved successfully to: " << filename << std::endl;
+                        std::cout << "    Keep it in a safe place." << std::endl;
                     } else {
-                        std::cerr << "[-] Error No se pudo guardar el archivo." << std::endl;
+                        std::cerr << "\n[-] Error: Could not save the file." << std::endl;
                         return false;
                     }
 
                 } else {
-                    std::cout << "[!] Operacion finalizada sin guardar la clave localmente." << std::endl;
+                    std::cout << "\n[!] Operation finished without saving the key locally." << std::endl;
                     return false;
                 }
             }
@@ -94,7 +101,7 @@ namespace client::cmd {
             return true;
 
         } catch (const std::exception &e) {
-            std::cerr << "Error en cypher_repo: " << e.what() << std::endl;
+            std::cerr << "\n[-] Error in cypher_repo: " << e.what() << std::endl;
             return false;
         }
     }

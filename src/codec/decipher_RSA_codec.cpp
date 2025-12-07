@@ -35,11 +35,9 @@ bool OAEP_decryptFile(
         return true;
     }
     catch(const CryptoPP::Exception& e) {
-        cerr << "[!] Decryption error: " << e.what() << endl;
         return false;
     }
     catch(const std::exception& e) {
-        cerr << "[-] Error: " << e.what() << endl;
         return false;
     }
 }

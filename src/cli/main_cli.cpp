@@ -70,12 +70,20 @@ int main(int argc, char** argv) {
     int new_status = 0;
     chstatus->add_option("-s,--status", new_status, "Nuevo rol (1=Activo, 0=Inactivo)")->required();
    
-    // --- COMANDO: ENROLL ---
+    // --- COMANDO: Enroll --- //
     auto* enroll = app.add_subcommand("enroll", "Agrega un usuario a un proyecto existente");
     enroll->add_option("-n,--name", repo_name, "Nombre del proyecto")->required();
     enroll->add_option("-a,--approver", approver_email, "Email del Lider/Senior")->required();
     enroll->add_option("-t,--target", user_email, "Email del usuario a agregar")->required();
 
+    // --- COMANDO: cyprepo ---
+    auto* cyprepo = app.add_subcommand("cyprepo", "Cifra un repositorio en el servidor");
+    cyprepo->add_option("-n,--name", repo_name, "Nombre del repositorio")->required();
+    std::string repo_tag;
+    cyprepo->add_option("-t,--tag", repo_tag, "Tag o version")->required();
+    std::string senior_email;
+    cyprepo->add_option("-l,--leader", user_email, "Email del Lider")->required(); 
+    cyprepo->add_option("-s,--senior", senior_email, "Email del Senior")->required();
 
    
    
@@ -91,21 +99,6 @@ int main(int argc, char** argv) {
    log->add_option("-n,--name", repo_name, "Nombre del proyecto")->required();
 
 
-
-
-
-
-
-
-   // --- COMANDO: cyprepo ---
-   auto* cyprepo = app.add_subcommand("cyprepo", "Cifra un repositorio en el servidor");
-   cyprepo->add_option("-n,--name", repo_name, "Nombre del repositorio")->required();
-   std::string repo_tag;
-   cyprepo->add_option("-t,--tag", repo_tag, "Tag o version")->required();
-   std::string senior_email;
-   cyprepo->add_option("-l,--leader", user_email, "Email del Lider")->required(); 
-   cyprepo->add_option("-s,--senior", senior_email, "Email del Senior")->required();
-   cyprepo->add_option("-o,--output", working_dir, "Directorio existente donde se encuentra la clave privada RSA")->default_val("./");
 
    // --- COMANDO: UNCYP ---
    auto* uncyp = app.add_subcommand("uncyp", "Descarga y descifra un repositorio protegido");
@@ -168,6 +161,7 @@ int main(int argc, char** argv) {
    if (chrole->parsed()) client::cmd::run_change_role(approver_email, password, user_email, new_role);
    if (chstatus->parsed()) client::cmd::run_change_status(approver_email, password, user_email, new_status);
    if (enroll->parsed()) client::cmd::run_enroll(approver_email, password, repo_name, user_email);
+   if (cyprepo->parsed()) client::cmd::run_cypher_repo(user_email, password, senior_email, repo_name, repo_tag);
 
 
    if (push->parsed()) {
@@ -176,7 +170,6 @@ int main(int argc, char** argv) {
       client::cmd::run_push(repo_name, user_email, absolute_dest, keyPath, password);
    }
    if (log->parsed()) client::cmd::run_log(repo_name);
-   if (cyprepo->parsed()) client::cmd::run_cypher_repo(user_email, password, senior_email, repo_name, repo_tag, working_dir);
    if (uncyp->parsed()) {
       std::string absolute_dest = std::filesystem::absolute(working_dir).string();
       std::string absolute_key  = std::filesystem::absolute(keyPath).string();

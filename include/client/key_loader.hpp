@@ -35,13 +35,13 @@ namespace client::key_loader {
             key.Load(queue);
 
             if (!key.Validate(prng, 3)) {
-                std::cerr << "[!] La llave cargada es invalida." << std::endl;
+                std::cerr << "\n[!] Loaded key is invalid." << std::endl;
                 return false;
             }
             return true;
 
         } catch (const std::exception& e) {
-            std::cerr << "[-] Error cargando llave: " << e.what() << std::endl;
+            std::cerr << "\n[-] Error loading key: " << e.what() << std::endl;
             return false;
         }
     }
@@ -58,12 +58,12 @@ namespace client::key_loader {
             );
             
             if (outKey.size() != 32) {
-                std::cerr << "[!] Advertencia: La llave AES cargada no parece ser de 256 bits." << std::endl;
+                std::cerr << "\n[!] Warning: Loaded AES key does not appear to be 256 bits." << std::endl;
             }
             
             return true;
         } catch (const std::exception& e) {
-            std::cerr << "[-] Error cargando llave AES: " << e.what() << std::endl;
+            std::cerr << "\n[-] Error loading AES key: " << e.what() << std::endl;
             return false;
         }
     }
