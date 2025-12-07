@@ -44,26 +44,31 @@ int main(int argc, char** argv) {
    keygen->add_option("-o,--output", working_dir, "Directorio existente donde se guardaran la clave privada")->default_val("./");
    keygen->add_option("-e,--email", user_email, "Correo electronico asociado a la cuenta de usuario")->required();
 
-   // --- Subcomando: clone ---
+   // --- Subcomando: clone --- //
    auto* clone = app.add_subcommand("clone", "Clona un repositorio remoto");
    clone->add_option("-n,--name", repo_name, "Nombre del repositorio")->required();
    clone->add_option("-e,--email", user_email, "Email del usuario")->required();
    clone->add_option("-d,--dir,--dtt", working_dir, "Directorio de destino")->default_val("./");
 
-      // --- Subcomando: verify //
+      // --- Subcomando: verify --- //
    auto* verify = app.add_subcommand("verify", "Verifica (aprueba) a un usuario nuevo");
    std::string approver_email;
    verify->add_option("-a,--approver", approver_email, "Email del aprobador (Senior)")->required();
    verify->add_option("-t,--target", user_email, "Email del usuario a verificar")->required();
    
-      // --- Subcomando: chrole
+      // --- Subcomando: chrole --- //
    auto* chrole = app.add_subcommand("chrole", "Cambia el nivel (rol) de un usuario");
    chrole->add_option("-a,--approver", approver_email, "Email del aprobador (Senior)")->required();
    chrole->add_option("-t,--target", user_email, "Email del usuario a modificar")->required();
    int new_role = 0;
    chrole->add_option("-r,--role", new_role, "Nuevo rol (1=Dev, 2=Leader, 3=Senior)")->required();
 
-   
+    // --- Subcomando: chstatus ---
+    auto* chstatus = app.add_subcommand("chstatus", "Cambia el status de un usuario");
+    chstatus->add_option("-a,--approver", approver_email, "Email del aprobador (Senior)")->required();
+    chstatus->add_option("-t,--target", user_email, "Email del usuario a modificar")->required();
+    int new_status = 0;
+    chstatus->add_option("-s,--status", new_status, "Nuevo rol (1=Activo, 0=Inactivo)")->required();
    
    
    
@@ -83,12 +88,7 @@ int main(int argc, char** argv) {
 
 
 
-   // --- Subcomando: chstatus
-   auto* chstatus = app.add_subcommand("chstatus", "Cambia el status de un usuario");
-   chstatus->add_option("-a,--approver", approver_email, "Email del aprobador (Senior)")->required();
-   chstatus->add_option("-t,--target", user_email, "Email del usuario a modificar")->required();
-   int new_status = 0;
-   chstatus->add_option("-s,--status", new_status, "Nuevo rol (1=Activo, 0=Inactivo)")->required();
+
 
    // --- COMANDO: cyprepo ---
    auto* cyprepo = app.add_subcommand("cyprepo", "Cifra un repositorio en el servidor");
@@ -165,6 +165,7 @@ int main(int argc, char** argv) {
    }
    if (verify->parsed()) client::cmd::run_verify(approver_email, password, user_email);
    if (chrole->parsed()) client::cmd::run_change_role(approver_email, password, user_email, new_role);
+   if (chstatus->parsed()) client::cmd::run_change_status(approver_email, password, user_email, new_status);
 
 
    if (push->parsed()) {
@@ -173,7 +174,6 @@ int main(int argc, char** argv) {
       client::cmd::run_push(repo_name, user_email, absolute_dest, keyPath, password);
    }
    if (log->parsed()) client::cmd::run_log(repo_name);
-   if (chstatus->parsed()) client::cmd::run_change_status(approver_email, password, user_email, new_status);
    if (cyprepo->parsed()) client::cmd::run_cypher_repo(user_email, password, senior_email, repo_name, repo_tag, working_dir);
    if (enroll->parsed()) client::cmd::run_enroll(approver_email, password, repo_name, user_email);
    if (uncyp->parsed()) {

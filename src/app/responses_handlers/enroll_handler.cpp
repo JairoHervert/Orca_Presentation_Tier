@@ -1,6 +1,4 @@
 #include "client/response_handler.hpp"
-#include <iostream>
-
 namespace client::response_handler {
 
     void handle_enroll_response(const nlohmann::json &response) {

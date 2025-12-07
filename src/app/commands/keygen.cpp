@@ -1,13 +1,10 @@
 #include "client/commands.hpp"
 #include "client/json_codec.hpp"
+#include "client/files_codec.hpp"
+#include "client/hasher_codec.hpp"
 #include "client/client_https.hpp"
 #include "client/response_handler.hpp"
 #include "client/generate_keypair_codec.hpp"
-#include "client/files_codec.hpp"
-#include "client/hasher_codec.hpp"
-
-#include <iostream>
-#include <filesystem> 
 
 namespace client::cmd {
 

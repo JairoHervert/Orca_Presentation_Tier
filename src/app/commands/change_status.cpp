@@ -1,25 +1,23 @@
 #include "client/commands.hpp"
-#include <iostream>
 #include "client/json_codec.hpp"
+#include "client/hasher_codec.hpp" 
 #include "client/client_https.hpp"
 #include "client/response_handler.hpp"
-#include "client/hasher_codec.hpp" 
-
 namespace client::cmd {
 
     bool run_change_status(const std::string& approver_email, const std::string& approver_pass, const std::string& target_email, int new_status) {
-        std::cout << "\n --- Cambiando Estatus de Usuario ---" << std::endl;
-        std::cout << "Aprobador: " << approver_email << std::endl;
-        std::cout << "Objetivo:  " << target_email << std::endl;
-        std::cout << "Nuevo Status: " << new_status << " (0=Inactive, 1=Active)" << std::endl;
+        std::cout << "\n --- Changing User Status ---" << std::endl;
+        std::cout << "Approver: " << approver_email << std::endl;
+        std::cout << "Target:   " << target_email << std::endl;
+        std::cout << "New Status: " << new_status << " (0=Inactive, 1=Active)" << std::endl;
 
         if (new_status < 0 || new_status > 1) {
-            std::cerr << "Error: El status debe ser 0 o 1." << std::endl;
+            std::cerr << "\n[-] Error: Status must be 0 or 1." << std::endl;
             return false;
         }
         
         try {
-            // Hashear password
+            // Hash-password
             std::string hashedPassword = client::hasher_codec::hash_sha256(approver_pass);
 
             // Crear Payload

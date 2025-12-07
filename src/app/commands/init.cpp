@@ -1,10 +1,8 @@
 #include "client/commands.hpp"
 #include "client/json_codec.hpp"
 #include "client/client_https.hpp"
-#include "client/response_handler.hpp"
 #include "client/hasher_codec.hpp" 
-
-#include <iostream>
+#include "client/response_handler.hpp"
 namespace client::cmd {
 
    bool run_init(const std::string& repo_name, const std::string& email, const std::string& password) {

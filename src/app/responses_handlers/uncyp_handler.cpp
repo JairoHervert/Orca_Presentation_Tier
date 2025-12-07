@@ -1,7 +1,4 @@
 #include "client/response_handler.hpp"
-#include <iostream>
-#include <string>
-
 namespace client::response_handler {
 
     void handle_uncyp_response(const nlohmann::json &response) {

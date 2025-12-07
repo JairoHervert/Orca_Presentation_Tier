@@ -2,14 +2,10 @@
 #include "client/commands.hpp"
 #include "client/json_codec.hpp"
 #include "client/client_https.hpp"
-#include "client/response_handler.hpp"
-#include "client/unpacker_codec.hpp" 
 #include "client/hasher_codec.hpp" 
+#include "client/unpacker_codec.hpp" 
+#include "client/response_handler.hpp"
 #include "client/ensure_directory.hpp"
-
-#include <iostream>
-#include <filesystem>
-#include <string>
 namespace client::cmd {
 
     bool run_clone(const std::string& repo_name, const std::string& destination, const std::string& email, const std::string& password) {
