@@ -1,15 +1,4 @@
 #include "client/console_codec.hpp"
-#include <regex>
-#include <iostream>
-
-// --- INCLUDES DEL SISTEMA OPERATIVO ---
-#ifdef _WIN32
-    #include <conio.h>
-#else
-    #include <termios.h>
-    #include <unistd.h>
-#endif
-
 namespace client::console {
 
     std::string get_password_secure(const std::string& prompt) {
@@ -55,6 +44,4 @@ namespace client::console {
         std::regex pattern("^(?=.*[A-Za-z])(?=.*\\d).{8,}$");
         return std::regex_match(password, pattern);
     }
-
-
 }

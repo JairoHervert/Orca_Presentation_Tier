@@ -1,9 +1,9 @@
 // Estando en Orca_Presentation_Tier/
-// g++ -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/nuser.cpp src/app/commands/log.cpp src/app/commands/keygen_ecdsa.cpp src/codec/json_codec.cpp src/codec/crypto_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/nuser_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/codec/downloader.cpp src/transport/http_getter.cpp src/codec/unpacker.cpp src/codec/hasher.cpp src/codec/comparator.cpp src/codec/packer.cpp -o orca -lssl -lcrypto -lcryptopp
+// g++ -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/nuser.cpp src/app/commands/log.cpp src/app/commands/keygen_ecdsa.cpp src/codec/json_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/nuser_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/codec/downloader.cpp src/transport/http_getter.cpp src/codec/unpacker.cpp src/codec/hasher.cpp src/codec/comparator.cpp src/codec/packer.cpp -o orca -lssl -lcrypto -lcryptopp
 
 //Compilacion Karol:
 // cd C:/Users/kgonz/Desktop/OrcaProject/Orca_Presentation_Tier
-// g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/nuser.cpp src/app/commands/log.cpp src/app/commands/keygen.cpp src/codec/json_codec.cpp src/codec/crypto_codec.cpp src/codec/decipher_RSA_codec.cpp src/codec/decipher_AES_codec.cpp src/codec/generate_keypair_codec.cpp src/codec/console_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/nuser_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/app/responses_handlers/keygen_rsa_handler.cpp src/codec/downloader_codec.cpp src/transport/http_getter.cpp src/codec/unpacker_codec.cpp src/codec/scanner_codec.cpp src/codec/comparator_codec.cpp src/codec/packer_codec.cpp src/codec/hasher_codec.cpp src/app/commands/verify.cpp src/app/responses_handlers/verify_handler.cpp src/app/commands/change_role.cpp src/app/responses_handlers/change_role_handler.cpp src/app/commands/change_status.cpp src/app/responses_handlers/change_status_handler.cpp src/app/commands/cypher_repo.cpp src/app/responses_handlers/cypher_repo_handler.cpp src/app/commands/enroll.cpp src/app/responses_handlers/enroll_handler.cpp src/app/commands/uncyp.cpp src/app/responses_handlers/uncyp_handler.cpp src/codec/sign_codec.cpp src/codec/verify_codec.cpp  -o orca -lssl -lcrypto -lws2_32 -lcrypt32 -lcryptopp
+// g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/nuser.cpp src/app/commands/log.cpp src/app/commands/keygen.cpp src/codec/json_codec.cpp src/codec/decipher_RSA_codec.cpp src/codec/decipher_AES_codec.cpp src/codec/generate_keypair_codec.cpp src/codec/console_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/nuser_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/app/responses_handlers/keygen_rsa_handler.cpp src/codec/downloader_codec.cpp src/transport/http_getter.cpp src/codec/unpacker_codec.cpp src/codec/scanner_codec.cpp src/codec/comparator_codec.cpp src/codec/packer_codec.cpp src/codec/hasher_codec.cpp src/app/commands/verify.cpp src/app/responses_handlers/verify_handler.cpp src/app/commands/change_role.cpp src/app/responses_handlers/change_role_handler.cpp src/app/commands/change_status.cpp src/app/responses_handlers/change_status_handler.cpp src/app/commands/cypher_repo.cpp src/app/responses_handlers/cypher_repo_handler.cpp src/app/commands/enroll.cpp src/app/responses_handlers/enroll_handler.cpp src/app/commands/uncyp.cpp src/app/responses_handlers/uncyp_handler.cpp src/codec/sign_codec.cpp src/codec/verify_codec.cpp  -o orca -lssl -lcrypto -lws2_32 -lcrypt32 -lcryptopp
 
 
 // si en windows usan otro comando ponerlo aqui (no modificar el que ya funciona en linux)
@@ -63,13 +63,20 @@ int main(int argc, char** argv) {
    int new_role = 0;
    chrole->add_option("-r,--role", new_role, "Nuevo rol (1=Dev, 2=Leader, 3=Senior)")->required();
 
-    // --- Subcomando: chstatus ---
+    // --- Subcomando: chstatus --- //
     auto* chstatus = app.add_subcommand("chstatus", "Cambia el status de un usuario");
     chstatus->add_option("-a,--approver", approver_email, "Email del aprobador (Senior)")->required();
     chstatus->add_option("-t,--target", user_email, "Email del usuario a modificar")->required();
     int new_status = 0;
     chstatus->add_option("-s,--status", new_status, "Nuevo rol (1=Activo, 0=Inactivo)")->required();
    
+    // --- COMANDO: ENROLL ---
+    auto* enroll = app.add_subcommand("enroll", "Agrega un usuario a un proyecto existente");
+    enroll->add_option("-n,--name", repo_name, "Nombre del proyecto")->required();
+    enroll->add_option("-a,--approver", approver_email, "Email del Lider/Senior")->required();
+    enroll->add_option("-t,--target", user_email, "Email del usuario a agregar")->required();
+
+
    
    
    // --- Subcomando: push
@@ -99,12 +106,6 @@ int main(int argc, char** argv) {
    cyprepo->add_option("-l,--leader", user_email, "Email del Lider")->required(); 
    cyprepo->add_option("-s,--senior", senior_email, "Email del Senior")->required();
    cyprepo->add_option("-o,--output", working_dir, "Directorio existente donde se encuentra la clave privada RSA")->default_val("./");
-
-    // --- COMANDO: ENROLL ---
-   auto* enroll = app.add_subcommand("enroll", "Agrega un usuario a un proyecto existente");
-   enroll->add_option("-n,--name", repo_name, "Nombre del proyecto")->required();
-   enroll->add_option("-a,--approver", approver_email, "Email del Lider/Senior")->required();
-   enroll->add_option("-t,--target", user_email, "Email del usuario a agregar")->required();
 
    // --- COMANDO: UNCYP ---
    auto* uncyp = app.add_subcommand("uncyp", "Descarga y descifra un repositorio protegido");
@@ -166,6 +167,7 @@ int main(int argc, char** argv) {
    if (verify->parsed()) client::cmd::run_verify(approver_email, password, user_email);
    if (chrole->parsed()) client::cmd::run_change_role(approver_email, password, user_email, new_role);
    if (chstatus->parsed()) client::cmd::run_change_status(approver_email, password, user_email, new_status);
+   if (enroll->parsed()) client::cmd::run_enroll(approver_email, password, repo_name, user_email);
 
 
    if (push->parsed()) {
@@ -175,7 +177,6 @@ int main(int argc, char** argv) {
    }
    if (log->parsed()) client::cmd::run_log(repo_name);
    if (cyprepo->parsed()) client::cmd::run_cypher_repo(user_email, password, senior_email, repo_name, repo_tag, working_dir);
-   if (enroll->parsed()) client::cmd::run_enroll(approver_email, password, repo_name, user_email);
    if (uncyp->parsed()) {
       std::string absolute_dest = std::filesystem::absolute(working_dir).string();
       std::string absolute_key  = std::filesystem::absolute(keyPath).string();

@@ -1,7 +1,4 @@
-#include <iostream>
-
 #include "client/comparator_codec.hpp"
-
 namespace client::comparator {
     std::vector<std::string> compute_diff(
         const std::map<std::string, std::string>& local_map, 

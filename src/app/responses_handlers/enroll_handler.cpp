@@ -6,24 +6,24 @@ namespace client::response_handler {
         if (response.contains("status")) {
             std::string status = response["status"];
             if (status == "ok" || status == "success") {
-                std::cout << "[+] Usuario agregado al proyecto correctamente." << std::endl;
+                std::cout << "\n[+] User added to project successfully." << std::endl;
                 
                 if (response.contains("project_name"))
-                    std::cout << "Proyecto: " << response["project_name"] << std::endl;
+                    std::cout << "    Project: " << response["project_name"] << std::endl;
                 
                 if (response.contains("user_email"))
-                    std::cout << "Usuario:  " << response["user_email"] << std::endl;
+                    std::cout << "    User:    " << response["user_email"] << std::endl;
                     
             } else {
-                std::cout << "[-] No se pudo agregar al usuario." << std::endl;
+                std::cout << "\n[!] Failed to add user." << std::endl;
             }
         }
 
         if (response.contains("message")) {
-            std::cout << "Mensaje: " << response["message"] << std::endl;
+            std::cout << "    " << response["message"] << std::endl;
         }
         
         std::cout << "--------------------------------------------" << std::endl;
     }
 
-} 
+}

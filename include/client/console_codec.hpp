@@ -1,7 +1,15 @@
-#ifndef CONSOLE_CODEC_HPP
-#define CONSOLE_CODEC_HPP
-
+#include <regex>
 #include <string>
+#include <iostream>
+
+// --- INCLUDES DEL SISTEMA OPERATIVO ---
+#ifdef _WIN32
+    #include <conio.h>
+#else
+    #include <termios.h>
+    #include <unistd.h>
+#endif
+
 
 namespace client::console {
 
@@ -16,5 +24,3 @@ namespace client::console {
      */
     bool validate_password_policy(const std::string& password);
 }
-
-#endif
