@@ -1,8 +1,11 @@
 #pragma once
-#include <string>
-#include <map> 
-#include <filesystem>
 
+#include <map>
+#include <vector>
+#include <string>
+#include <iostream>
+#include <algorithm>
+#include <filesystem>
 namespace client::scanner {
 
     // Busca en el directorio y devuelve un mapa de Ruta

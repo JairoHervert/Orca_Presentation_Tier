@@ -1,8 +1,9 @@
 #define CPPHTTPLIB_OPENSSL_SUPPORT
+#include "../third_party/json.hpp"
+
 #pragma once
 #include <httplib.h>
 #include <memory>
-#include "../third_party/json.hpp"
 
 namespace client::http {
 

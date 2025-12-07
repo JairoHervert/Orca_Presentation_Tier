@@ -1,5 +1,4 @@
 #include "client/commands.hpp"
-#include <iostream>
 #include "client/json_codec.hpp"
 #include "client/client_https.hpp"
 #include "client/response_handler.hpp"

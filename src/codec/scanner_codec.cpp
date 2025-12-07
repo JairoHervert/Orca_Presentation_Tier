@@ -1,9 +1,3 @@
-#include <iostream>
-#include <filesystem>
-#include <algorithm>
-#include <map>
-#include <vector>
-
 #include "client/scanner_codec.hpp"
 #include "client/hasher_codec.hpp" 
 namespace { 

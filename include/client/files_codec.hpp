@@ -1,5 +1,9 @@
 #pragma once
+
 #include <string>
+#include <fstream>
+#include <iostream>
+#include <stdexcept>
 
 namespace client::files_codec {
 

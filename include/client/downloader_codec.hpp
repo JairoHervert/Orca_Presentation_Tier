@@ -1,8 +1,14 @@
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #pragma once
+
 #include <string>
-#include <httplib.h>
 #include <memory>
+#include <cstdio>
+#include <fstream>
+#include <iostream>
+#include <httplib.h>
+#include <stdexcept>
+
 
 namespace client::dowlander {
 

@@ -1,10 +1,5 @@
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 
-#include <fstream>
-#include <cstdio>
-#include <iostream>
-#include <stdexcept>
-
 #include "client/downloader_codec.hpp"
 #include "client/http_getter.hpp"
 

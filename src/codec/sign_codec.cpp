@@ -1,10 +1,4 @@
 #include "client/sign_codec.hpp"
-#include <iostream>
-#include <files.h>
-#include <base64.h>
-#include <osrng.h>
-#include <filters.h> 
-
 namespace client::sign_codec {
 
     bool sign_file(

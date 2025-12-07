@@ -14,8 +14,7 @@
 #include "client/hasher_codec.hpp"
 #include "client/key_loader.hpp"
 #include "client/sign_codec.hpp" 
-
-#include "client/verify_codec.hpp" 
+#include "client/verify_sign_codec.hpp" 
 
 namespace client::cmd {
 
@@ -96,7 +95,7 @@ namespace client::cmd {
 
             // *********** VARIABLES DE VERIFICACION *****************
             // // En lugar de usar una fija, derivamos la pública de la privada cargada
-            // client::verify_codec::ECDSAPublicKey publicKey;
+            // client::verify_sign_codec::ECDSAPublicKey publicKey;
 
             // // Crypto++ permite extraer la pública desde la privada así:
             // privateKey.MakePublicKey(publicKey);
@@ -107,10 +106,10 @@ namespace client::cmd {
                 "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE5GWzWLoiP7g60HPJUBd47Iqx7VZ5QcSWmPJ9jbWaju5pugOK4MpcfUIWhNi/N27tAGs+mV0UlW3+WjsDPP75Gg==";
 
             // Objeto llave publica
-            client::verify_codec::ECDSAPublicKey publicKey;
+            client::verify_sign_codec::ECDSAPublicKey publicKey;
 
             // Cargar la llave pública desde Base64 usando tu función
-            if (!client::verify_codec::load_public_key_from_base64(PUBLIC_KEY_BASE64, publicKey)) {
+            if (!client::verify_sign_codec::load_public_key_from_base64(PUBLIC_KEY_BASE64, publicKey)) {
                 std::cerr << "[-] Error: No se pudo cargar o validar la llave pública fija." << std::endl;
                 return false;
             }
@@ -137,7 +136,7 @@ namespace client::cmd {
                 }
 
                 // ---- VERIFICAR ----
-                bool ok = client::verify_codec::verify_file_signature(publicKey, abs_file_path, signature);
+                bool ok = client::verify_sign_codec::verify_file_signature(publicKey, abs_file_path, signature);
 
                 if (!ok) {
                     std::cerr << "[-] Error: La firma generada NO coincide con la llave pública." << std::endl;

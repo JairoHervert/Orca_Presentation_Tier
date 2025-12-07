@@ -1,10 +1,4 @@
-#include <cstdlib>
-#include <iostream>
-#include <fstream>  
-#include <filesystem>
-
 #include "client/packer_codec.hpp"
-
 namespace client::packer {
 
     bool pack_files(const std::vector<std::string>& files_list, const std::string& output_tar) {

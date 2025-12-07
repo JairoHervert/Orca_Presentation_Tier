@@ -1,13 +1,6 @@
-#include "client/verify_codec.hpp"
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <files.h>
-#include <base64.h>
-#include <osrng.h>
-#include <filters.h>
+#include "client/verify_sign_codec.hpp"
 
-namespace client::verify_codec {
+namespace client::verify_sign_codec {
 
     bool load_public_key_from_base64(const std::string& base64Key, ECDSAPublicKey& pubKey) {
         try {

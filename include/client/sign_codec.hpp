@@ -2,10 +2,11 @@
 
 #include <iostream>
 
-#include <eccrypto.h>
 #include <osrng.h>
-#include <base64.h>
 #include <files.h>
+#include <base64.h>
+#include <filters.h> 
+#include <eccrypto.h>
 
 
 namespace client::sign_codec {

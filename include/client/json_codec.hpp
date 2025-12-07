@@ -7,7 +7,6 @@ namespace client::json_nlohmann {
 
    using json = nlohmann::json;
 
-   
    // Crea el payload para el comando 'nuser' 
    json make_nuser_payload(const std::string &name, const std::string &email, const std::string& password);
    

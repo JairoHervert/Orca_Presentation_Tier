@@ -1,6 +1,10 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <fstream>
+#include <cstdlib>
+#include <iostream>
+#include <filesystem>
 
 namespace client::packer {
 

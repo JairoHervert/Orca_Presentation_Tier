@@ -1,14 +1,17 @@
 #pragma once
 
-#include <iostream>
 #include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
 
-#include <eccrypto.h>
 #include <osrng.h>
-#include <base64.h>
 #include <files.h>
+#include <base64.h>
+#include <eccrypto.h>
+#include <filters.h>
 
-namespace client::verify_codec {
+namespace client::verify_sign_codec {
 
     using ECDSAPublicKey =
         CryptoPP::ECDSA<CryptoPP::ECP, CryptoPP::SHA256>::PublicKey;
