@@ -5,23 +5,24 @@ namespace client::response_handler {
    void handle_init_response(const nlohmann::json &response) {
 
       if (!response.contains("status")) {
-          std::cout << "[!] Respuesta invalida del servidor." << std::endl;
+          std::cout << "[!] Invalid server response." << std::endl;
           return;
       }
 
       std::string status = response["status"];
 
       if (status == "ok") {
-          std::cout << "[+] Repositorio creado correctamente." << std::endl;
+          std::cout << "[+] Repository created successfully." << std::endl;
           
           if (response.contains("Repository_name")) {
-              std::cout << "Nombre registrado: " << response["Repository_name"] << std::endl;
+              std::cout << "    Registered Name: " << response["Repository_name"] << std::endl;
           }
       } else {
-          std::cout << "[-] No se pudo crear el repositorio." << std::endl;
+          std::cout << "[-] Failed to create repository." << std::endl;
           
           if (response.contains("message")) { 
-              std::cout << response["message"] << std::endl;
+            std::cout << "    " << response["message"].get<std::string>() << std::endl;
+
           }
       }
 

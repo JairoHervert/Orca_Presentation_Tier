@@ -156,7 +156,7 @@ int main(int argc, char** argv) {
                valid = true;
            } else {
                attempts++;
-               std::cerr << "\n[-] Weak password. Requirements:" << std::endl;
+               std::cerr << "\n[!] Weak password. Requirements:" << std::endl;
                std::cerr << "  - Minimum 8 characters" << std::endl;
                std::cerr << "  - At least one letter" << std::endl;
                std::cerr << "  - At least one number" << std::endl;
