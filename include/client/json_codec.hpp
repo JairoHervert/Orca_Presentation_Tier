@@ -80,5 +80,6 @@ namespace client::json_nlohmann {
    // Muestra la lista de archivos en un repositorio
    json make_list_files_payload(const std::string &email, const std::string &password, const std::string &repo_name);
 
-
+   json make_get_key_payload(const std::string& email, const std::string& hashed_password, const std::string& repo_name, const std::string& repo_alias);
+   
 }

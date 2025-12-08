@@ -145,7 +145,16 @@ namespace client::json_nlohmann
         return json{
             {"userEmail", email},
             {"userPassword", password},
-            {"projectName", repo_name} // En tu postman se llama "projectName"
+            {"projectName", repo_name}
+        };
+    }
+
+    json make_get_key_payload(const std::string& email, const std::string& hashed_password, const std::string& repo_name, const std::string& repo_alias) {
+        return json{
+            {"user_email", email},
+            {"user_password", hashed_password},
+            {"project_name", repo_name},
+            {"project_alias", repo_alias}
         };
     }
 

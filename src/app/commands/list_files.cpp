@@ -1,14 +1,22 @@
 #include "client/commands.hpp"
+#include "client/json_codec.hpp"    
 #include "client/client_https.hpp"
+#include "client/hasher_codec.hpp"
 #include "client/response_handler.hpp"
-#include "client/json_codec.hpp" 
 
 namespace client::cmd {
 
     void run_list_files(const std::string& email, const std::string& password, const std::string& repo_name) {
         
+        // hashear Password
+        std::string hashedPassword = client::hasher_codec::hash_sha256(password);
+        if (hashedPassword.empty()) {
+            std::cerr << "[-] Error processing password." << std::endl;
+            return;
+        }
+
         // Payload con user, pass y nombre del proyecto
-        nlohmann::json payload = client::json_nlohmann::make_list_files_payload(email, password, repo_name);
+        nlohmann::json payload = client::json_nlohmann::make_list_files_payload(email, hashedPassword, repo_name);
 
         // POST al endpoint de tu imagen
         nlohmann::json response = client::http::post_json_https("/repo/list_files", payload);

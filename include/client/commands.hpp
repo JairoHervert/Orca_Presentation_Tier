@@ -46,6 +46,8 @@ namespace client::cmd {
 
     void run_list_files(const std::string& email, const std::string& password, const std::string& repo_name);
 
+    bool run_get_key(const std::string& email, const std::string& password, const std::string& repo_name, const std::string& repo_alias, const std::string& output_dir);
+
     
     
 }

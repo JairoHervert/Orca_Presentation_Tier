@@ -19,6 +19,8 @@ namespace client::response_handler {
    void handle_clone_response(const nlohmann::json &response);
 
    void handle_push_check_response(const nlohmann::json &response);
+   
+   void handle_push_upload_response(const nlohmann::json &response);
 
    void handle_log_response(const nlohmann::json &response);
 
@@ -47,6 +49,10 @@ namespace client::response_handler {
    void handle_list_accessible_response(const nlohmann::json &response);
 
    void handle_list_files_response(const nlohmann::json &response, const std::string& repo_name);
+   
+   void handle_get_key_response(const nlohmann::json &response);
+   
+   
    // Otras funciones de manejo de respuestas pueden ir aquí
 
 }
