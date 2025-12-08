@@ -9,7 +9,7 @@
 
 namespace client::cmd {
 
-    bool run_cypher_repo(const std::string& leader_email, const std::string& leader_password, 
+    bool run_encrypt_repo(const std::string& leader_email, const std::string& leader_password, 
                          const std::string& senior_email, const std::string& repo_name, 
                          const std::string& repo_tag) { 
 
@@ -27,11 +27,11 @@ namespace client::cmd {
                 return false;
             }
 
-            nlohmann::json payload = client::json_nlohmann::make_cypher_repo_payload(leader_email, hashedPassword, senior_email, repo_name, repo_tag);
+            nlohmann::json payload = client::json_nlohmann::make_encrypt_repo_payload(leader_email, hashedPassword, senior_email, repo_name, repo_tag);
 
             nlohmann::json response = client::http::post_json_https("/repo/protect", payload);
 
-            client::response_handler::handle_cypher_repo_response(response);
+            client::response_handler::handle_encrypt_repo_response(response);
 
             // Verificamos si el servidor mandó la clave cifrada
             if (response.contains("aes_rsa_key") && response.contains("status") && response["status"] == "ok") {
@@ -45,7 +45,7 @@ namespace client::cmd {
 
                 if (opt == 'y' || opt == 'Y') {
                     // Pedimos la ruta de la clave privada RSA
-                    std::cout << "\n[*] Enter the path to your RSA private key (or directory): ";
+                    std::cout << "     -> Enter the path to your RSA private key (or directory): ";
                     std::string pathKey;
                     std::cin >> pathKey;
 
@@ -77,13 +77,13 @@ namespace client::cmd {
                     }
 
                     //ingresar ruta y nombre de archivo para guardar la clave AES
-                    std::cout << "\n[*] Enter the path to save the AES key: ";
+                    std::cout << "     -> Enter the path to save the AES key: ";
                     std::string filename;
                     std::cin >> filename;
                     //agregar el _tag al AES.key
                     //filename += "_" + repo_tag + "\\AES.key";
-                    
-                    filename += "\\AES.key";
+                    // con tag y nombre de repo
+                    filename += "\\" + repo_name + "_" + repo_tag + "_AES.key";
                     if (client::files_codec::save_string_to_file(AESkey, filename)) {
                         std::cout << "\n[+] Key saved successfully to: " << filename << std::endl;
                         std::cout << "    Keep it in a safe place." << std::endl;
@@ -101,7 +101,7 @@ namespace client::cmd {
             return true;
 
         } catch (const std::exception &e) {
-            std::cerr << "\n[-] Error in cypher_repo: " << e.what() << std::endl;
+            std::cerr << "\n[-] Error in encrypt_repo: " << e.what() << std::endl;
             return false;
         }
     }

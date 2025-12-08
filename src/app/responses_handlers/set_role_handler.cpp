@@ -1,7 +1,7 @@
 #include "client/response_handler.hpp"
 namespace client::response_handler {
 
-    void handle_change_role_response(const nlohmann::json &response) {
+    void handle_set_role_response(const nlohmann::json &response) {
         std::cout << std::endl;
         
         if (response.contains("status")) {
@@ -13,7 +13,7 @@ namespace client::response_handler {
                               << "\n     -> New Role: " << response["new_role"] << std::endl;
                 }
             } else {
-                std::cout << "\n[!] Failed to change role." << std::endl;
+                std::cout << "\n[!] Failed to set role." << std::endl;
             }
         }
 

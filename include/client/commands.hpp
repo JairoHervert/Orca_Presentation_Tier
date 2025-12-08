@@ -8,7 +8,7 @@
 
 namespace client::cmd {
 
-    bool run_nuser(const std::string&, const std::string&, const std::string&);
+    bool run_create_user(const std::string&, const std::string&, const std::string&);
 
     bool run_init(const std::string&, const std::string&, const std::string&);
 
@@ -20,23 +20,23 @@ namespace client::cmd {
 
     void run_log();
 
-    bool run_verify(const std::string&, const std::string&, const std::string&);
+    bool run_verify_user(const std::string&, const std::string&, const std::string&);
 
-    bool run_change_role(const std::string&, const std::string&, const std::string&, int);
+    bool run_set_role(const std::string&, const std::string&, const std::string&, int);
 
-    bool run_change_status(const std::string&, const std::string&, const std::string& , int);
+    bool run_set_status(const std::string&, const std::string&, const std::string& , int);
 
     bool run_keygen_rsa(const std::string&, const std::string&, const std::string&);
 
-    bool run_cypher_repo(const std::string&, const std::string&, const std::string&, const std::string&, const std::string&);
+    bool run_encrypt_repo(const std::string&, const std::string&, const std::string&, const std::string&, const std::string&);
     
-    bool run_dcypher_repo();
+    bool run_decrypt_repo(const std::string&, const std::string&, const std::string&, const std::string&, const std::string&, const std::string&);
 
-    bool run_enroll(const std::string&, const std::string&, const std::string&, const std::string&);
+    bool run_enroll_user(const std::string&, const std::string&, const std::string&, const std::string&);
 
-    bool run_uncyp(const std::string&, const std::string&, const std::string&, const std::string&, const std::string&);
+    bool run_decrypt_repo(const std::string&, const std::string&, const std::string&, const std::string&, const std::string&);
    
-    bool run_add_user_file(const std::string& repo_name, const std::string& file_path,const std::string& target_email,const std::string& senior_email, const std::string& password);
+    bool run_grant_access_file(const std::string& repo_name, const std::string& file_path,const std::string& target_email,const std::string& senior_email, const std::string& password);
 
     void run_list_repos();
 

@@ -2,7 +2,7 @@
 
 namespace client::response_handler {
 
-    void handle_add_user_file_response(const nlohmann::json &response) {
+    void handle_grant_access_file_response(const nlohmann::json &response) {
         
         if (!response.contains("status")) {
             std::cerr << "\n[!] Error: Invalid server response." << std::endl;

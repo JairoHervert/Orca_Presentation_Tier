@@ -10,19 +10,22 @@
 
 namespace client::cmd {
 
-    bool run_uncyp(const std::string& repo_name, const std::string& destination, 
+    bool run_decrypt_repo(const std::string& repo_name, const std::string& repo_tag, const std::string& destination, 
                    const std::string& email, const std::string& password, 
                    const std::string& key_path) {
 
+        //reponame + tag para descargar el archivo correcto
+        std::string repo_name_with_tag = repo_name + "_" + repo_tag;
         std::cout << "\n--- Decrypting Repository ---" << std::endl;
-        std::cout << "Project: " << repo_name << std::endl;
+        std::cout << "Project: " << repo_name_with_tag << std::endl;
         std::cout << "Destination: " << destination << std::endl;
 
         try {
 
-            // Ruta de clave AES
+            // Ruta de clave tag_AES.key
+            std::string key_file_name = repo_name_with_tag + "_AES.key";
             std::filesystem::path dirPath(key_path);
-            std::filesystem::path fullKeyPath = dirPath / "AES.key";
+            std::filesystem::path fullKeyPath = dirPath / key_file_name;
 
             // Verificar que el archivo exista 
             if (!std::filesystem::exists(fullKeyPath)) {
@@ -43,12 +46,12 @@ namespace client::cmd {
                 return false;
             }
 
-            auto payload = client::json_nlohmann::make_unprotect_payload(repo_name, email, hashedPassword);
+            auto payload = client::json_nlohmann::make_decrypt_repo_payload(repo_name_with_tag, email, hashedPassword);
 
             // Descargar el archivo cifrado (.tar.enc)
-            nlohmann::json response = client::http::post_download_file("/repo/unprotect", payload, repo_name + ".tar.enc");
+            nlohmann::json response = client::http::post_download_file("/repo/unprotect", payload, repo_name_with_tag + ".tar.enc");
 
-            client::response_handler::handle_uncyp_response(response);
+            client::response_handler::handle_decrypt_repo_response(response);
 
             // Verificar si hubo un error 
             if (response.value("status", "error") != "ok") {
@@ -87,7 +90,7 @@ namespace client::cmd {
             std::cout << "    Extracting files..." << std::endl;
             
             std::filesystem::path baseDest(destination);
-            std::filesystem::path finalDest = baseDest / repo_name;
+            std::filesystem::path finalDest = baseDest / repo_name_with_tag;
 
             // Pasamos la ruta nueva al unpacker
             if (client::unpacker::unpack_file(tar_file_path, finalDest.string())) {
@@ -99,7 +102,7 @@ namespace client::cmd {
                 } catch (...) {}
 
                 std::cout << "--------------------------------------" << std::endl;
-                std::cout << "[OK] Repository recovered successfully." << std::endl;
+                std::cout << "[+] Repository recovered successfully." << std::endl;
                 std::cout << "     Final location: " << finalDest.string() << std::endl; 
                 return true;
 
@@ -113,7 +116,7 @@ namespace client::cmd {
             }
 
         } catch (const std::exception &e) {
-            std::cerr << "[-] Critical exception in run_uncyp: " << e.what() << std::endl;
+            std::cerr << "[-] Critical exception in run_decrypt_repo: " << e.what() << std::endl;
             return false;
         }
     }

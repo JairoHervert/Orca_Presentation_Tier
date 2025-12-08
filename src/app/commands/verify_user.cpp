@@ -6,8 +6,8 @@
 
 namespace client::cmd {
 
-    bool run_verify(const std::string& approver_email, const std::string& approver_password, const std::string& target_email) {
-        std::cout << "\n --- Verifying New User ---" << std::endl;
+    bool run_verify_user(const std::string& approver_email, const std::string& approver_password, const std::string& target_email) {
+        std::cout << "\n --- Verif ying New User ---" << std::endl;
         std::cout << "Approver: " << approver_email << std::endl;
         std::cout << "Target:   " << target_email << std::endl;
         
@@ -26,7 +26,7 @@ namespace client::cmd {
             nlohmann::json response = client::http::post_json_https("/user/verify_email", payload);
 
             // Manejar Respuesta
-            client::response_handler::handle_verify_response(response);
+            client::response_handler::handle_verify_user_response(response);
             
             // Retornar éxito si el status es ok
             if (response.contains("status") && (response["status"] == "ok" || response["status"] == "success")) {

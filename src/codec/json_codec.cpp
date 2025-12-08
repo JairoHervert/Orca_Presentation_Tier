@@ -3,7 +3,7 @@
 namespace client::json_nlohmann
 {
 
-    json make_nuser_payload(const std::string &name, const std::string &email, const std::string& password) {
+    json make_create_user_payload(const std::string &name, const std::string &email, const std::string& password) {
         return json{
                 {"name", name},
                 {"email", email},
@@ -64,7 +64,7 @@ namespace client::json_nlohmann
        };
    }
 
-   json make_change_role_payload(const std::string &approver_email, const std::string &hashed_password, const std::string &target_email, int new_role) {
+   json make_set_role_payload(const std::string &approver_email, const std::string &hashed_password, const std::string &target_email, int new_role) {
        return json{
            {"approver_email", approver_email},
            {"approver_password", hashed_password},
@@ -73,7 +73,7 @@ namespace client::json_nlohmann
        };
    }
 
-   json make_change_status_payload(const std::string &approver_email, const std::string &hashed_password, const std::string &target_email, int new_status) {
+   json make_set_status_payload(const std::string &approver_email, const std::string &hashed_password, const std::string &target_email, int new_status) {
        return json{
            {"approver_email", approver_email},
            {"approver_password", hashed_password},
@@ -90,7 +90,7 @@ namespace client::json_nlohmann
        };
    }
 
-   json make_cypher_repo_payload(const std::string& leader_email, const std::string& leader_password, const std::string& senior_email, const std::string& repo_name, const std::string& repo_tag) {
+   json make_encrypt_repo_payload(const std::string& leader_email, const std::string& leader_password, const std::string& senior_email, const std::string& repo_name, const std::string& repo_tag) {
        return json{
            {"leader_email", leader_email},
            {"leader_password", leader_password}, 
@@ -100,7 +100,7 @@ namespace client::json_nlohmann
        };
    }
 
-   json make_enroll_payload(const std::string& approver_email, const std::string& approver_password, const std::string& project_name, const std::string& target_email) {
+   json make_enroll_user_payload(const std::string& approver_email, const std::string& approver_password, const std::string& project_name, const std::string& target_email) {
        return json{
            {"approverEmail", approver_email},
            {"approverPassword", approver_password}, // Recuerda hashear antes
@@ -109,7 +109,7 @@ namespace client::json_nlohmann
        };
    }
 
-   nlohmann::json make_unprotect_payload(const std::string &repo_name, const std::string &email, const std::string &hashed_password) {
+   nlohmann::json make_decrypt_repo_payload(const std::string &repo_name, const std::string &email, const std::string &hashed_password) {
         return nlohmann::json{
             {"repoName", repo_name},
             {"userEmail", email},
@@ -117,7 +117,7 @@ namespace client::json_nlohmann
         };
     }
 
-    nlohmann::json make_add_user_file_payload(const std::string& approver_email, const std::string& hashed_password,const std::string& repo_name,const std::string& file_path, const std::string& target_user_email) {
+    nlohmann::json make_grant_access_file_payload(const std::string& approver_email, const std::string& hashed_password,const std::string& repo_name,const std::string& file_path, const std::string& target_user_email) {
         return nlohmann::json{
             {"approver_email", approver_email},
             {"approver_password", hashed_password},

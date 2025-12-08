@@ -1,7 +1,7 @@
 #include "client/response_handler.hpp"
 namespace client::response_handler {
 
-    void handle_nuser_response(const nlohmann::json &response) {
+    void handle_create_user_response(const nlohmann::json &response) {
         
         // Validar que la respuesta tenga un status
         if (!response.contains("status")) {

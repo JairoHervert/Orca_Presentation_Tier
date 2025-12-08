@@ -5,7 +5,7 @@
 #include "client/response_handler.hpp"
 namespace client::cmd {
 
-    bool run_change_status(const std::string& approver_email, const std::string& approver_pass, const std::string& target_email, int new_status) {
+    bool run_set_status(const std::string& approver_email, const std::string& approver_pass, const std::string& target_email, int new_status) {
         std::cout << "\n --- Changing User Status ---" << std::endl;
         std::cout << "Approver: " << approver_email << std::endl;
         std::cout << "Target:   " << target_email << std::endl;
@@ -21,12 +21,12 @@ namespace client::cmd {
             std::string hashedPassword = client::hasher_codec::hash_sha256(approver_pass);
 
             // Crear Payload
-            nlohmann::json payload = client::json_nlohmann::make_change_status_payload(approver_email, hashedPassword, target_email, new_status);
+            nlohmann::json payload = client::json_nlohmann::make_set_status_payload(approver_email, hashedPassword, target_email, new_status);
 
             nlohmann::json response = client::http::post_json_https("/user/change_status", payload);
 
             // Manejar respuesta
-            client::response_handler::handle_change_status_response(response);
+            client::response_handler::handle_set_status_response(response);
             
             return true;
 

@@ -5,7 +5,7 @@
 #include "client/response_handler.hpp"
 namespace client::cmd {
 
-    bool run_change_role(const std::string& approver_email, const std::string& approver_password, const std::string& target_email, int new_role) {
+    bool run_set_role(const std::string& approver_email, const std::string& approver_password, const std::string& target_email, int new_role) {
         std::cout << "\n --- Changing User Level ---" << std::endl;
         std::cout << "Approver: " << approver_email << std::endl;
         std::cout << "Target:   " << target_email << std::endl;
@@ -25,12 +25,12 @@ namespace client::cmd {
                 return false;
             }
 
-            nlohmann::json payload = client::json_nlohmann::make_change_role_payload(approver_email, hashedPassword, target_email, new_role);
+            nlohmann::json payload = client::json_nlohmann::make_set_role_payload(approver_email, hashedPassword, target_email, new_role);
 
 
             nlohmann::json response = client::http::post_json_https("/user/change_level", payload);
 
-            client::response_handler::handle_change_role_response(response);
+            client::response_handler::handle_set_role_response(response);
             
             if (response.contains("status") && (response["status"] == "ok" || response["status"] == "success")) {
                 return true;

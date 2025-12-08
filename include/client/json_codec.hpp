@@ -26,8 +26,8 @@ namespace client::json_nlohmann {
    }
 
 
-   // Crea el payload para el comando 'nuser' 
-   json make_nuser_payload(const std::string &name, const std::string &email, const std::string& password);
+   // Crea el payload para el comando 'create_user' 
+   json make_create_user_payload(const std::string &name, const std::string &email, const std::string& password);
    
    // Crea el payload para el comando 'init'
    json make_init_payload(const std::string &repo_name, const std::string &owner_email, const std::string &hashed_password);
@@ -51,25 +51,25 @@ namespace client::json_nlohmann {
    json make_verify_user_payload(const std::string &approver_email, const std::string &hashed_password, const std::string &target_email);
 
    // Cambia el role de un usuario 
-   json make_change_role_payload(const std::string &approver_email, const std::string &hashed_password, const std::string &target_email, int new_role);
+   json make_set_role_payload(const std::string &approver_email, const std::string &hashed_password, const std::string &target_email, int new_role);
 
    // Cambia el status de un usuario
-   json make_change_status_payload(const std::string &approver_email, const std::string &hashed_password, const std::string &target_email, int new_status);
+   json make_set_status_payload(const std::string &approver_email, const std::string &hashed_password, const std::string &target_email, int new_status);
    
    // Generar Claves RSA_OAEP
    json make_keygen_rsa_payload(const std::string &public_key, const std::string &email, const std::string &hashed_password);
 
    // Cifra un repositorio 
-   json make_cypher_repo_payload(const std::string& leader_email, const std::string& leader_password, const std::string& senior_email, const std::string& repo_name, const std::string& repo_tag);
+   json make_encrypt_repo_payload(const std::string& leader_email, const std::string& leader_password, const std::string& senior_email, const std::string& repo_name, const std::string& repo_tag);
 
-   // Enrolla un usuario en un proyecto
-   json make_enroll_payload(const std::string& approver_email, const std::string& approver_password, const std::string& project_name, const std::string& target_email);
+   // enrolla un usuario en un proyecto
+   json make_enroll_user_payload(const std::string& approver_email, const std::string& approver_password, const std::string& project_name, const std::string& target_email);
 
    // Desprotege un repositorio
-   json make_unprotect_payload(const std::string &repo_name, const std::string &email, const std::string &hashed_password);
+   json make_decrypt_repo_payload(const std::string &repo_name, const std::string &email, const std::string &hashed_password);
 
    // Agrega un archivo a un usuario en un repositorio
-   nlohmann::json make_add_user_file_payload(const std::string& approver_email, const std::string& hashed_password,const std::string& repo_name,const std::string& file_path, const std::string& target_user_email);
+   nlohmann::json make_grant_access_file_payload(const std::string& approver_email, const std::string& hashed_password,const std::string& repo_name,const std::string& file_path, const std::string& target_user_email);
 
    // Muestra la lista de repositorios cifrados para un usuario
    json make_list_encrypted_payload(const std::string &email, const std::string &password);

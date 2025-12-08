@@ -5,7 +5,7 @@
 #include "client/response_handler.hpp"
 namespace client::cmd {
 
-    bool run_nuser(const std::string& name, const std::string& email, const std::string& password) {
+    bool run_create_user(const std::string& name, const std::string& email, const std::string& password) {
         std::cout << std::endl << "--- Registering New User ---" << std::endl;
         std::cout << "User:  " << name << std::endl;
         std::cout << "Email: " << email << std::endl;
@@ -19,14 +19,14 @@ namespace client::cmd {
             }
             
             // Creamos el payload 
-            nlohmann::json payload = client::json_nlohmann::make_nuser_payload(name, email, hashedPassword);
+            nlohmann::json payload = client::json_nlohmann::make_create_user_payload(name, email, hashedPassword);
 
             // Enviamos la petición
             std::cout << std::endl;
             nlohmann::json response = client::http::post_json_https("/user/create", payload);
 
             // Manejamos la respuesta
-            client::response_handler::handle_nuser_response(response);
+            client::response_handler::handle_create_user_response(response);
             
             return true;
 

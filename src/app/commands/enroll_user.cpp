@@ -6,7 +6,7 @@
 
 namespace client::cmd {
 
-    bool run_enroll(const std::string& approver_email, const std::string& approver_password, const std::string& project_name, const std::string& target_email) {
+    bool run_enroll_user(const std::string& approver_email, const std::string& approver_password, const std::string& project_name, const std::string& target_email) {
         std::cout << "\n --- Adding Collaborator to Project ---" << std::endl;
         std::cout << "Project:   " << project_name << std::endl;
         std::cout << "Approver:  " << approver_email << std::endl;
@@ -21,12 +21,12 @@ namespace client::cmd {
             }
 
             // Crear Payload
-            nlohmann::json payload = client::json_nlohmann::make_enroll_payload(approver_email, hashedPassword, project_name, target_email);
+            nlohmann::json payload = client::json_nlohmann::make_enroll_user_payload(approver_email, hashedPassword, project_name, target_email);
 
             nlohmann::json response = client::http::post_json_https("/repo/add_user", payload);
 
             // Mostrar respuesta
-            client::response_handler::handle_enroll_response(response);
+            client::response_handler::handle_enroll_user_response(response);
 
             if (response.contains("status") && (response["status"] == "ok" || response["status"] == "success")) {
                 return true;
@@ -34,7 +34,7 @@ namespace client::cmd {
             return false;
 
         } catch (const std::exception &e) {
-            std::cerr << "Error in enroll: " << e.what() << std::endl;
+            std::cerr << "Error in enroll_user: " << e.what() << std::endl;
             return false;
         }
     }

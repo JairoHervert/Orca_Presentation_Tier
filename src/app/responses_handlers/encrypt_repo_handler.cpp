@@ -1,7 +1,7 @@
 #include "client/response_handler.hpp"
 namespace client::response_handler {
 
-    void handle_cypher_repo_response(const nlohmann::json &response) {
+    void handle_encrypt_repo_response(const nlohmann::json &response) {
         std::cout << std::endl;
         
         if (response.contains("status")) {

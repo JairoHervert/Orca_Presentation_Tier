@@ -1,7 +1,7 @@
 #include "client/response_handler.hpp"
 namespace client::response_handler {
 
-    void handle_change_status_response(const nlohmann::json &response) {
+    void handle_set_status_response(const nlohmann::json &response) {
         std::cout << std::endl;
         
         if (response.contains("status")) {
@@ -25,7 +25,7 @@ namespace client::response_handler {
                     std::cout << "    New Status: " << statusCode << " (" << statusName << ")" << std::endl;
                 }
             } else {
-                std::cout << "\n[!] Failed to change status." << std::endl;
+                std::cout << "\n[!] Failed to set status." << std::endl;
             }
         }
 

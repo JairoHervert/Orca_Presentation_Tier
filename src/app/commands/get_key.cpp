@@ -15,12 +15,15 @@ namespace client::cmd {
         std::cout << "User: " << email << std::endl;
         std::cout << "Repo:    " << repo_name << " (" << repo_alias << ")" << std::endl;
 
+        // reponame + alias para el archivo
+        std::string repo_name_with_alias = repo_name + "_" + repo_alias;
+
         try {
-            // 1. Hash password
+            // Hash password
             std::string hashedPass = client::hasher_codec::hash_sha256(password);
             
-            // 2. Request from Server
-            auto payload = client::json_nlohmann::make_get_key_payload(email, hashedPass, repo_name, repo_alias);
+            // Request from Server
+            auto payload = client::json_nlohmann::make_get_key_payload(email, hashedPass, repo_name, repo_name_with_alias);
             auto response = client::http::post_json_https("/repo/protect/get_key", payload);
 
             client::response_handler::handle_get_key_response(response);
@@ -38,7 +41,7 @@ namespace client::cmd {
             std::string encryptedKeyBase64 = response["aes_rsa_key"];
             std::cout << "\n[+] Encrypted key received successfully." << std::endl;
 
-            // 3. Decrypt Locally
+            // Decrypt Locally
             std::cout << "    To use it, your RSA PRIVATE key is required." << std::endl;
             std::cout << "    Path to your RSA private key (or directory): ";
             std::string keyInputPath;
@@ -68,16 +71,16 @@ namespace client::cmd {
                  return false;
             }
 
-            // 4. Save
+            // Save
             std::filesystem::path outPath(output_dir);
             if (std::filesystem::is_directory(outPath)) {
                 // Format: RepoName_Alias_AES.key
-                std::string filename = repo_name + "_" + repo_alias + "_AES.key";
+                std::string filename =  repo_name_with_alias + "_AES.key";
                 outPath /= filename;
             }
 
             if (client::files_codec::save_string_to_file(aesKeyRaw, outPath.string())) {
-                std::cout << "\n[SUCCESS] AES key saved to: " << outPath.string() << std::endl;
+                std::cout << "\n[+] AES key saved to: " << outPath.string() << std::endl;
                 std::cout << "         You can now use 'orca uncyp' with this file." << std::endl;
                 return true;
             } else {

@@ -6,7 +6,7 @@
 
 namespace client::cmd {
 
-    bool run_add_user_file(const std::string& repo_name,  const std::string& file_path, const std::string& target_email, const std::string& senior_email,  const std::string& password) {
+    bool run_grant_access_file(const std::string& repo_name,  const std::string& file_path, const std::string& target_email, const std::string& senior_email,  const std::string& password) {
         std::cout << "\n--- Granting File Access ---" << std::endl;
         std::cout << "Project: " << repo_name << std::endl;
         std::cout << "File:    " << file_path << std::endl;
@@ -21,13 +21,13 @@ namespace client::cmd {
             }
 
             // 2. Crear Payload
-            auto payload = client::json_nlohmann::make_add_user_file_payload(senior_email, hashedPassword, repo_name, file_path, target_email);
+            auto payload = client::json_nlohmann::make_grant_access_file_payload(senior_email, hashedPassword, repo_name, file_path, target_email);
 
             // 3. Enviar POST
             nlohmann::json response = client::http::post_json_https("/repo/file/add_user", payload);
 
             // 4. Manejar Respuesta
-            client::response_handler::handle_add_user_file_response(response);
+            client::response_handler::handle_grant_access_file_response(response);
 
             // 5. Retornar éxito si status es ok
             return (response.value("status", "error") == "ok");

@@ -1,7 +1,7 @@
 #include "client/response_handler.hpp"
 namespace client::response_handler {
 
-    void handle_verify_response(const nlohmann::json &response) {
+    void handle_verify_user_response(const nlohmann::json &response) {
         std::cout<< std::endl;
         
         if (!response.contains("status")) {
@@ -19,7 +19,7 @@ namespace client::response_handler {
                 std::cout << "    [*]Target user: " << response["target_user_email"].get<std::string>() << std::endl;
             }
         } else {
-            std::cout << "\n[!] Could not verify user." << std::endl;
+            std::cout << "\n[!] Could not verify_user user." << std::endl;
             
             // Imprimir el motivo del error si está disponible
             if (response.contains("message")) {

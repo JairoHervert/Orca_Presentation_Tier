@@ -10,7 +10,7 @@
 
 namespace client::response_handler {
 
-   void handle_nuser_response(const nlohmann::json &response);
+   void handle_create_user_response(const nlohmann::json &response);
 
    void handle_init_response(const nlohmann::json &response);
 
@@ -24,21 +24,21 @@ namespace client::response_handler {
 
    void handle_log_response(const nlohmann::json &response);
 
-   void handle_verify_response(const nlohmann::json &response);
+   void handle_verify_user_response(const nlohmann::json &response);
 
-   void handle_change_role_response(const nlohmann::json &response);
+   void handle_set_role_response(const nlohmann::json &response);
 
-   void handle_change_status_response(const nlohmann::json &response);
+   void handle_set_status_response(const nlohmann::json &response);
 
    void handle_keygen_rsa_response(const nlohmann::json &response);
 
-   void handle_cypher_repo_response(const nlohmann::json &response);
+   void handle_encrypt_repo_response(const nlohmann::json &response);
 
-   void handle_enroll_response(const nlohmann::json &response);
+   void handle_enroll_user_response(const nlohmann::json &response);
 
-   void handle_uncyp_response(const nlohmann::json &response);
+   void handle_decrypt_repo_response(const nlohmann::json &response);
 
-   void handle_add_user_file_response(const nlohmann::json &response);
+   void handle_grant_access_file_response(const nlohmann::json &response);
 
    void handle_commits_response(const nlohmann::json &response);
 

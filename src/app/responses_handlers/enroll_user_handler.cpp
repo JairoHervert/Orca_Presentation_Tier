@@ -1,7 +1,7 @@
 #include "client/response_handler.hpp"
 namespace client::response_handler {
 
-    void handle_enroll_response(const nlohmann::json &response) {
+    void handle_enroll_user_response(const nlohmann::json &response) {
         
         if (response.contains("status")) {
             std::string status = response["status"];
