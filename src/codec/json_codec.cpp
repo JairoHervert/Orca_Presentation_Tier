@@ -20,12 +20,12 @@ namespace client::json_nlohmann
     }
 
    json make_keygen_ecdsa_payload(const std::string &kPubECDSA, const std::string &email, const std::string &password) {
-      return json {
-                     {"cmd", "keygen"},
-                     {"kpub_ecdsa", kPubECDSA},
-                     {"email", email},
-                     {"password", password}
-                  };
+    return json {
+        //{"cmd", "keygen"},
+        {"email", email},
+        {"password", password},
+        {"kpub_ecdsa", kPubECDSA}
+    };
    }
 
    json make_clone_payload(const std::string &repo_name, const std::string &email, const std::string &hashed_password) {
@@ -50,84 +50,11 @@ namespace client::json_nlohmann
             {"repoName", repo_name},
             {"userEmail", email},
             {"userPassword", hashed_password},
-            {"files_signatures", signatures} // Mapa clave-valor con las firmas
+            {"files_signatures", signatures} 
         };
     }
 
-
-   json make_log_payload(const std::string &project_name) {
-       return json{
-                    {"cmd", "log"},
-                    {"data", {
-                        {"project_name", project_name}
-                    }}
-                };
-   }
-
-    json make_revoke_payload(const std::string &project_name, const std::string &email, const std::string &file) {
-       json j = {
-                {"cmd", "revoke"},
-                {"data", {
-                    {"project_name", project_name},
-                    {"email", email} 
-                }}
-            };
-
-       if (!file.empty()) {
-           j["data"]["file"] = file;
-           j["data"]["scope"] = "single_file"; 
-       } else {
-           j["data"]["scope"] = "full_project"; 
-       }
-
-       return j;
-   }
-
-   json make_grant_payload(const std::string &project_name, const std::string &email, const std::string &file) {
-       json j = {
-                {"cmd", "grant"}, // Comando para el servidor
-                {"data", {
-                    {"project_name", project_name},
-                    {"email", email}
-                }}
-            };
-
-       if (!file.empty()) {
-           j["data"]["file"] = file;
-           j["data"]["scope"] = "single_file"; 
-       } else {
-           j["data"]["scope"] = "full_project"; 
-       }
-
-       return j;
-   }
-
-   json make_drop_payload(const std::string &email) {
-       return json{
-                {"cmd", "drop"},
-                {"data", {
-                    {"email", email}
-                }}
-            };
-   }
-
-   json make_active_payload(const std::string &email) {
-       return json{
-                {"cmd", "active"},
-                {"data", {
-                    {"email", email}
-                }}
-            };
-   }
-
-   json make_remove_payload(const std::string &project_name) {
-       return json{
-                {"cmd", "remove"},
-                {"data", {
-                    {"project_name", project_name}
-                }}
-            };
-   }
+ 
 
    json make_verify_user_payload(const std::string &approver_email, const std::string &hashed_password, const std::string &target_email) {
        return json{
@@ -159,14 +86,14 @@ namespace client::json_nlohmann
        return json{
            {"email", email},
            {"password", hashed_password},
-           {"kpub_rsa", public_key} // La clave que espera el servidor
+           {"kpub_rsa", public_key} 
        };
    }
 
    json make_cypher_repo_payload(const std::string& leader_email, const std::string& leader_password, const std::string& senior_email, const std::string& repo_name, const std::string& repo_tag) {
        return json{
            {"leader_email", leader_email},
-           {"leader_password", leader_password}, // Recuerda hashear antes en el orquestador
+           {"leader_password", leader_password}, 
            {"senior_email", senior_email},
            {"repo_name", repo_name},
            {"repo_tag", repo_tag}
@@ -194,9 +121,31 @@ namespace client::json_nlohmann
         return nlohmann::json{
             {"approver_email", approver_email},
             {"approver_password", hashed_password},
-            {"project_name", repo_name},    // En postman se llama 'project_name'
-            {"file_name", file_path},       // La ruta del archivo (ej. sub/rufles.py)
+            {"project_name", repo_name},  
+            {"file_name", file_path},  
             {"user_email", target_user_email}
+        };
+    }
+
+    json make_list_encrypted_payload(const std::string &email, const std::string &password) {
+        return json{
+            {"userEmail", email},
+            {"userPassword", password}
+        };
+    }
+
+    json make_list_accessible_payload(const std::string &email, const std::string &password) {
+        return json{
+            {"userEmail", email},
+            {"userPassword", password}
+        };
+    }
+
+    json make_list_files_payload(const std::string &email, const std::string &password, const std::string &repo_name) {
+        return json{
+            {"userEmail", email},
+            {"userPassword", password},
+            {"projectName", repo_name} // En tu postman se llama "projectName"
         };
     }
 

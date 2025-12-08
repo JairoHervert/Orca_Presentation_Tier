@@ -2,9 +2,11 @@
 
 #pragma once
 
-#include <iostream>
-#include <iomanip>
 #include <string>
+#include <iomanip>
+#include <iostream>
+#include <algorithm>
+
 
 namespace client::response_handler {
 
@@ -38,7 +40,13 @@ namespace client::response_handler {
 
    void handle_commits_response(const nlohmann::json &response);
 
+   void handle_list_repos_response(const nlohmann::json &response);
 
+   void handle_list_encrypted_response(const nlohmann::json &response);
+
+   void handle_list_accessible_response(const nlohmann::json &response);
+
+   void handle_list_files_response(const nlohmann::json &response, const std::string& repo_name);
    // Otras funciones de manejo de respuestas pueden ir aquí
 
 }

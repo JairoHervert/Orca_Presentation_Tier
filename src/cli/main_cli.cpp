@@ -3,7 +3,7 @@
 
 //Compilacion Karol:
 // cd C:/Users/kgonz/Desktop/OrcaProject/Orca_Presentation_Tier
-// g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/nuser.cpp src/app/commands/log.cpp src/app/commands/keygen.cpp src/codec/json_codec.cpp src/codec/decipher_RSA_codec.cpp src/codec/decipher_AES_codec.cpp src/codec/generate_keypair_codec.cpp src/codec/console_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/nuser_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/app/responses_handlers/keygen_rsa_handler.cpp src/codec/downloader_codec.cpp src/transport/http_getter.cpp src/codec/unpacker_codec.cpp src/codec/scanner_codec.cpp src/codec/comparator_codec.cpp src/codec/packer_codec.cpp src/codec/hasher_codec.cpp src/app/commands/verify.cpp src/app/responses_handlers/verify_handler.cpp src/app/commands/change_role.cpp src/app/responses_handlers/change_role_handler.cpp src/app/commands/change_status.cpp src/app/responses_handlers/change_status_handler.cpp src/app/commands/cypher_repo.cpp src/app/responses_handlers/cypher_repo_handler.cpp src/app/commands/enroll.cpp src/app/responses_handlers/enroll_handler.cpp src/app/commands/uncyp.cpp src/app/responses_handlers/uncyp_handler.cpp src/codec/sign_codec.cpp src/codec/verify_sign_codec.cpp src/app/responses_handlers/add_user_handler.cpp src/app/commands/add_user.cpp src/app/responses_handlers/commits_handler.cpp -o orca -lssl -lcrypto -lws2_32 -lcrypt32 -lcryptopp
+// g++ -D_WIN32_WINNT=0x0A00 -I include/third_party -I include src/cli/main_cli.cpp src/app/commands/init.cpp src/app/commands/clone.cpp src/app/commands/push.cpp src/app/commands/nuser.cpp src/app/commands/log.cpp src/app/commands/keygen.cpp src/codec/json_codec.cpp src/codec/decipher_RSA_codec.cpp src/codec/decipher_AES_codec.cpp src/codec/generate_keypair_codec.cpp src/codec/console_codec.cpp src/codec/files_codec.cpp src/transport/client_https.cpp src/app/responses_handlers/init_handler.cpp src/app/responses_handlers/clone_handler.cpp src/app/responses_handlers/push_handler.cpp src/app/responses_handlers/nuser_handler.cpp src/app/responses_handlers/log_handler.cpp src/app/responses_handlers/keygen_ecdsa_handler.cpp src/app/responses_handlers/keygen_rsa_handler.cpp src/codec/downloader_codec.cpp src/transport/http_getter.cpp src/codec/unpacker_codec.cpp src/codec/scanner_codec.cpp src/codec/comparator_codec.cpp src/codec/packer_codec.cpp src/codec/hasher_codec.cpp src/app/commands/verify.cpp src/app/responses_handlers/verify_handler.cpp src/app/commands/change_role.cpp src/app/responses_handlers/change_role_handler.cpp src/app/commands/change_status.cpp src/app/responses_handlers/change_status_handler.cpp src/app/commands/cypher_repo.cpp src/app/responses_handlers/cypher_repo_handler.cpp src/app/commands/enroll.cpp src/app/responses_handlers/enroll_handler.cpp src/app/commands/uncyp.cpp src/app/responses_handlers/uncyp_handler.cpp src/codec/sign_codec.cpp src/codec/verify_sign_codec.cpp src/app/responses_handlers/add_user_handler.cpp src/app/commands/add_user.cpp src/app/responses_handlers/commits_handler.cpp src/app/commands/list_repos.cpp src/app/responses_handlers/list_repos_handler.cpp src/app/commands/list_encrypted.cpp src/app/responses_handlers/list_encrypted_handler.cpp src/app/commands/list_accessible.cpp src/app/responses_handlers/list_accessible_handler.cpp src/app/responses_handlers/list_files_handler.cpp src/app/commands/list_files.cpp -o orca -lssl -lcrypto -lws2_32 -lcrypt32 -lcryptopp
 
 
 // si en windows usan otro comando ponerlo aqui (no modificar el que ya funciona en linux)
@@ -92,6 +92,7 @@ int main(int argc, char** argv) {
    uncyp->add_option("-e,--email", user_email, "Email del usuario")->required();
    uncyp->add_option("-k,--key", keyPath, "Directorio donde esta la llave AES.key")->default_val("./");
 
+    // --- Subcomando: add-user --- //
     auto* add_user = app.add_subcommand("add-user", "Da permiso a un usuario sobre un archivo específico");
     std::string file_path;
     add_user->add_option("-n,--name", repo_name, "Nombre del repositorio")->required();
@@ -99,7 +100,24 @@ int main(int argc, char** argv) {
     add_user->add_option("-a,--approver", approver_email, "Email del Lider/Senior")->required();
     add_user->add_option("-t,--target", user_email, "Email del usuario a agregar")->required();
    
+    // --- Subcomando: log --- //
+    auto* log = app.add_subcommand("log", "Muestra la tabla de commits del servidor");
 
+    // --- NUEVO SUBCOMANDO: list ---
+    auto* list = app.add_subcommand("list", "Lista todos los repositorios disponibles");
+
+    // --- NUEVO SUBCOMANDO: list-enc ---
+    auto* list_enc = app.add_subcommand("list-enc", "Lista los repositorios cifrados (requiere credenciales)");
+    list_enc->add_option("-e,--email", user_email, "Email del usuario")->required();
+
+    // --- NUEVO SUBCOMANDO: list-access ---
+    auto* list_access = app.add_subcommand("list-access", "Lista los repositorios a los que tienes acceso");
+    list_access->add_option("-e,--email", user_email, "Email del usuario")->required();
+
+    // --- NUEVO SUBCOMANDO: list-files ---
+    auto* list_files = app.add_subcommand("list-files", "Lista archivos accesibles en un repositorio");
+    list_files->add_option("-n,--name", repo_name, "Nombre del repositorio")->required();
+    list_files->add_option("-e,--email", user_email, "Email del usuario")->required();
 
    // --- Subcomando: push
    auto* push = app.add_subcommand("push", "Sube los cambios de un proyecto al Repositorio Remoto");
@@ -108,8 +126,6 @@ int main(int argc, char** argv) {
    push->add_option("-d,--dir", working_dir, "Directorio local del proyecto")->default_val("./");
    push->add_option("-k,--key", keyPath, "Ruta de la carpeta con las llaves (.key)")->default_val("./");
 
-   // --- Subcomando: log
-   auto* log = app.add_subcommand("log", "Muestra la tabla de commits del servidor");
 
 
 
@@ -117,7 +133,7 @@ int main(int argc, char** argv) {
    CLI11_PARSE(app, argc, argv);
 
    // Comandos que requieren seguridad
-   std::vector<CLI::App*> secure_cmds = {nuser, add_user, uncyp, push, keygen, push, verify, chrole, chstatus, cyprepo, enroll, clone, init};
+   std::vector<CLI::App*> secure_cmds = {nuser, list_files, list_access, list_enc, add_user, uncyp, push, keygen, push, verify, chrole, chstatus, cyprepo, enroll, clone, init};
     
    bool needs_password = false;
    for (auto* cmd : secure_cmds) {
@@ -173,13 +189,17 @@ int main(int argc, char** argv) {
         client::cmd::run_uncyp(repo_name, absolute_dest, user_email, password, absolute_key);
     }
     if (add_user->parsed()) client::cmd::run_add_user_file(repo_name, file_path, user_email, approver_email, password);
-
-   if (push->parsed()) {
+    if (log->parsed()) client::cmd::run_log();
+    if (list->parsed()) client::cmd::run_list_repos(); 
+    if (list_enc->parsed()) client::cmd::run_list_encrypted(user_email, password);
+    if (list_access->parsed()) client::cmd::run_list_accessible(user_email, password);
+    if (list_files->parsed()) client::cmd::run_list_files(user_email, password, repo_name);
+    
+    if (push->parsed()) {
       std::string absolute_dest = std::filesystem::absolute(working_dir).string();
       std::string absolute_key  = std::filesystem::absolute(keyPath).string();
       client::cmd::run_push(repo_name, user_email, absolute_dest, keyPath, password);
    }
-    if (log->parsed()) client::cmd::run_log();
 
 
    // Si no se ejecuta algun subcomando, muestra ayuda

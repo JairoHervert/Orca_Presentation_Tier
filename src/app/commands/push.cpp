@@ -1,60 +1,37 @@
 #include "client/commands.hpp"
-#include <iostream>
-#include <string>
-#include <vector>
-#include <filesystem> 
-#include <map> 
-
+#include "client/sign_codec.hpp" 
 #include "client/json_codec.hpp"
+#include "client/key_loader.hpp"
+#include "client/hasher_codec.hpp"
 #include "client/client_https.hpp"
-#include "client/response_handler.hpp"
+#include "client/packer_codec.hpp"
 #include "client/scanner_codec.hpp" 
 #include "client/comparator_codec.hpp"
-#include "client/packer_codec.hpp"
-#include "client/hasher_codec.hpp"
-#include "client/key_loader.hpp"
-#include "client/sign_codec.hpp" 
-#include "client/verify_sign_codec.hpp" 
 
 namespace client::cmd {
 
     bool run_push(const std::string& project_name, const std::string& email, const std::string& directory, const std::string& key_path, const std::string& password) {
-        std::cout << "\n--- Iniciando Push: " << project_name << " ---" << std::endl;
-        std::cout << "Nombre: " << project_name << std::endl;
-        std::cout << "Owner:  " << email << std::endl;
+        std::cout << "\n--- Starting Push: " << project_name << " ---" << std::endl;
         
         std::filesystem::path base_path(directory);
         std::filesystem::path repo_path = base_path / project_name;
         
-        // Validaciones Básicas
-        if (!std::filesystem::exists(repo_path)) { 
-            std::cerr << "[-] Error: No existe la carpeta del proyecto: " << repo_path << std::endl;
-            return false; 
-        }
-
+        // 1. Validations and Key Loading
+        if (!std::filesystem::exists(repo_path)) return false;
+        
         std::filesystem::path privateKeyPath = std::filesystem::path(key_path) / "private_ecdsa.key";
-        if (!std::filesystem::exists(privateKeyPath)) {
-            std::cerr << "[-] Error: No se encuentra 'private_ecdsa.key' en: " << key_path << std::endl;
-            return false;
-        }
-
-        // Cargar Llave Privada
         client::key_loader::ECDSAPrivateKey privateKey;
-        if (!client::key_loader::load_private_key(privateKeyPath.string(), privateKey)) {
-            std::cerr << "[-] Error: La llave privada es invalida o corrupta." << std::endl;
-            return false;
-        }
+        if (!client::key_loader::load_private_key(privateKeyPath.string(), privateKey)) return false;
 
         try {
-            
             std::string hashedPass = client::hasher_codec::hash_sha256(password);
-            
+
+            // pedir los hash al server
             auto payload_check = client::json_nlohmann::make_push_check_payload(project_name, email, hashedPass);
             auto response_check = client::http::post_json_https("/push/check", payload_check);
             
             if (!response_check.contains("status") || response_check["status"] != "success") {
-                std::cerr << "[-] El servidor rechazo la solicitud." << std::endl;
-                if(response_check.contains("message")) std::cerr << "    Motivo: " << response_check["message"] << std::endl;
+                std::cerr << "\n[!] Server check error." << std::endl;
                 return false;
             }
 
@@ -63,113 +40,98 @@ namespace client::cmd {
                 remote_files = response_check["server_hashes"].get<std::map<std::string, std::string>>();
             }
 
-            
-            std::cout << "[*] Escaneando cambios locales..." << std::endl;
+            // Compare local vs remote
+            std::cout << "[*] Calculating changes..." << std::endl;
             auto local_files = client::scanner::generate_file_map(repo_path.string());
-            auto files_to_upload = client::comparator::compute_diff(local_files, remote_files);
+            auto diff = client::comparator::compute_diff(local_files, remote_files);
 
-            if (files_to_upload.empty()) {
-                std::cout << "\n[+] El repositorio esta actualizado. No hay nada que subir." << std::endl;
+            if (diff.to_upload.empty() && diff.to_delete.empty()) {
+                std::cout << "[+] Repository up to date. No changes." << std::endl;
                 return true;
             }
 
-            std::cout << " -> Se actualizaran " << files_to_upload.size() << " archivos." << std::endl;
+            // 4. PREPARAR OPERACIONES
+            std::vector<client::json_nlohmann::PushOperation> operations;
+            std::cout << "[3] Firmando cambios..." << std::endl;
 
-            // EMpaquetar y firmar 
-            std::string temp_tar = "push_upload.tar.gz";
-            std::cout << "[*] Procesando archivos..." << std::endl;
-            
-            // Empaquetar
-            auto original_path = std::filesystem::current_path();
-            std::filesystem::current_path(repo_path);
-            
-            if (!client::packer::pack_files(files_to_upload, temp_tar)) {
-                std::filesystem::current_path(original_path);
-                return false;
-            }
-            
-            // Crear tar
-            std::string tar_abs_path = (original_path / temp_tar).string();
-            std::filesystem::rename(temp_tar, tar_abs_path);
-            std::filesystem::current_path(original_path); 
-
-            // *********** VARIABLES DE VERIFICACION *****************
-            // // En lugar de usar una fija, derivamos la pública de la privada cargada
-            // client::verify_sign_codec::ECDSAPublicKey publicKey;
-
-            // // Crypto++ permite extraer la pública desde la privada así:
-            // privateKey.MakePublicKey(publicKey);
-
-
-            // Llave pública fija en Base64
-            const std::string PUBLIC_KEY_BASE64 =
-                "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE5GWzWLoiP7g60HPJUBd47Iqx7VZ5QcSWmPJ9jbWaju5pugOK4MpcfUIWhNi/N27tAGs+mV0UlW3+WjsDPP75Gg==";
-
-            // Objeto llave publica
-            client::verify_sign_codec::ECDSAPublicKey publicKey;
-
-            // Cargar la llave pública desde Base64 usando tu función
-            if (!client::verify_sign_codec::load_public_key_from_base64(PUBLIC_KEY_BASE64, publicKey)) {
-                std::cerr << "[-] Error: No se pudo cargar o validar la llave pública fija." << std::endl;
-                return false;
-            }
-
-            CryptoPP::AutoSeededRandomPool prng_temp;
-            if (!publicKey.Validate(prng_temp, 3)) {
-                std::cerr << "[-] Error: La llave pública es inválida." << std::endl;
-                return false;
-            }
-
-            //---------------------------------------------------------------------
-
-
-
-            // Firmar
-            std::map<std::string, std::string> signatures_map;
-            for (const auto& rel_path : files_to_upload) {
-                std::string abs_file_path = (repo_path / rel_path).string();
-
+            // A. Procesar UPDATES (Nuevos y Modificados)
+            for (const auto& rel_path : diff.to_upload) {
+                // OPTIMIZACIÓN: Ya no necesitamos la ruta absoluta para leer el archivo.
+                // Usamos el hash que YA calculamos en el scanner.
+                
+                std::string fileHash = local_files[rel_path]; // <--- ¡AQUÍ ESTÁ EL TRUCO!
                 std::string signature;
-                if (!client::sign_codec::sign_file(privateKey, abs_file_path, signature)) {
-                    std::cerr << "[-] Error al firmar archivo: " << rel_path << std::endl;
+                
+                // Pasamos el hash directamente
+                if (client::sign_codec::sign_file_for_update(privateKey, fileHash, signature)) {
+                    operations.push_back({"update", rel_path, signature});
+                } else {
+                    std::cerr << "[-] Error firmando: " << rel_path << std::endl;
                     return false;
                 }
-
-                // ---- VERIFICAR ----
-                bool ok = client::verify_sign_codec::verify_file_signature(publicKey, abs_file_path, signature);
-
-                if (!ok) {
-                    std::cerr << "[-] Error: La firma generada NO coincide con la llave pública." << std::endl;
-                    std::cerr << "     Archivo: " << rel_path << std::endl;
-                    return false;
-                }
-
-                //-------------------------------
-
-                signatures_map[rel_path] = signature;
             }
 
+            // B. Process DELETES (Sign server's base64 hash)
+            for (const auto& rel_path : diff.to_delete) {
+                std::string serverHash = remote_files[rel_path]; // Get the hash sent by server
+                std::string signature;
 
-            // Subir datos al servidor
-            std::cout << "[*] Subiendo datos al servidor..." << std::endl;
+                // Use specific function for Deletes (Base64 String -> Signature)
+                if (client::sign_codec::sign_hash_string_for_delete(privateKey, serverHash, signature)) {
+                    operations.push_back({"delete", rel_path, signature});
+                } else {
+                    std::cerr << "[-] Error signing deletion: " << rel_path << std::endl;
+                    return false;
+                }
+            }
+
+            // 5. PACK (Only uploads)
+            std::string temp_tar = "push_upload.tar.gz";
             
-            auto upload_payload = client::json_nlohmann::make_push_upload_payload(project_name, email, hashedPass, signatures_map);
-            auto res_upload = client::http::upload_push_data("/push/upload", upload_payload, tar_abs_path);
+            // Create empty tar if no uploads (only deletes), or fill with uploads
+            if (!diff.to_upload.empty()) {
+                auto original_path = std::filesystem::current_path();
+                std::filesystem::current_path(repo_path);
+                client::packer::pack_files(diff.to_upload, temp_tar); 
+                
+                std::string tar_abs_path = (original_path / temp_tar).string();
+                std::filesystem::rename(temp_tar, tar_abs_path);
+                std::filesystem::current_path(original_path);
+            } else {
+                // Create dummy empty file to prevent read errors
+                std::ofstream(temp_tar).close();
+            }
             
-            // Limpieza del archivo temporal
+            std::string tar_abs_path = std::filesystem::absolute(temp_tar).string();
+
+            // 6. UPLOAD (v2)
+            std::cout << "[4] Sending to server..." << std::endl;
+            
+            // Convert operations vector to JSON string
+            std::string opsJson = client::json_nlohmann::make_push_operations_json(operations);
+
+            auto res_upload = client::http::upload_push_data(
+                "/repo/push/upload", 
+                project_name, 
+                email, 
+                hashedPass, 
+                opsJson, 
+                tar_abs_path
+            );
+
+            // Cleanup
             if (std::filesystem::exists(tar_abs_path)) std::filesystem::remove(tar_abs_path);
 
             if (res_upload.contains("status") && res_upload["status"] == "success") {
-                std::cout << "\n[EXITO] Push completado correctamente." << std::endl;
+                std::cout << "\n[SUCCESS] " << res_upload.value("message", "Push completed.") << std::endl;
                 return true;
             } else {
-                std::cerr << "\n[-] Error en el servidor." << std::endl;
-                if (res_upload.contains("message")) std::cerr << "Mensaje: " << res_upload["message"] << std::endl;
+                std::cerr << "\n[-] Error: " << res_upload.value("message", "Unknown failure") << std::endl;
                 return false;
             }
 
         } catch (const std::exception &e) {
-            std::cerr << "[!] Error critico: " << e.what() << std::endl;
+            std::cerr << "[!] Exception: " << e.what() << std::endl;
             return false;
         }
     }

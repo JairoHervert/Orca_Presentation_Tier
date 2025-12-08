@@ -6,6 +6,25 @@
 namespace client::json_nlohmann {
 
    using json = nlohmann::json;
+   struct PushOperation {
+         std::string op; 
+         std::string path;
+         std::string signature;
+      };
+
+   // Crea el JSON de las operaciones a realizar en el push
+   inline std::string make_push_operations_json(const std::vector<PushOperation>& ops) {
+      json j = json::array();
+      for(const auto& item : ops) {
+         j.push_back({
+               {"op", item.op},
+               {"path", item.path},
+               {"signature", item.signature}
+         });
+      }
+      return j.dump();
+   }
+
 
    // Crea el payload para el comando 'nuser' 
    json make_nuser_payload(const std::string &name, const std::string &email, const std::string& password);
@@ -51,4 +70,15 @@ namespace client::json_nlohmann {
 
    // Agrega un archivo a un usuario en un repositorio
    nlohmann::json make_add_user_file_payload(const std::string& approver_email, const std::string& hashed_password,const std::string& repo_name,const std::string& file_path, const std::string& target_user_email);
+
+   // Muestra la lista de repositorios cifrados para un usuario
+   json make_list_encrypted_payload(const std::string &email, const std::string &password);
+
+   // Muestra la lista de archivos en un repositorio accesibles para un usuario
+   json make_list_accessible_payload(const std::string &email, const std::string &password);
+
+   // Muestra la lista de archivos en un repositorio
+   json make_list_files_payload(const std::string &email, const std::string &password, const std::string &repo_name);
+
+
 }

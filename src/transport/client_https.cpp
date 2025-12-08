@@ -115,27 +115,47 @@ namespace client::http {
         }
     }
 
-    nlohmann::json upload_push_data(const std::string &path, const nlohmann::json &metadata_payload, const std::string &tar_filepath) {
+    // Subir datos multipart HTTPS (para push upload)
+    nlohmann::json upload_push_data(const std::string &path,  const std::string &repoName, const std::string &userEmail, const std::string &userPassword, const std::string &operationsJsonStr, const std::string &tar_filepath) {
         try {
             auto cli = conect();
-            std::ifstream file(tar_filepath, std::ios::binary | std::ios::ate);
-            if (!file) throw std::runtime_error("\n[!] Could not read the tar file");
             
+            // Read binary TAR file
+            std::ifstream file(tar_filepath, std::ios::binary | std::ios::ate);
+            if (!file) throw std::runtime_error("\n[!] Could not read the .tar file");
             std::streamsize size = file.tellg();
             file.seekg(0, std::ios::beg);
             std::vector<char> buffer(size);
-            
-            if (!file.read(buffer.data(), size)) throw std::runtime_error("Error reading tar file");
+            if (!file.read(buffer.data(), size)) throw std::runtime_error("\n[-] Error: reading tar bytes");
             std::string tar_content(buffer.begin(), buffer.end());
 
-            std::vector<httplib::MultipartFormData> items;
-            items.push_back({"metadata", metadata_payload.dump(), "", "application/json"});
-            items.push_back({"archive", tar_content, "upload.tar.gz", "application/x-gzip"});
+            std::string dynamicFileName = repoName + ".tar.gz";
+
+
+            std::vector<httplib::MultipartFormData> items = {
+                // Operations JSON
+                {"operations", operationsJsonStr, "", "application/json"},
+                
+                // TAR File
+                {"tarFile", tar_content, dynamicFileName, "application/x-tar"},
+                
+                // Credentials and Repo (Plain text)
+                {"repoName", repoName, "", ""},
+                {"userEmail", userEmail, "", ""},
+                {"userPassword", userPassword, "", ""}
+            };
 
             auto res = cli->Post(path.c_str(), items);
-            if (!res || res->status != 200) throw std::runtime_error("Upload error");
+            
+            if (!res) throw std::runtime_error("\n[!] No response from server");
+            if (res->status != 200) {
+                // Try to return server error if it is JSON
+                try { return nlohmann::json::parse(res->body); } 
+                catch(...) { throw std::runtime_error("Server error: " + res->body); }
+            }
             
             return nlohmann::json::parse(res->body);
+
         } catch (const std::exception &e) {
             std::cerr << "\n[!] Upload error: " << e.what() << std::endl;
             throw;

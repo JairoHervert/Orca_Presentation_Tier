@@ -14,7 +14,7 @@ namespace client::http {
    nlohmann::json post_download_file(const std::string& path, const nlohmann::json& payload, const std::string& default_path);
    
    // Sube un archivo .tar junto con un JSON vía POST y retorna la respuesta JSON.
-   nlohmann::json upload_push_data(const std::string &path, const nlohmann::json &metadata_payload, const std::string &tar_filepath);
+    nlohmann::json upload_push_data(const std::string &path,  const std::string &repoName, const std::string &userEmail, const std::string &userPassword, const std::string &operationsJsonStr, const std::string &tar_filepath);
 
    // Cabecera para enviar un get request HTTPS y retornar la respuesta JSON
    nlohmann::json get_json_https(const std::string &path);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map> 
 #include <vector>
 #include <string>
 #include <iostream>
@@ -37,4 +38,14 @@ namespace client::cmd {
    
     bool run_add_user_file(const std::string& repo_name, const std::string& file_path,const std::string& target_email,const std::string& senior_email, const std::string& password);
 
+    void run_list_repos();
+
+    void run_list_encrypted(const std::string& email, const std::string& password);
+
+    void run_list_accessible(const std::string& email, const std::string& password);
+
+    void run_list_files(const std::string& email, const std::string& password, const std::string& repo_name);
+
+    
+    
 }
