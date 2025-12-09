@@ -48,7 +48,7 @@ namespace client::response_handler {
             std::cout << std::left 
                       << std::setw(26) << cmd 
                       << std::setw(21) << date 
-                      << std::setw(8)  << (accepted ? "OK" : "Pend.") 
+                      << std::setw(8)  << (accepted ? "OK" : "FAILED") 
                       << desc << std::endl;
         }
         std::cout << std::endl;
