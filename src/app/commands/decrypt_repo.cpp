@@ -1,3 +1,4 @@
+#include "client/colors.hpp"
 #include "client/commands.hpp"
 #include "client/json_codec.hpp"
 #include "client/key_loader.hpp"        
@@ -7,18 +8,21 @@
 #include "client/response_handler.hpp" 
 #include "client/decipher_AES_codec.hpp" 
 
-
 namespace client::cmd {
 
     bool run_decrypt_repo(const std::string& repo_name, const std::string& repo_tag, const std::string& destination, 
                    const std::string& email, const std::string& password, 
                    const std::string& key_path) {
 
-        //reponame + tag para descargar el archivo correcto
+        // reponame + tag para descargar el archivo correcto
         std::string repo_name_with_tag = repo_name + "_" + repo_tag;
-        std::cout << "\n--- Decrypting Repository ---" << std::endl;
-        std::cout << "Project: " << repo_name_with_tag << std::endl;
-        std::cout << "Destination: " << destination << std::endl;
+        
+        std::cout << "\n" << client::colors::BOLD << client::colors::MAGENTA 
+                  << "--- Decrypting Repository ---" 
+                  << client::colors::RESET << std::endl;
+        
+        std::cout << client::colors::YELLOW << "Project:     " << client::colors::RESET << repo_name_with_tag << std::endl;
+        std::cout << client::colors::YELLOW << "Destination: " << client::colors::RESET << destination << std::endl;
 
         try {
 
@@ -29,11 +33,13 @@ namespace client::cmd {
 
             // Verificar que el archivo exista 
             if (!std::filesystem::exists(fullKeyPath)) {
-                std::cerr << "\n[-] Error: 'AES.key' file not found in directory: " << key_path << std::endl;
+                std::cerr << "\n" << client::colors::RED 
+                          << "[-] Error:" << key_file_name << "  file not found in directory: " << key_path 
+                          << client::colors::RESET << std::endl;
                 return false;
             }
 
-            // Cargar la clave
+            // Cargar la clave (key_loader ya tiene client::colorsores si usas el que te pasé)
             std::string aes_key_raw;
             if (!client::key_loader::load_aes_key(fullKeyPath.string(), aes_key_raw)) {
                 return false;
@@ -42,13 +48,16 @@ namespace client::cmd {
             // Hashear la contraseña
             std::string hashedPassword = client::hasher_codec::hash_sha256(password);
             if (hashedPassword.empty()) {
-                std::cerr << "\n[-] Internal security error (Hashing)." << std::endl;
+                std::cerr << "\n" << client::colors::RED 
+                          << "[-] Internal security error (Hashing)." 
+                          << client::colors::RESET << std::endl;
                 return false;
             }
 
             auto payload = client::json_nlohmann::make_decrypt_repo_payload(repo_name_with_tag, email, hashedPassword);
 
             // Descargar el archivo cifrado (.tar.enc)
+            // (La descarga puede que no tenga client::colorsores integrados, así que no ponemos nada extra aquí)
             nlohmann::json response = client::http::post_download_file("/repo/unprotect", payload, repo_name_with_tag + ".tar.enc");
 
             client::response_handler::handle_decrypt_repo_response(response);
@@ -59,7 +68,9 @@ namespace client::cmd {
             }
 
             if (!response.contains("downloaded_file")) {
-                std::cerr << "\n[-] Error: Downloaded file path not found." << std::endl;
+                std::cerr << "\n" << client::colors::RED 
+                          << "[-] Error: Downloaded file path not found." 
+                          << client::colors::RESET << std::endl;
                 return false;
             }
 
@@ -75,11 +86,13 @@ namespace client::cmd {
             }
 
             // Descifrar con AES-GCM
-            std::cout << "\n    Decrypting data (Using local key)..." << std::endl;
+            std::cout << "\n    " << client::colors::BLUE 
+                      << "[*] Decrypting data (Using local key)..." 
+                      << client::colors::RESET << std::endl;
 
             // Pasamos 'aes_key_raw' que contiene los bytes listos para usar
             if (!client::decipher_aes::decipher_AES_GCM(encrypted_abs_path, tar_file_path, aes_key_raw)) {
-                std::cerr << "[-] Decryption failed." << std::endl; 
+                std::cerr << client::colors::RED << "[-] Decryption failed." << client::colors::RESET << std::endl; 
                 
                 // Limpieza parcial
                 try { std::filesystem::remove(encrypted_abs_path); } catch(...) {}
@@ -87,7 +100,9 @@ namespace client::cmd {
             }
 
             // Desempaquetar
-            std::cout << "    Extracting files..." << std::endl;
+            std::cout << "    " << client::colors::BLUE 
+                      << "[*] Extracting files..." 
+                      << client::colors::RESET << std::endl;
             
             std::filesystem::path baseDest(destination);
             std::filesystem::path finalDest = baseDest / repo_name_with_tag;
@@ -101,13 +116,15 @@ namespace client::cmd {
                     if (std::filesystem::exists(tar_file_path)) std::filesystem::remove(tar_file_path);
                 } catch (...) {}
 
-                std::cout << "--------------------------------------" << std::endl;
-                std::cout << "[+] Repository recovered successfully." << std::endl;
-                std::cout << "     Final location: " << finalDest.string() << std::endl; 
+                std::cout << client::colors::MAGENTA << "--------------------------------------" << client::colors::RESET << std::endl;
+                
+                std::cout << client::colors::GREEN << "[+] Repository recovered successfully." << client::colors::RESET << std::endl;
+                
+                std::cout << "    Final location: " << client::colors::BOLD << finalDest.string() << client::colors::RESET << std::endl; 
                 return true;
 
             } else {
-                std::cerr << "[-] Critical error unpacking the file." << std::endl;
+                std::cerr << client::colors::RED << "[-] Critical error unpacking the file." << client::colors::RESET << std::endl;
                 try { 
                     if (std::filesystem::exists(encrypted_abs_path)) std::filesystem::remove(encrypted_abs_path);
                     if (std::filesystem::exists(tar_file_path)) std::filesystem::remove(tar_file_path);
@@ -116,7 +133,9 @@ namespace client::cmd {
             }
 
         } catch (const std::exception &e) {
-            std::cerr << "[-] Critical exception in run_decrypt_repo: " << e.what() << std::endl;
+            std::cerr << client::colors::RED 
+                      << "[-] Critical exception in run_decrypt_repo: " << e.what() 
+                      << client::colors::RESET << std::endl;
             return false;
         }
     }

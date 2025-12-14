@@ -1,11 +1,15 @@
+#include "client/colors.hpp" 
 #include "client/response_handler.hpp"
+
 namespace client::response_handler {
 
     void handle_create_user_response(const nlohmann::json &response) {
         
         // Validar que la respuesta tenga un status
         if (!response.contains("status")) {
-            std::cerr << "[!] Error: Server response has invalid format." << std::endl;
+            std::cerr << client::colors::RED 
+                      << "[!] Error: Server response has invalid format." 
+                      << client::colors::RESET << std::endl;
             std::cout << "Raw: " << response.dump() << std::endl; 
             return;
         }
@@ -13,27 +17,31 @@ namespace client::response_handler {
         std::string status = response["status"].get<std::string>();
 
         if (status == "ok") {
-            std::cout << "[+] User created successfully." << std::endl;
+            std::cout << "\n" << client::colors::GREEN 
+                      << "[+] User created successfully." 
+                      << client::colors::RESET << std::endl;
             
-            // Extraemos los datos que el servidor nos devolvió
             std::string name = response.value("user_name", "Unknown");
             std::string email = response.value("user_email", "No email");
 
-            std::cout << "    Registered Name: " << name << std::endl;
-            std::cout << "    Registered Email:  " << email << std::endl;
+            std::cout << "    " << client::colors::YELLOW << "Registered Name:  " << client::colors::RESET << name << std::endl;
+            std::cout << "    " << client::colors::YELLOW << "Registered Email: " << client::colors::RESET << email << std::endl;
         } 
-        // Caso de ERROR
         else {
-            std::cout << "[-] Failed to create user." << std::endl;
+            std::cout << "\n" << client::colors::RED 
+                      << "[-] Failed to create user." 
+                      << client::colors::RESET << std::endl;
             
             if (response.contains("message")) {
-                std::cout << "    " << response["message"].get<std::string>() << std::endl;
+                std::cout << client::colors::RED 
+                          << "    " << response["message"].get<std::string>() 
+                          << client::colors::RESET << std::endl;
             } else {
                 std::cout << "    Unknown reason." << std::endl;
             }
         }
 
-        std::cout << "----------------------------------------------" << std::endl;
+        std::cout << client::colors::MAGENTA << "----------------------------------------------" << client::colors::RESET << std::endl;
     }
 
 }

@@ -10,8 +10,13 @@
 #include <files.h>
 #include <rsa.h>
 
+#include "client/colors.hpp"
+
 namespace client::key_loader {
     
+    // Alias para usar 'col::' en lugar de 'client::colors::'
+    namespace col = client::colors;
+
     using ECDSAPrivateKey = CryptoPP::ECDSA<CryptoPP::ECP, CryptoPP::SHA256>::PrivateKey;
     using RSAPrivateKey = CryptoPP::RSA::PrivateKey;
 
@@ -35,13 +40,17 @@ namespace client::key_loader {
             key.Load(queue);
 
             if (!key.Validate(prng, 3)) {
-                std::cerr << "\n[!] Loaded key is invalid." << std::endl;
+                std::cerr << "\n" << col::RED 
+                          << "[!] Loaded key is invalid." 
+                          << col::RESET << std::endl;
                 return false;
             }
             return true;
 
         } catch (const std::exception& e) {
-            std::cerr << "\n[-] Error loading key: " << e.what() << std::endl;
+            std::cerr << "\n" << col::RED 
+                      << "[-] Error loading key: " << e.what() 
+                      << col::RESET << std::endl;
             return false;
         }
     }
@@ -58,12 +67,16 @@ namespace client::key_loader {
             );
             
             if (outKey.size() != 32) {
-                std::cerr << "\n[!] Warning: Loaded AES key does not appear to be 256 bits." << std::endl;
+                std::cerr << "\n" << col::YELLOW 
+                          << "[!] Warning: Loaded AES key does not appear to be 256 bits." 
+                          << col::RESET << std::endl;
             }
             
             return true;
         } catch (const std::exception& e) {
-            std::cerr << "\n[-] Error loading AES key: " << e.what() << std::endl;
+            std::cerr << "\n" << col::RED 
+                      << "[-] Error loading AES key: " << e.what() 
+                      << col::RESET << std::endl;
             return false;
         }
     }

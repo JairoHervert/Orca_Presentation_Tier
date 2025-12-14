@@ -1,11 +1,16 @@
+#include "client/colors.hpp" 
 #include "client/decipher_AES_codec.hpp"
+
 namespace client::decipher_aes {
+
     bool decipher_AES_GCM(const std::string &filePath, const std::string &fileOutPath, const std::string &keyAESRaw) {
         try {
             // Leer archivo cifrado
             std::ifstream inFile(filePath, std::ios::binary);
             if (!inFile) {
-                std::cerr << "\n[-] Could not open encrypted file: " << filePath << std::endl;
+                std::cerr << "\n" << client::colors::RED 
+                          << "[-] Could not open encrypted file: " << filePath 
+                          << client::colors::RESET << std::endl;
                 return false;
             }
 
@@ -39,7 +44,9 @@ namespace client::decipher_aes {
             // Guardar
             std::ofstream outFile(fileOutPath, std::ios::binary);
             if (!outFile) {
-                std::cerr << "\n[-] Could not create output file." << std::endl;
+                std::cerr << "\n" << client::colors::RED 
+                          << "[-] Could not create output file." 
+                          << client::colors::RESET << std::endl;
                 return false;
             }
             outFile.write(plainText.data(), plainText.size());
@@ -48,10 +55,14 @@ namespace client::decipher_aes {
             return true;
 
         } catch (const CryptoPP::Exception &e) {
-            std::cerr << "\n[!] Error: " << e.what() << std::endl;
+            std::cerr << "\n" << client::colors::RED 
+                      << "[!] Crypto Error: " << e.what() 
+                      << client::colors::RESET << std::endl;
             return false;
         } catch (const std::exception &e) {
-            std::cerr << "\n[!] Error: " << e.what() << std::endl;
+            std::cerr << "\n" << client::colors::RED 
+                      << "[!] Error: " << e.what() 
+                      << client::colors::RESET << std::endl;
             return false;
         }
     }

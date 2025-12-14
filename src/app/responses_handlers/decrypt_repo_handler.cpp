@@ -1,29 +1,42 @@
+#include "client/colors.hpp"
 #include "client/response_handler.hpp"
+
 namespace client::response_handler {
 
     void handle_decrypt_repo_response(const nlohmann::json &response) {
         std::cout << std::endl;
 
         if (!response.contains("status")) {
-            std::cerr << "[!] Protocol error: Response without status." << std::endl;
+            std::cerr << client::colors::RED 
+                      << "[!] Protocol error: Response without status." 
+                      << client::colors::RESET << std::endl;
             return;
         }
 
         std::string status = response["status"];
 
         if (status == "ok") {
-            std::cout << "[+] Request accepted by server." << std::endl;
-            std::cout << "    Downloading encrypted packet..." << std::endl;
+            std::cout << client::colors::GREEN 
+                      << "[+] Request accepted by server." 
+                      << client::colors::RESET << std::endl;
+            
+            std::cout << "    " << client::colors::BLUE 
+                      << "Downloading encrypted packet..." 
+                      << client::colors::RESET << std::endl;
         } 
-        
         else {
-            std::cerr << "[-] Server rejected the request." << std::endl;
+            std::cerr << client::colors::RED 
+                      << "[-] Server rejected the request." 
+                      << client::colors::RESET << std::endl;
             
             if (response.contains("message")) {
-                
-                std::cerr << "    " <<  response["message"].get<std::string>() << std::endl;
+                std::cerr << client::colors::RED 
+                          << "    " <<  response["message"].get<std::string>() 
+                          << client::colors::RESET << std::endl;
             } else {
-                std::cerr << "\n[!] Unknown reason." << std::endl;
+                std::cerr << client::colors::RED 
+                          << "    [!] Unknown reason." 
+                          << client::colors::RESET << std::endl;
             }
         }
     }

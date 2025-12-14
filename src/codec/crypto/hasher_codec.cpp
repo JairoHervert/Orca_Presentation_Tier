@@ -1,5 +1,4 @@
-#include "client/hasher_codec.hpp"
-
+#include "client/colors.hpp" 
 #include "client/hasher_codec.hpp"
 
 namespace client::hasher_codec {
@@ -18,12 +17,14 @@ namespace client::hasher_codec {
             );
             return digest;
         } catch (const std::exception& e) {
-            std::cerr << "\n[-] Error hashing string: " << e.what() << std::endl;
+            std::cerr << "\n" << client::colors::RED 
+                      << "[-] Error hashing string: " << e.what() 
+                      << client::colors::RESET << std::endl;
             return "";
         }
     }
 
-        std::string hash_file_sha256(const std::string& filepath) {
+    std::string hash_file_sha256(const std::string& filepath) {
         try {
             std::string b64_hash;
             CryptoPP::SHA256 hash;
@@ -37,7 +38,9 @@ namespace client::hasher_codec {
             );
             return b64_hash;
         } catch (const std::exception& e) {
-            std::cerr << "\n[-] Error hashing file: " << e.what() << std::endl;
+            std::cerr << "\n" << client::colors::RED 
+                      << "[-] Error hashing file: " << e.what() 
+                      << client::colors::RESET << std::endl;
             return "HASH_ERROR";
         }
     }

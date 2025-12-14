@@ -1,22 +1,30 @@
+#include "client/colors.hpp"
 #include "client/commands.hpp"
 #include "client/json_codec.hpp"
 #include "client/client_https.hpp"
 #include "client/hasher_codec.hpp"
 #include "client/response_handler.hpp"
 
+
 namespace client::cmd {
 
     bool run_verify_user(const std::string& approver_email, const std::string& approver_password, const std::string& target_email) {
-        std::cout << "\n --- Verif ying New User ---" << std::endl;
-        std::cout << "Approver: " << approver_email << std::endl;
-        std::cout << "Target:   " << target_email << std::endl;
+        
+        std::cout << "\n" << client::colors::BOLD << client::colors::MAGENTA 
+                  << " --- Verifying New User ---" 
+                  << client::colors::RESET << std::endl;
+        
+        std::cout << client::colors::YELLOW << "Approver: " << client::colors::RESET << approver_email << std::endl;
+        std::cout << client::colors::YELLOW << "Target:   " << client::colors::RESET << target_email << std::endl;
         
         try {
             // Hashear la contraseña del aprobador (Seguridad)
             std::string hashedPassword = client::hasher_codec::hash_sha256(approver_password);
             
             if (hashedPassword.empty()) {
-                std::cerr << "\n[-] Internal error processing password." << std::endl;
+                std::cerr << "\n" << client::colors::RED 
+                          << "[-] Internal error processing password." 
+                          << client::colors::RESET << std::endl;
                 return false;
             }
 
@@ -25,7 +33,7 @@ namespace client::cmd {
 
             nlohmann::json response = client::http::post_json_https("/user/verify_email", payload);
 
-            // Manejar Respuesta
+            // Manejar Respuesta (El handler imprime el resultado final)
             client::response_handler::handle_verify_user_response(response);
             
             // Retornar éxito si el status es ok
@@ -35,7 +43,9 @@ namespace client::cmd {
             return false;
 
         } catch (const std::exception &e) {
-            std::cerr << "\n[-] Error in verification operation: " << e.what() << std::endl;
+            std::cerr << "\n" << client::colors::RED 
+                      << "[-] Error in verification operation: " << e.what() 
+                      << client::colors::RESET << std::endl;
             return false;
         }
     }

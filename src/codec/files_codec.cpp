@@ -1,4 +1,6 @@
+#include "client/colors.hpp"
 #include "client/files_codec.hpp"
+
 namespace client::files_codec {
 
    bool save_string_to_file(const std::string &content,
@@ -6,8 +8,9 @@ namespace client::files_codec {
       try {
          std::ofstream outFile(filePath, std::ios::binary);
          if (!outFile) {
-            std::cerr << "[-] Error: opening file for writing: "
-                      << filePath << std::endl;
+            std::cerr << client::colors::RED 
+                      << "[-] Error: opening file for writing: " << filePath 
+                      << client::colors::RESET << std::endl;
             return false;
          }
 
@@ -16,8 +19,9 @@ namespace client::files_codec {
          return true;
       }
       catch (const std::exception &e) {
-         std::cerr << "[-] Error: saving to file: "
-                   << e.what() << std::endl;
+         std::cerr << client::colors::RED 
+                   << "[-] Error: saving to file: " << e.what() 
+                   << client::colors::RESET << std::endl;
          return false;
       }
    }

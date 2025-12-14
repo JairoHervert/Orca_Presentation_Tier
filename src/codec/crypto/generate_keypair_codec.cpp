@@ -1,4 +1,6 @@
+#include "client/colors.hpp" 
 #include "client/generate_keypair_codec.hpp"
+
 namespace client::generate_keypair_codec {
 
    ECDSAKeyPair generate_ecdsa_keypair() {
@@ -13,6 +15,9 @@ namespace client::generate_keypair_codec {
       ECDSAprivateKey.MakePublicKey(ECDSApublicKey);
 
       if (!ECDSAprivateKey.Validate(prng, 3) || !ECDSApublicKey.Validate(prng, 3)) {
+         std::cerr << client::colors::RED 
+                   << "[!] Critical Error: Invalid ECC keypair validation failed." 
+                   << client::colors::RESET << std::endl;
          throw std::runtime_error("[!] Invalid ECC keypair");
       }
 
@@ -78,7 +83,9 @@ namespace client::generate_keypair_codec {
            return RSAkeyPair;
 
        } catch (const std::exception &e) {
-           std::cerr << "[-] Error generating RSA keys: " << e.what() << std::endl;
+           std::cerr << "\n" << client::colors::RED 
+                     << "[-] Error generating RSA keys: " << e.what() 
+                     << client::colors::RESET << std::endl;
            throw;
        }
    }

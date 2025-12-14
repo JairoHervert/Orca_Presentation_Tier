@@ -17,6 +17,7 @@
 #include "CLI11.hpp"
 
 // Handlers de subcomandos
+#include "client/colors.hpp"
 #include "client/commands.hpp"
 #include "client/console_codec.hpp"
 
@@ -167,15 +168,15 @@ int main(int argc, char** argv) {
                valid = true;
            } else {
                attempts++;
-               std::cerr << "\n[!] Weak password. Requirements:" << std::endl;
-               std::cerr << "  - Minimum 8 characters" << std::endl;
-               std::cerr << "  - At least one letter" << std::endl;
-               std::cerr << "  - At least one number" << std::endl;
+               std::cerr << "\n" << client::colors::RED << "[!] Weak password. Requirements:" << client::colors::RESET << std::endl;
+               std::cerr << client::colors::YELLOW << "  - Minimum 8 characters" << client::colors::RESET << std::endl;
+               std::cerr << client::colors::YELLOW << "  - At least one letter" << client::colors::RESET << std::endl;
+               std::cerr << client::colors::YELLOW << "  - At least one number" << client::colors::RESET << std::endl;
                
                if (attempts < MAX_ATTEMPTS) {
-                   std::cerr << "\nRemaining attempts: " << (MAX_ATTEMPTS - attempts) << std::endl;
+                   std::cerr << "\n" << client::colors::CYAN << "Remaining attempts: " << (MAX_ATTEMPTS - attempts) << client::colors::RESET << std::endl;
                } else {
-                   std::cerr << "\n[!] Too many failed attempts." << std::endl;
+                   std::cerr << "\n" << client::colors::RED << "[!] Too many failed attempts." << client::colors::RESET << std::endl;
                    return 1;
                }
            }

@@ -1,12 +1,11 @@
-#include <iostream>
-
+#include "client/colors.hpp" 
 #include "client/http_getter.hpp"
 
 namespace client::http_getter {
 
-        int get_file(httplib::SSLClient& cli, const std::string& server_path, DataSink data_sink, Progress progress) {
+    int get_file(httplib::SSLClient& cli, const std::string& server_path, DataSink data_sink, Progress progress) {
         
-            // Realiza la peticion GET, pasando los callbacks directamente a httplib
+        // Realiza la peticion GET, pasando los callbacks directamente a httplib
         auto res = cli.Get(
             server_path.c_str(),
             // Receptor de contenido
@@ -18,7 +17,9 @@ namespace client::http_getter {
 
         // Verifica si la peticion en si fallo
         if (!res) {
-            std::cerr << "Error de transporte: La peticion GET fallo (revisar conexion)." << std::endl;
+            std::cerr << "\n" << client::colors::RED 
+                      << "[-] Transport error: GET request failed (check connection)." 
+                      << client::colors::RESET << std::endl;
             return -1;
         }
 

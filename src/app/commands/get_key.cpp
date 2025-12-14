@@ -1,3 +1,4 @@
+#include "client/colors.hpp"
 #include "client/commands.hpp"
 #include "client/key_loader.hpp"
 #include "client/json_codec.hpp"
@@ -11,9 +12,13 @@
 namespace client::cmd {
 
     bool run_get_key(const std::string& email, const std::string& password, const std::string& repo_name, const std::string& repo_alias, const std::string& output_dir) {
-        std::cout << "\n--- Retrieving Repository AES Key ---" << std::endl;
-        std::cout << "User: " << email << std::endl;
-        std::cout << "Repo:    " << repo_name << " (" << repo_alias << ")" << std::endl;
+        
+        std::cout << "\n" << client::colors::BOLD << client::colors::MAGENTA 
+                  << "--- Retrieving Repository AES Key ---" 
+                  << client::colors::RESET << std::endl;
+        
+        std::cout << client::colors::YELLOW << "User: " << client::colors::RESET << email << std::endl;
+        std::cout << client::colors::YELLOW << "Repo: " << client::colors::RESET << repo_name << " (" << repo_alias << ")" << std::endl;
 
         // reponame + alias para el archivo
         std::string repo_name_with_alias = repo_name + "_" + repo_alias;
@@ -26,6 +31,7 @@ namespace client::cmd {
             auto payload = client::json_nlohmann::make_get_key_payload(email, hashedPass, repo_name, repo_name_with_alias);
             auto response = client::http::post_json_https("/repo/protect/get_key", payload);
 
+            // Handler (asumiendo que también lo pintarás o dejarás estándar)
             client::response_handler::handle_get_key_response(response);
 
             // Logical verification to continue or abort
@@ -34,16 +40,21 @@ namespace client::cmd {
             }
 
             if (!response.contains("aes_rsa_key")) {
-                std::cerr << "[-] Critical error: Response does not contain 'aes_rsa_key'." << std::endl;
+                std::cerr << client::colors::RED 
+                          << "[-] Critical error: Response does not contain 'aes_rsa_key'." 
+                          << client::colors::RESET << std::endl;
                 return false;
             }
 
             std::string encryptedKeyBase64 = response["aes_rsa_key"];
-            std::cout << "\n[+] Encrypted key received successfully." << std::endl;
+            std::cout << "\n" << client::colors::GREEN 
+                      << "[+] Encrypted key received successfully." 
+                      << client::colors::RESET << std::endl;
 
             // Decrypt Locally
-            std::cout << "    To use it, your RSA PRIVATE key is required." << std::endl;
-            std::cout << "    Path to your RSA private key (or directory): ";
+            std::cout << client::colors::YELLOW << "    To use it, your RSA PRIVATE key is required." << client::colors::RESET << std::endl;
+            
+            std::cout << client::colors::BLUE << "    -> Path to your RSA private key (or directory): " << client::colors::RESET;
             std::string keyInputPath;
             std::cin >> keyInputPath;
 
@@ -53,21 +64,27 @@ namespace client::cmd {
             }
 
             if (!std::filesystem::exists(rsaKeyPath)) {
-                std::cerr << "[-] Error: Private key file not found: " << rsaKeyPath << std::endl;
+                std::cerr << "\n" << client::colors::RED 
+                          << "[-] Error: Private key file not found: " << rsaKeyPath 
+                          << client::colors::RESET << std::endl;
                 return false;
             }
 
             // Load RSA Private Key
             client::key_loader::RSAPrivateKey rsaPrivKey;
             if (!client::key_loader::load_private_key(rsaKeyPath.string(), rsaPrivKey)) {
-                std::cerr << "[-] Critical error: RSA private key is invalid or corrupt." << std::endl;
+                std::cerr << "\n" << client::colors::RED 
+                          << "[-] Critical error: RSA private key is invalid or corrupt." 
+                          << client::colors::RESET << std::endl;
                 return false;
             }
 
             // Decrypt (RSA-OAEP)
             std::string aesKeyRaw;
             if (!client::decipher_RSA_codec::OAEP_decryptFile(rsaPrivKey, encryptedKeyBase64, aesKeyRaw)) {
-                 std::cerr << "[-] RSA decryption failed. Verify it is the correct key." << std::endl;
+                 std::cerr << "\n" << client::colors::RED 
+                           << "[-] RSA decryption failed. Verify it is the correct key." 
+                           << client::colors::RESET << std::endl;
                  return false;
             }
 
@@ -80,16 +97,22 @@ namespace client::cmd {
             }
 
             if (client::files_codec::save_string_to_file(aesKeyRaw, outPath.string())) {
-                std::cout << "\n[+] AES key saved to: " << outPath.string() << std::endl;
+                std::cout << "\n" << client::colors::GREEN 
+                          << "[+] AES key saved to: " << outPath.string() 
+                          << client::colors::RESET << std::endl;
                 std::cout << "         You can now use 'orca uncyp' with this file." << std::endl;
                 return true;
             } else {
-                std::cerr << "[-] Error writing file to disk." << std::endl;
+                std::cerr << "\n" << client::colors::RED 
+                          << "[-] Error writing file to disk." 
+                          << client::colors::RESET << std::endl;
                 return false;
             }
 
         } catch (const std::exception& e) {
-            std::cerr << "[!] Exception: " << e.what() << std::endl;
+            std::cerr << "\n" << client::colors::RED 
+                      << "[!] Exception: " << e.what() 
+                      << client::colors::RESET << std::endl;
             return false;
         }
     }

@@ -2,11 +2,22 @@
 #include "../third_party/json.hpp"
 
 #pragma once
-#include <httplib.h>
+#include <regex>
 #include <memory>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <iostream>
+#include <filesystem>
+#include <stdexcept>
+
+#include <httplib.h>
 
 namespace client::http {
 
+   // Se conecta al servidor y devuelve un puntero al cliente SSL.
+   std::unique_ptr<httplib::SSLClient> conect();
+   
    // Cabecera para enviar un post request HTTPS con payload JSON y retornar la respuesta JSON
    nlohmann::json post_json_https(const std::string &path, const nlohmann::json &payload);
 
@@ -18,12 +29,4 @@ namespace client::http {
 
    // Cabecera para enviar un get request HTTPS y retornar la respuesta JSON
    nlohmann::json get_json_https(const std::string &path);
-
-
-   // ***** PROBABLEMENTE SE QUITEN *************
-   // primera prueba para recibir una respuesta como string del server real
-   std::string post_string_https(const std::string &path);
-   // Se conecta al servidor y devuelve un puntero al cliente SSL.
-   std::unique_ptr<httplib::SSLClient> conect();
-   // Subir un archivo .tar y un JSON al mismo tiempo (Multipart)
 }

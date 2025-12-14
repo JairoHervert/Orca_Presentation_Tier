@@ -1,4 +1,6 @@
+#include "client/colors.hpp" 
 #include "client/packer_codec.hpp"
+
 namespace client::packer {
 
     bool pack_files(const std::vector<std::string>& files_list, const std::string& output_tar) {
@@ -8,7 +10,9 @@ namespace client::packer {
         std::ofstream list_file(list_filename);
 
         if (!list_file.is_open()) {
-            std::cerr << "[Packer] Error: No se pudo crear el archivo de lista temporal." << std::endl;
+            std::cerr << client::colors::RED 
+                      << "[Packer] Error: No se pudo crear el archivo de lista temporal." 
+                      << client::colors::RESET << std::endl;
             return false;
         }
         for (const auto& file : files_list) {
@@ -16,23 +20,31 @@ namespace client::packer {
         }
         list_file.close();
 
+        // Construir comando (asegúrate que 'tar' esté en el PATH del sistema)
         std::string command = "tar -czf \"" + output_tar + "\" -T \"" + list_filename + "\"";
 
         int result = std::system(command.c_str());
 
+        // Limpieza de archivo temporal
         try {
             std::filesystem::remove(list_filename);
         } catch (const std::exception& e) {
-            std::cerr << "No se pudo borrar el archivo temporal de lista: " << list_filename << std::endl;
-            std::cerr << e.what() << std::endl;
+            std::cerr << client::colors::RED 
+                      << "[-] No se pudo borrar el archivo temporal de lista: " << list_filename 
+                      << client::colors::RESET << std::endl;
+            std::cerr << client::colors::RED << "    " << e.what() << client::colors::RESET << std::endl;
         } catch (...) {
-            std::cerr << " No se pudo borrar el archivo temporal de lista (Error desconocido)." << std::endl;
+            std::cerr << client::colors::RED 
+                      << "[-] No se pudo borrar el archivo temporal de lista (Error desconocido)." 
+                      << client::colors::RESET << std::endl;
         }
 
         if (result == 0) {
             return true;
         } else {
-            std::cerr << "Error al empaquetar archivos (código: " << result << ")." << std::endl;
+            std::cerr << client::colors::RED 
+                      << "[-] Error al empaquetar archivos (código: " << result << ")." 
+                      << client::colors::RESET << std::endl;
             return false;
         }
     }

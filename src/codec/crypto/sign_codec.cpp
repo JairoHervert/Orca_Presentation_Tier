@@ -1,3 +1,4 @@
+#include "client/colors.hpp"
 #include "client/sign_codec.hpp"
 #include "client/hasher_codec.hpp"
 
@@ -40,7 +41,9 @@ namespace client::sign_codec {
             return true;
 
         } catch (const std::exception& e) {
-            std::cerr << "\n[-] Error signing update hash: " << e.what() << std::endl;
+            std::cerr << "\n" << client::colors::RED 
+                      << "[-] Error signing update hash: " << e.what() 
+                      << client::colors::RESET << std::endl;
             return false;
         }
     }
@@ -69,7 +72,9 @@ namespace client::sign_codec {
             return true;
 
         } catch (const std::exception& e) {
-            std::cerr << "\n[-] Error signing delete hash: " << e.what() << std::endl;
+            std::cerr << "\n" << client::colors::RED 
+                      << "[-] Error signing delete hash: " << e.what() 
+                      << client::colors::RESET << std::endl;
             return false;
         }
     }

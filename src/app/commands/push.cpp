@@ -1,3 +1,4 @@
+#include "client/colors.hpp"
 #include "client/commands.hpp"
 #include "client/sign_codec.hpp" 
 #include "client/json_codec.hpp"
@@ -9,32 +10,43 @@
 #include "client/comparator_codec.hpp"
 #include "client/response_handler.hpp"
 
+
+
 namespace client::cmd {
 
     bool run_push(const std::string& project_name, const std::string& email, const std::string& directory, const std::string& key_path, const std::string& password) {
-        std::cout << "\n--- Starting Push: " << project_name << " ---" << std::endl;
+        
+        std::cout << "\n" << client::colors::BOLD << client::colors::MAGENTA 
+                  << "--- Starting Push: " << project_name << " ---" 
+                  << client::colors::RESET << std::endl;
         
         std::filesystem::path base_path(directory);
         std::filesystem::path repo_path = base_path / project_name;
         
         // 1. Validations
         if (!std::filesystem::exists(repo_path)) {
-             std::cerr << "[-] Error: Project folder does not exist." << std::endl; 
+             std::cerr << "\n" << client::colors::RED 
+                       << "[-] Error: Project folder does not exist." 
+                       << client::colors::RESET << std::endl; 
              return false; 
         }
         
         std::filesystem::path privateKeyPath = std::filesystem::path(key_path) / "private_ecdsa.key";
         client::key_loader::ECDSAPrivateKey privateKey;
+        
+        // key_loader ya imprime sus propios errores en rojo si falla
         if (!client::key_loader::load_private_key(privateKeyPath.string(), privateKey)) {
-            std::cerr << "[-] Error: Invalid private key." << std::endl;
+            std::cerr << "\n" << client::colors::RED 
+                      << "[-] Error: Invalid private key or key not found." 
+                      << client::colors::RESET << std::endl;
             return false;
         }
 
         try {
             std::string hashedPass = client::hasher_codec::hash_sha256(password);
-
+            
             auto payload_check = client::json_nlohmann::make_push_check_payload(project_name, email, hashedPass);
-            auto response_check = client::http::post_json_https("/repo/push/hash", payload_check); // Correct endpoint
+            auto response_check = client::http::post_json_https("/repo/push/hash", payload_check); 
             
             client::response_handler::handle_push_check_response(response_check);
 
@@ -48,35 +60,37 @@ namespace client::cmd {
                 for (const auto& [path, hash] : raw_map) {
                     std::string clean_path = path;
                     std::replace(clean_path.begin(), clean_path.end(), '\\', '/');
-                    
                     remote_files[clean_path] = hash;
                 }
-                // ------------------------------------------
             }
 
             // 3. SCAN & DIFF (Phase 2)
-            std::cout << "[+] Calculating changes..." << std::endl;
+            std::cout << client::colors::BLUE << "  -> Calculating changes..." << client::colors::RESET << std::endl;
+            
             auto local_files = client::scanner::generate_file_map(repo_path.string());
             auto diff = client::comparator::compute_diff(local_files, remote_files);
 
             if (diff.to_upload.empty() && diff.to_delete.empty()) {
-                std::cout << "[+] Repository up to date. No changes." << std::endl;
+                std::cout << "\n" << client::colors::GREEN 
+                          << "[+] Repository up to date. No changes." 
+                          << client::colors::RESET << std::endl;
                 return true;
             }
 
             // 4. PREPARE OPERATIONS
             std::vector<client::json_nlohmann::PushOperation> operations;
+            
+            std::cout << client::colors::BLUE << std::endl << "   [*] Signing changes..." << client::colors::RESET << std::endl;
 
             // A. UPDATES (Sign Binary Hash)
             for (const auto& rel_path : diff.to_upload) {
-                // Get the hash we already calculated in scanner
                 std::string fileHash = local_files[rel_path]; 
                 std::string signature;
                 
                 if (client::sign_codec::sign_file_for_update(privateKey, fileHash, signature)) {
                     operations.push_back({"update", rel_path, signature});
                 } else {
-                    std::cerr << "\n[-] Error signing: " << rel_path << std::endl;
+                    std::cerr << "\n" << client::colors::RED << "[-] Error signing: " << rel_path << client::colors::RESET << std::endl;
                     return false;
                 }
             }
@@ -89,7 +103,7 @@ namespace client::cmd {
                 if (client::sign_codec::sign_hash_string_for_delete(privateKey, serverHash, signature)) {
                     operations.push_back({"delete", rel_path, signature});
                 } else {
-                    std::cerr << "\n[-] Error signing deletion: " << rel_path << std::endl;
+                    std::cerr << "\n" << client::colors::RED << "[-] Error signing deletion: " << rel_path << client::colors::RESET << std::endl;
                     return false;
                 }
             }
@@ -107,18 +121,16 @@ namespace client::cmd {
                 std::filesystem::rename(temp_tar, tar_abs_path);
                 std::filesystem::current_path(original_path);
             } else {
-                // Create dummy if only deleting
                 std::ofstream(temp_tar).close();
             }
             
             std::string tar_abs_path = std::filesystem::absolute(temp_tar).string();
 
             // 6. UPLOAD (Phase 4)
-            std::cout << "\n[*] Sending to server..." << std::endl;
+            std::cout << client::colors::BLUE << "   [*] Sending to server..." << client::colors::RESET << std::endl;
             
             std::string opsJson = client::json_nlohmann::make_push_operations_json(operations);
 
-            // Call your upload_push_data function (ensure it uses separate Multipart)
             auto res_upload = client::http::upload_push_data("/repo/push/upload", project_name, email, hashedPass, opsJson, tar_abs_path);
 
             // Cleanup
@@ -129,7 +141,9 @@ namespace client::cmd {
             return (res_upload.value("status", "error") == "success" || res_upload.value("status", "error") == "ok");
 
         } catch (const std::exception &e) {
-            std::cerr << "\n[!] Exception: " << e.what() << std::endl;
+            std::cerr << "\n" << client::colors::RED 
+                      << "[!] Exception: " << std::endl << "     " << e.what() 
+                      << client::colors::RESET << std::endl;
             return false;
         }
     }

@@ -1,3 +1,4 @@
+#include "client/colors.hpp"
 #include "client/verify_sign_codec.hpp"
 
 namespace client::verify_sign_codec {
@@ -21,7 +22,15 @@ namespace client::verify_sign_codec {
             // Validar
             return pubKey.Validate(prng, 3);
 
+        } catch (const std::exception& e) {
+            std::cerr << client::colors::RED 
+                      << "[!] Error loading public key: " << e.what() 
+                      << client::colors::RESET << std::endl;
+            return false;
         } catch (...) { 
+            std::cerr << client::colors::RED 
+                      << "[!] Unknown error loading public key." 
+                      << client::colors::RESET << std::endl;
             return false; 
         }
     }
@@ -45,8 +54,10 @@ namespace client::verify_sign_codec {
 
             // Validar longitud de firma
             if (signatureBin.size() != verifier.SignatureLength()) {
-                std::cerr << "[Verify] Longitud de firma incorrecta: " 
-                          << signatureBin.size() << " vs " << verifier.SignatureLength() << std::endl;
+                std::cerr << client::colors::RED 
+                          << "[Verify] Error: Incorrect signature length: " 
+                          << signatureBin.size() << " vs " << verifier.SignatureLength() 
+                          << client::colors::RESET << std::endl;
                 return false;
             }
 
@@ -67,7 +78,9 @@ namespace client::verify_sign_codec {
             return result;
 
         } catch (const std::exception& e) {
-            std::cerr << "[Verify] Excepcion: " << e.what() << std::endl;
+            std::cerr << client::colors::RED 
+                      << "[Verify] Exception: " << e.what() 
+                      << client::colors::RESET << std::endl;
             return false;
         }
     }

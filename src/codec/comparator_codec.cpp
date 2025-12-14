@@ -1,4 +1,6 @@
+#include "client/colors.hpp"
 #include "client/comparator_codec.hpp"
+
 namespace client::comparator {
     DiffResult compute_diff(
         const std::map<std::string, std::string>& local_map, 
@@ -11,11 +13,15 @@ namespace client::comparator {
             auto it = remote_map.find(path);
             if (it != remote_map.end()) {
                 if (local_hash != it->second) {
-                    std::cout << "    [MODIFIED] " << path << std::endl;
+                    std::cout << "    " << client::colors::YELLOW 
+                              << "[MODIFIED] " << client::colors::RESET 
+                              << path << std::endl;
                     result.to_upload.push_back(path);
                 }
             } else {
-                std::cout << "    [NEW]      " << path << std::endl;
+                std::cout << "    " << client::colors::GREEN 
+                          << "[NEW]      " << client::colors::RESET 
+                          << path << std::endl;
                 result.to_upload.push_back(path);
             }
         }
@@ -23,7 +29,9 @@ namespace client::comparator {
         // If it is in remote but NOT in local, the user deleted it.
         for (const auto& [remote_path, _] : remote_map) {
             if (local_map.find(remote_path) == local_map.end()) {
-                std::cout << "    [DELETED]  " << remote_path << std::endl;
+                std::cout << "    " << client::colors::RED 
+                          << "[DELETED]  " << client::colors::RESET 
+                          << remote_path << std::endl;
                 result.to_delete.push_back(remote_path);
             }
         }

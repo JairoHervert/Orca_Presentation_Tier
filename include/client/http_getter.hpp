@@ -1,8 +1,11 @@
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #pragma once
-#include <httplib.h>
+
 #include <string>
+#include <iostream>
 #include <functional>
+
+#include <httplib.h>
 
 namespace client::http_getter {
 
