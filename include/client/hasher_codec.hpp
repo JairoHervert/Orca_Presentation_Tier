@@ -4,11 +4,14 @@
 #include <stdexcept>
 #include <string>
 
-
-#include <sha.h>
-#include <hex.h>
-#include <base64.h>
-#include <files.h>
+#include <cryptopp/sha.h>
+#include <cryptopp/hex.h>
+#include <cryptopp/base64.h>
+#include <cryptopp/files.h>
+// #include <sha.h>
+// #include <hex.h>
+// #include <base64.h>
+// #include <files.h>
 
 namespace client::hasher_codec {
 

@@ -5,11 +5,16 @@
 #include <sstream>
 #include <iostream>
 
-#include <osrng.h>
-#include <files.h>
-#include <base64.h>
-#include <eccrypto.h>
-#include <filters.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/files.h>
+#include <cryptopp/base64.h>
+#include <cryptopp/eccrypto.h>
+#include <cryptopp/filters.h>
+// #include <osrng.h>
+// #include <files.h>
+// #include <base64.h>
+// #include <eccrypto.h>
+// #include <filters.h>
 
 namespace client::verify_sign_codec {
 

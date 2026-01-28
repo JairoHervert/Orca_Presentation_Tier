@@ -3,12 +3,18 @@
 #include <string>
 #include <iostream> 
 
-#include <eccrypto.h>
-#include <osrng.h>
-#include <oids.h>
-#include <base64.h>
-#include <files.h>
-#include <rsa.h>
+#include <cryptopp/eccrypto.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/oids.h>
+#include <cryptopp/base64.h>
+#include <cryptopp/files.h>
+#include <cryptopp/rsa.h>
+// #include <eccrypto.h>
+// #include <osrng.h>
+// #include <oids.h>
+// #include <base64.h>
+// #include <files.h>
+// #include <rsa.h>
 
 #include "client/colors.hpp"
 
