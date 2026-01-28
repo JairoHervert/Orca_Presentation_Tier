@@ -21,7 +21,7 @@ Este repositorio contiene la **capa de presentación (Front)** del proyecto **Or
 
 Repositorio del backend (placeholder, por agregar):
 
-- **Orca Backend (Application Tier)**: **`https://github.com/JairoHervert/Orca_Application_Tier`**
+- **Orca Backend (Application Tier)**: **https://github.com/JairoHervert/Orca_Application_Tier**
 
 ---
 
